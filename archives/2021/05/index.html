@@ -6,17 +6,13 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://swz1216470093.github.io/blog">
-  <title>swz&#39;blog</title>
+  <title>Archives: 2021/5 | swz&#39;blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="线程原理探究(一)问题：线程创建的方式有几种,优先选哪种（1）继承Thread类，重写run方法 （2）实现Runnable接口，实现run方法，传递给Thread （3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类 重点说一下第三种，第三种本质上也是实现Runable接口，因为FutureTask实现了RunnableFuture接口，而Runn">
-<meta property="og:type" content="article">
+  <meta property="og:type" content="website">
 <meta property="og:title" content="swz&#39;blog">
-<meta property="og:url" content="https://swz1216470093.github.io/blog/1970/01/01/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/index.html">
+<meta property="og:url" content="https://swz1216470093.github.io/blog/archives/2021/05/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
-<meta property="og:description" content="线程原理探究(一)问题：线程创建的方式有几种,优先选哪种（1）继承Thread类，重写run方法 （2）实现Runnable接口，实现run方法，传递给Thread （3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类 重点说一下第三种，第三种本质上也是实现Runable接口，因为FutureTask实现了RunnableFuture接口，而Runn">
 <meta property="og:locale">
-<meta property="article:published_time" content="1970-01-01T00:00:00.000Z">
-<meta property="article:modified_time" content="2021-05-18T09:13:16.567Z">
 <meta property="article:author" content="swz">
 <meta name="twitter:card" content="summary">
   
@@ -132,141 +128,49 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-线程原理探究(一)" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
+            
+  
+  
     
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="线程原理探究-一"><a href="#线程原理探究-一" class="headerlink" title="线程原理探究(一)"></a>线程原理探究(一)</h1><h3 id="问题：线程创建的方式有几种-优先选哪种"><a href="#问题：线程创建的方式有几种-优先选哪种" class="headerlink" title="问题：线程创建的方式有几种,优先选哪种"></a>问题：线程创建的方式有几种,优先选哪种</h3><p>（1）继承Thread类，重写run方法</p>
-<p>（2）实现Runnable接口，实现run方法，传递给Thread</p>
-<p>（3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类</p>
-<p>重点说一下第三种，第三种本质上也是实现Runable接口，因为FutureTask实现了RunnableFuture接口，而RunnableFuture接口继承了Future和Runnalbe接口</p>
-<p>如果用不到异步的情形下优先选实现Runnable接口，因为代码架构上来说 组合优于继承  而且java不支持多继承，继承了Thread类就不能继承其他类了。</p>
-<p>需要异步就用Callable接口</p>
-<h3 id="问题：即实现runnable接口，又继承Thread类-会调用哪个方法"><a href="#问题：即实现runnable接口，又继承Thread类-会调用哪个方法" class="headerlink" title="问题：即实现runnable接口，又继承Thread类 会调用哪个方法"></a>问题：即实现runnable接口，又继承Thread类 会调用哪个方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+ <span class="string">&quot;:&quot;</span>  + <span class="string">&quot;我来自runnable&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;,<span class="string">&quot;Thread&amp;Runnable&quot;</span>)&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">&quot;:&quot;</span> + <span class="string">&quot;我来自Thread类&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;.start();</span><br></pre></td></tr></table></figure>
-
-<p>先说结果 输出是<code>Thread&amp;Runnable:我来自Thread类</code></p>
-<p>查看Thread类run方法的源码就可以知道，实现Runable接口时 Thread类的run方法会调用Runable接口的run方法。而继承Thread类时，Thread类的run方法整个被重写，也就不会调用Runable接口的run方法了。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* What will be run. */</span></span><br><span class="line"><span class="keyword">private</span> Runnable target;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (target != <span class="keyword">null</span>) &#123;</span><br><span class="line">        target.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="问题：run方法和start方法的区别，能否两次调用start方法"><a href="#问题：run方法和start方法的区别，能否两次调用start方法" class="headerlink" title="问题：run方法和start方法的区别，能否两次调用start方法"></a>问题：run方法和start方法的区别，能否两次调用start方法</h3><p>先看Thread对象的start方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Causes this thread to begin execution; the Java Virtual Machine</span></span><br><span class="line"><span class="comment">     * calls the &lt;code&gt;run&lt;/code&gt; method of this thread.</span></span><br><span class="line"><span class="comment">     * It is never legal to start a thread more than once.</span></span><br><span class="line"><span class="comment">     * In particular, a thread may not be restarted once it has completed</span></span><br><span class="line"><span class="comment">     * execution.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="comment">//A zero status value corresponds to state &quot;NEW&quot;.</span></span><br><span class="line">     <span class="keyword">if</span> (threadStatus != <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalThreadStateException();</span><br><span class="line">     <span class="comment">//忽略无关代码</span></span><br><span class="line">     start0();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<p>从上述源码和注释可以看出，调用Thread对象的start方法后JVM会调用Thread类的run方法，start方法会开启线程的生命周期，而run方法只是一个普通的方法。</p>
-<p>同时start方法会检测线程状态，如果线程不是new状态，则会抛出异常，所以start方法不能调用多次。</p>
-<h3 id="问题：Callable接口结果怎么得到，出异常了怎么办"><a href="#问题：Callable接口结果怎么得到，出异常了怎么办" class="headerlink" title="问题：Callable接口结果怎么得到，出异常了怎么办"></a>问题：Callable接口结果怎么得到，出异常了怎么办</h3><p>看FutureTask类的源码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** The result to return or exception to throw from get() */</span></span><br><span class="line"><span class="keyword">private</span> Object outcome; </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (state != NEW ||</span><br><span class="line">        !UNSAFE.compareAndSwapObject(<span class="keyword">this</span>, runnerOffset,</span><br><span class="line">                                     <span class="keyword">null</span>, Thread.currentThread()))</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Callable&lt;V&gt; c = callable;</span><br><span class="line">        <span class="keyword">if</span> (c != <span class="keyword">null</span> &amp;&amp; state == NEW) &#123;</span><br><span class="line">            V result;</span><br><span class="line">            <span class="keyword">boolean</span> ran;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                result = c.call();</span><br><span class="line">                ran = <span class="keyword">true</span>;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                result = <span class="keyword">null</span>;</span><br><span class="line">                ran = <span class="keyword">false</span>;</span><br><span class="line">                setException(ex);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (ran)</span><br><span class="line">                set(result);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(V v)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (UNSAFE.compareAndSwapInt(<span class="keyword">this</span>, stateOffset, NEW, COMPLETING)) &#123;</span><br><span class="line">        outcome = v;</span><br><span class="line">        UNSAFE.putOrderedInt(<span class="keyword">this</span>, stateOffset, NORMAL); <span class="comment">// final state</span></span><br><span class="line">        finishCompletion();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setException</span><span class="params">(Throwable t)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (UNSAFE.compareAndSwapInt(<span class="keyword">this</span>, stateOffset, NEW, COMPLETING)) &#123;</span><br><span class="line">        outcome = t;</span><br><span class="line">        UNSAFE.putOrderedInt(<span class="keyword">this</span>, stateOffset, EXCEPTIONAL); <span class="comment">// final state</span></span><br><span class="line">        finishCompletion();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> V <span class="title">get</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, ExecutionException </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> s = state;</span><br><span class="line">    <span class="keyword">if</span> (s &lt;= COMPLETING)</span><br><span class="line">        s = awaitDone(<span class="keyword">false</span>, <span class="number">0L</span>);</span><br><span class="line">    <span class="keyword">return</span> report(s);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> V <span class="title">report</span><span class="params">(<span class="keyword">int</span> s)</span> <span class="keyword">throws</span> ExecutionException </span>&#123;</span><br><span class="line">        Object x = outcome;</span><br><span class="line">        <span class="keyword">if</span> (s == NORMAL)</span><br><span class="line">            <span class="keyword">return</span> (V)x;</span><br><span class="line">        <span class="keyword">if</span> (s &gt;= CANCELLED)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> CancellationException();</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ExecutionException((Throwable)x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>从FutureTask的run方法可以看到在FutureTask的run方法中会调用Callable的run方法，如果没有发生异常就调用set(result)方法将结果赋给outcome成员变量，</p>
-<p>如果发生异常就将异常对象赋给outcome。调用get方法时会调用report方法判断结果状态，如果没有异常，返回执行结果，如果发生异常，则report方法抛出异常。这里注意一个点，<strong>异常不是在执行call方法的时候抛出来的，而是在调用get方法时才抛出来的</strong></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
+    
       
       
-      
-
-      
-
-      
-        
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/blog/archives/2021" class="archive-year">2021</a>
         </div>
-      </div>
-    </span>
-  </div>
-</div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	<a href="/blog/2021/05/18/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/" class="archive-article-date">
+  	<time datetime="2021-05-18T09:13:04.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-05-18</time>
+</a>
+        </div>
+    	 
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/blog/2021/05/18/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/">线程原理探究(一)</a>
+    </h1>
+  
 
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=https://swz1216470093.github.io/blog/1970/01/01/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/" alt="微信分享二维码">
-    </div>
-</div>
+        <div class="article-info info-on-right">
+          
+          
 
-<div class="mask js-mask"></div>
-      
-      <div class="clearfix"></div>
-    </div>
+        </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-  
-<nav id="article-nav">
   
   
-    <a href="/blog/1970/01/01/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%BA%8C)/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title"></div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
-
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-  
-  
+    </div></section>
   
 
-  
-
-  
-
-  
+    
 
 
           </div>
@@ -289,8 +193,8 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: true,
-		isArchive: false,
+		isPost: false,
+		isArchive: true,
 		isTag: false,
 		isCategory: false,
 		open_in_new: true,

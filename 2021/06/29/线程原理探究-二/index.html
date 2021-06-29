@@ -6,13 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://swz1216470093.github.io/blog">
-  <title>Archives: 1970 | swz&#39;blog</title>
+  <title>线程原理探究(二) | swz&#39;blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="swz&#39;blog">
-<meta property="og:url" content="https://swz1216470093.github.io/blog/archives/1970/index.html">
+  <meta name="description" content="线程原理探究(二)问题：如何停止线程，可以使用stop方法吗不可以使用stop方法，因为stop方法会造成线程运行一半突然停止，没办法完成一个基本单位的操作，会产生脏数据 例如：线程执行到2时 被stop方法停止 导致synchronized关键字原子性被破坏 12345678910111213@Overridepublic void run() &amp;#123;    synchronized (t">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线程原理探究(二)">
+<meta property="og:url" content="https://swz1216470093.github.io/blog/2021/06/29/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%BA%8C/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
+<meta property="og:description" content="线程原理探究(二)问题：如何停止线程，可以使用stop方法吗不可以使用stop方法，因为stop方法会造成线程运行一半突然停止，没办法完成一个基本单位的操作，会产生脏数据 例如：线程执行到2时 被stop方法停止 导致synchronized关键字原子性被破坏 12345678910111213@Overridepublic void run() &amp;#123;    synchronized (t">
 <meta property="og:locale">
+<meta property="article:published_time" content="2021-06-29T14:43:04.000Z">
+<meta property="article:modified_time" content="2021-06-29T14:46:04.351Z">
 <meta property="article:author" content="swz">
 <meta name="twitter:card" content="summary">
   
@@ -128,64 +132,173 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-线程原理探究-二" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      线程原理探究(二)
+    </h1>
+  
+
+        
+        <a href="/blog/2021/06/29/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%BA%8C/" class="archive-article-date">
+  	<time datetime="2021-06-29T14:43:04.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-06-29</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="线程原理探究-二"><a href="#线程原理探究-二" class="headerlink" title="线程原理探究(二)"></a>线程原理探究(二)</h1><h2 id="问题：如何停止线程，可以使用stop方法吗"><a href="#问题：如何停止线程，可以使用stop方法吗" class="headerlink" title="问题：如何停止线程，可以使用stop方法吗"></a>问题：如何停止线程，可以使用stop方法吗</h2><p>不可以使用stop方法，因为stop方法会造成线程运行一半突然停止，没办法完成一个基本单位的操作，会产生脏数据</p>
+<p>例如：线程执行到2时 被stop方法停止 导致synchronized关键字原子性被破坏</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>)&#123;</span><br><span class="line">        a++; <span class="comment">// 自增 (1)</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 线程休眠0.1秒 (2)</span></span><br><span class="line">            Thread.sleep(<span class="number">100</span>);</span><br><span class="line">        &#125; catah(InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    	a--; <span class="comment">// 自减 (3)</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正确的做法是使用interrupt来通知线程中断</p>
+<p>1.线程中没有sleep或wait方法时，停止线程的正确方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Thread thread = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">int</span> nums = <span class="number">0</span> ;</span><br><span class="line">            <span class="keyword">while</span> (!Thread.currentThread().isInterrupted() &amp;&amp; nums &lt;= Integer.MAX_VALUE/<span class="number">2</span>)&#123;</span><br><span class="line">                <span class="keyword">if</span> (nums %<span class="number">1000</span> == <span class="number">0</span>) &#123;</span><br><span class="line">                    System.out.println(nums + <span class="string">&quot;是10000的倍数&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                nums++;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;任务执行结束&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    thread.start();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Thread.sleep(<span class="number">100</span> );</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//使用interrupt通知线程停止</span></span><br><span class="line">    thread.interrupt();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2.带有sleep或wait的中断线程的写法 （<em><em>wait sleep join 方法会清除中断标记，将中断标记置为false 所以要重新中断以传递中断，否则while循环无法停止 <strong>）</strong></em>扩展：park被中断之后需要重置中断状态</em>**</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Runnable runnable = () -&gt; &#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (num &lt; <span class="number">300</span> &amp;&amp; !Thread.currentThread().isInterrupted()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (num % <span class="number">100</span> == <span class="number">0</span>) &#123;</span><br><span class="line">                System.out.println(num + <span class="string">&quot;是100的倍数&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            num++;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">10</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                <span class="comment">//wait sleep join 方法会清除中断标记，将中断标记置为false 所以要重新中断以传递中断，否则while循环无法停止</span></span><br><span class="line">                Thread.currentThread().interrupt();</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    Thread thread = <span class="keyword">new</span> Thread(runnable);</span><br><span class="line">    thread.start();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Thread.sleep(<span class="number">50</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    thread.interrupt();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="问题：可以使用volatile设置标志位停止线程吗"><a href="#问题：可以使用volatile设置标志位停止线程吗" class="headerlink" title="问题：可以使用volatile设置标志位停止线程吗"></a>问题：可以使用volatile设置标志位停止线程吗</h2><p>正常情况下可以，但特殊情况下不行，比如线程陷入阻塞时，volatile就不能停止线程了</p>
+<p>例如生产者消费者模型中，生产者生成速度很快，消费者消费速度慢，所以阻塞队列满了后，生产者会阻塞，等待消费者进一步消费，此时，线程就无法被停止</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="keyword">boolean</span> canceled = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">private</span> BlockingQueue&lt;Integer&gt; storage ;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Producer</span><span class="params">(BlockingQueue&lt;Integer&gt; storage)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.storage = storage;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (num&lt;<span class="number">10000</span> &amp;&amp; !canceled)&#123;</span><br><span class="line">                <span class="keyword">if</span> (num%<span class="number">100</span> ==<span class="number">0</span>)&#123;</span><br><span class="line">                    <span class="comment">//当阻塞队列满的时候  线程回阻塞在put方法中程序执行不到while循环的判断中 </span></span><br><span class="line">                    storage.put(num);</span><br><span class="line">                    System.out.println(num + <span class="string">&quot;是100的倍数，放入仓库了&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                num++;</span><br><span class="line">            &#125;</span><br><span class="line">            Thread.sleep(<span class="number">1</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;生产者结束运行&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span> </span>&#123;</span><br><span class="line">     BlockingQueue&lt;Integer&gt; storage;</span><br><span class="line">    Consumer(BlockingQueue&lt;Integer&gt; storage)&#123;</span><br><span class="line">        <span class="keyword">this</span>.storage = storage;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">needMoreNum</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (Math.random() &gt; <span class="number">0.95</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span>  </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        BlockingQueue&lt;Integer&gt; storage = <span class="keyword">new</span> ArrayBlockingQueue&lt;&gt;(<span class="number">10</span>);</span><br><span class="line">        Producer producer = <span class="keyword">new</span> Producer(storage);</span><br><span class="line">        Consumer consumer = <span class="keyword">new</span> Consumer(storage);</span><br><span class="line">        Thread thread = <span class="keyword">new</span> Thread(producer);</span><br><span class="line">        thread.start();</span><br><span class="line">        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">        <span class="keyword">while</span> (consumer.needMoreNum())&#123;</span><br><span class="line">            System.out.println(consumer.storage.take()+<span class="string">&quot; 被消费了&quot;</span>);</span><br><span class="line">            Thread.sleep(<span class="number">100</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">&quot;消费者不需要更多数据&quot;</span>);</span><br><span class="line"><span class="comment">//        一旦消费者不需要更多数据了，应该让生产者停止生产</span></span><br><span class="line"><span class="comment">//        但实际情况是程序被阻塞</span></span><br><span class="line">        producer.canceled = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="问题：中断的三个方法有什么区别"><a href="#问题：中断的三个方法有什么区别" class="headerlink" title="问题：中断的三个方法有什么区别"></a>问题：中断的三个方法有什么区别</h2><ul>
+<li>static boolean interrupted() 获取中断标志并重置,作用对象是调用它的线程</li>
+<li>boolean isInterrupted() 获取中断标志</li>
+<li>interrput() 中断线程</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">Tests whether the current thread has been interrupted. The interrupted status of the thread is cleared by this metho</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">interrupted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//参数为true表示清除中断标记</span></span><br><span class="line">    <span class="keyword">return</span> currentThread().isInterrupted(<span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isInterrupted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> isInterrupted(<span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//Tests if some Thread has been interrupted</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">isInterrupted</span><span class="params">(<span class="keyword">boolean</span> ClearInterrupted)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">interrupt</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span> != Thread.currentThread())</span><br><span class="line">        checkAccess();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">synchronized</span> (blockerLock) &#123;</span><br><span class="line">        Interruptible b = blocker;</span><br><span class="line">        <span class="keyword">if</span> (b != <span class="keyword">null</span>) &#123;</span><br><span class="line">            interrupt0();           <span class="comment">// Just to set the interrupt flag</span></span><br><span class="line">            b.interrupt(<span class="keyword">this</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    interrupt0();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/blog/archives/1970" class="archive-year">1970</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blog/1970/01/01/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/" class="archive-article-date">
-  	<time datetime="1970-01-01T00:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>1970-01-01</time>
-</a>
-        </div>
-    	 
-        <div class="article-info info-on-right">
-          
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=https://swz1216470093.github.io/blog/2021/06/29/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%BA%8C/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blog/1970/01/01/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%BA%8C)/" class="archive-article-date">
-  	<time datetime="1970-01-01T00:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>1970-01-01</time>
-</a>
-        </div>
-    	 
-        <div class="article-info info-on-right">
-          
-          
 
+  
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2021/05/18/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">线程原理探究(一)</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%BA%8C"><span class="toc-number">1.</span> <span class="toc-text">线程原理探究(二)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E5%A6%82%E4%BD%95%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B%EF%BC%8C%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8stop%E6%96%B9%E6%B3%95%E5%90%97"><span class="toc-number">1.1.</span> <span class="toc-text">问题：如何停止线程，可以使用stop方法吗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8volatile%E8%AE%BE%E7%BD%AE%E6%A0%87%E5%BF%97%E4%BD%8D%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B%E5%90%97"><span class="toc-number">1.2.</span> <span class="toc-text">问题：可以使用volatile设置标志位停止线程吗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E4%B8%AD%E6%96%AD%E7%9A%84%E4%B8%89%E4%B8%AA%E6%96%B9%E6%B3%95%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="toc-number">1.3.</span> <span class="toc-text">问题：中断的三个方法有什么区别</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
   
   
-    </div></section>
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -208,8 +321,8 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: true,
