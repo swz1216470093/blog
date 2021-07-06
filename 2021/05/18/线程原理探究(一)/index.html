@@ -8,15 +8,15 @@
   <link rel="dns-prefetch" href="https://swz1216470093.github.io/blog">
   <title>线程原理探究(一) | swz&#39;blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="线程原理探究(一)问题：线程创建的方式有几种,优先选哪种（1）继承Thread类，重写run方法 （2）实现Runnable接口，实现run方法，传递给Thread （3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类 重点说一下第三种，第三种本质上也是实现Runable接口，因为FutureTask实现了RunnableFuture接口，而Runn">
+  <meta name="description" content="线程原理探究(一)问题：线程创建的方式有几种,优先选哪种（1）继承Thread类，重写run方法 （2）实现Runnable接口，实现run方法，传递给Thread （3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类">
 <meta property="og:type" content="article">
 <meta property="og:title" content="线程原理探究(一)">
 <meta property="og:url" content="https://swz1216470093.github.io/blog/2021/05/18/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
-<meta property="og:description" content="线程原理探究(一)问题：线程创建的方式有几种,优先选哪种（1）继承Thread类，重写run方法 （2）实现Runnable接口，实现run方法，传递给Thread （3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类 重点说一下第三种，第三种本质上也是实现Runable接口，因为FutureTask实现了RunnableFuture接口，而Runn">
+<meta property="og:description" content="线程原理探究(一)问题：线程创建的方式有几种,优先选哪种（1）继承Thread类，重写run方法 （2）实现Runnable接口，实现run方法，传递给Thread （3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-05-18T09:13:04.000Z">
-<meta property="article:modified_time" content="2021-07-06T14:39:22.489Z">
+<meta property="article:modified_time" content="2021-07-06T14:43:42.660Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="线程">
 <meta name="twitter:card" content="summary">
@@ -168,11 +168,11 @@
         <h1 id="线程原理探究-一"><a href="#线程原理探究-一" class="headerlink" title="线程原理探究(一)"></a>线程原理探究(一)</h1><h3 id="问题：线程创建的方式有几种-优先选哪种"><a href="#问题：线程创建的方式有几种-优先选哪种" class="headerlink" title="问题：线程创建的方式有几种,优先选哪种"></a>问题：线程创建的方式有几种,优先选哪种</h3><p>（1）继承Thread类，重写run方法</p>
 <p>（2）实现Runnable接口，实现run方法，传递给Thread</p>
 <p>（3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类</p>
+<span id="more"></span>
+
 <p>重点说一下第三种，第三种本质上也是实现Runable接口，因为FutureTask实现了RunnableFuture接口，而RunnableFuture接口继承了Future和Runnalbe接口</p>
 <p>如果用不到异步的情形下优先选实现Runnable接口，因为代码架构上来说 组合优于继承  而且java不支持多继承，继承了Thread类就不能继承其他类了。</p>
 <p>需要异步就用Callable接口</p>
-<span id="more"></span>
-
 <h3 id="问题：即实现runnable接口，又继承Thread类-会调用哪个方法"><a href="#问题：即实现runnable接口，又继承Thread类-会调用哪个方法" class="headerlink" title="问题：即实现runnable接口，又继承Thread类 会调用哪个方法"></a>问题：即实现runnable接口，又继承Thread类 会调用哪个方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+ <span class="string">&quot;:&quot;</span>  + <span class="string">&quot;我来自runnable&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;,<span class="string">&quot;Thread&amp;Runnable&quot;</span>)&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">&quot;:&quot;</span> + <span class="string">&quot;我来自Thread类&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;.start();</span><br></pre></td></tr></table></figure>
 
 <p>先说结果 输出是<code>Thread&amp;Runnable:我来自Thread类</code></p>

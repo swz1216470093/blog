@@ -162,7 +162,14 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="线程的状态与生命周期"><a href="#线程的状态与生命周期" class="headerlink" title="线程的状态与生命周期"></a>线程的状态与生命周期</h1>
+        <h1 id="线程探究-三"><a href="#线程探究-三" class="headerlink" title="线程探究(三)"></a>线程探究(三)</h1><h2 id="线程的状态与生命周期"><a href="#线程的状态与生命周期" class="headerlink" title="线程的状态与生命周期"></a>线程的状态与生命周期</h2><ul>
+<li>NEW：尚未调用start()方法</li>
+<li>Runable：调用start()方法后</li>
+<li>Blocked：进入synchronized保护的代码中但未拿到锁（进入Monitor锁的EntryList中）</li>
+<li>Waiting：调用LockSupport.park()或Object.notify()方法</li>
+<li>Timed_Waiting：调用Thread.sleep(time)或Object.notify(time)方法</li>
+<li>Terminated：执行完成</li>
+</ul>
         
       
 
@@ -433,9 +440,6 @@
         <h1 id="线程原理探究-一"><a href="#线程原理探究-一" class="headerlink" title="线程原理探究(一)"></a>线程原理探究(一)</h1><h3 id="问题：线程创建的方式有几种-优先选哪种"><a href="#问题：线程创建的方式有几种-优先选哪种" class="headerlink" title="问题：线程创建的方式有几种,优先选哪种"></a>问题：线程创建的方式有几种,优先选哪种</h3><p>（1）继承Thread类，重写run方法</p>
 <p>（2）实现Runnable接口，实现run方法，传递给Thread</p>
 <p>（3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类</p>
-<p>重点说一下第三种，第三种本质上也是实现Runable接口，因为FutureTask实现了RunnableFuture接口，而RunnableFuture接口继承了Future和Runnalbe接口</p>
-<p>如果用不到异步的情形下优先选实现Runnable接口，因为代码架构上来说 组合优于继承  而且java不支持多继承，继承了Thread类就不能继承其他类了。</p>
-<p>需要异步就用Callable接口</p>
         
       
 
