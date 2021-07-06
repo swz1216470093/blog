@@ -8,16 +8,17 @@
   <link rel="dns-prefetch" href="https://swz1216470093.github.io/blog">
   <title>线程原理探究(二) | swz&#39;blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="线程原理探究(二)问题：如何停止线程，可以使用stop方法吗不可以使用stop方法，因为stop方法会造成线程运行一半突然停止，没办法完成一个基本单位的操作，会产生脏数据 例如：线程执行到2时 被stop方法停止 导致synchronized关键字原子性被破坏 12345678910111213@Overridepublic void run() &amp;#123;    synchronized (t">
+  <meta name="description" content="线程原理探究(二)问题：如何停止线程，可以使用stop方法吗不可以使用stop方法，因为stop方法会造成线程运行一半突然停止，没办法完成一个基本单位的操作，会产生脏数据">
 <meta property="og:type" content="article">
 <meta property="og:title" content="线程原理探究(二)">
 <meta property="og:url" content="https://swz1216470093.github.io/blog/2021/06/29/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%BA%8C/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
-<meta property="og:description" content="线程原理探究(二)问题：如何停止线程，可以使用stop方法吗不可以使用stop方法，因为stop方法会造成线程运行一半突然停止，没办法完成一个基本单位的操作，会产生脏数据 例如：线程执行到2时 被stop方法停止 导致synchronized关键字原子性被破坏 12345678910111213@Overridepublic void run() &amp;#123;    synchronized (t">
+<meta property="og:description" content="线程原理探究(二)问题：如何停止线程，可以使用stop方法吗不可以使用stop方法，因为stop方法会造成线程运行一半突然停止，没办法完成一个基本单位的操作，会产生脏数据">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-06-29T14:43:04.000Z">
-<meta property="article:modified_time" content="2021-07-01T14:03:58.016Z">
+<meta property="article:modified_time" content="2021-07-06T14:39:14.477Z">
 <meta property="article:author" content="swz">
+<meta property="article:tag" content="线程">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="swz&#39;blog" type="application/atom+xml">
@@ -165,6 +166,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="线程原理探究-二"><a href="#线程原理探究-二" class="headerlink" title="线程原理探究(二)"></a>线程原理探究(二)</h1><h2 id="问题：如何停止线程，可以使用stop方法吗"><a href="#问题：如何停止线程，可以使用stop方法吗" class="headerlink" title="问题：如何停止线程，可以使用stop方法吗"></a>问题：如何停止线程，可以使用stop方法吗</h2><p>不可以使用stop方法，因为stop方法会造成线程运行一半突然停止，没办法完成一个基本单位的操作，会产生脏数据</p>
+<span id="more"></span>
+
 <p>例如：线程执行到2时 被stop方法停止 导致synchronized关键字原子性被破坏</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>)&#123;</span><br><span class="line">        a++; <span class="comment">// 自增 (1)</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 线程休眠0.1秒 (2)</span></span><br><span class="line">            Thread.sleep(<span class="number">100</span>);</span><br><span class="line">        &#125; catah(InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    	a--; <span class="comment">// 自减 (3)</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -198,6 +201,17 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">线程</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       <!--显示阅读次数-->
 
   <a class="cloud-tie-join-count" href="/blog/2021/06/29/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%BA%8C/" style="color:gray;font-size:14px;">
@@ -208,6 +222,17 @@
   </a>
 
       
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/blog/categories/java并发//" class="article-tag-list-link color2">java并发</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
 
       
 
@@ -450,6 +475,14 @@ MathJax.Hub.Queue(function() {
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">线程</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">线程池</a>
+              </li>
             
             <div class="clearfix"></div>
           </ul>
