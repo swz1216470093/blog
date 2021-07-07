@@ -142,100 +142,6 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-线程探究（三）" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2021/07/06/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E4%B8%89%EF%BC%89/">线程探究(三)</a>
-    </h1>
-  
-
-        
-        <a href="/blog/2021/07/06/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E4%B8%89%EF%BC%89/" class="archive-article-date">
-  	<time datetime="2021-07-06T14:12:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-07-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="线程探究-三"><a href="#线程探究-三" class="headerlink" title="线程探究(三)"></a>线程探究(三)</h1><h2 id="线程的状态与生命周期"><a href="#线程的状态与生命周期" class="headerlink" title="线程的状态与生命周期"></a>线程的状态与生命周期</h2><ul>
-<li>NEW：尚未调用start()方法</li>
-<li>Runable：调用start()方法后</li>
-<li>Blocked：进入synchronized保护的代码中但未拿到锁（进入Monitor锁的EntryList中）</li>
-<li>Waiting：调用LockSupport.park()或Object.notify()方法</li>
-<li>Timed_Waiting：调用Thread.sleep(time)或Object.notify(time)方法</li>
-<li>Terminated：执行完成</li>
-</ul>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">线程</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      <!--显示阅读次数-->
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/blog/categories/java并发//" class="article-tag-list-link color2">java并发</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blog/2021/07/06/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E4%B8%89%EF%BC%89/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-线程池探究-一" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -243,13 +149,13 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/">线程池探究(一)</a>
+      <a class="article-title" href="/blog/2021/07/07/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/">线程池探究(一)</a>
     </h1>
   
 
         
-        <a href="/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/" class="archive-article-date">
-  	<time datetime="2021-06-30T13:59:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-06-30</time>
+        <a href="/blog/2021/07/07/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/" class="archive-article-date">
+  	<time datetime="2021-07-07T14:12:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-07-07</time>
 </a>
         
       </header>
@@ -300,7 +206,188 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/">展开全文 >></a>
+          <a class="article-more-a" href="/blog/2021/07/07/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-线程探究（四）" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2021/07/06/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E5%9B%9B%EF%BC%89/">线程探究（四）</a>
+    </h1>
+  
+
+        
+        <a href="/blog/2021/07/06/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E5%9B%9B%EF%BC%89/" class="archive-article-date">
+  	<time datetime="2021-07-06T15:09:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-07-06</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="线程探究（四）"><a href="#线程探究（四）" class="headerlink" title="线程探究（四）"></a>线程探究（四）</h1><h2 id="问题：为什么线程通信的方法wait-notify-和notifyAll-被定义在Object类里，而sleep方法被定义在Thread类里"><a href="#问题：为什么线程通信的方法wait-notify-和notifyAll-被定义在Object类里，而sleep方法被定义在Thread类里" class="headerlink" title="问题：为什么线程通信的方法wait(),notify(),和notifyAll()被定义在Object类里，而sleep方法被定义在Thread类里"></a>问题：为什么线程通信的方法wait(),notify(),和notifyAll()被定义在Object类里，而sleep方法被定义在Thread类里</h2>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">线程</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      <!--显示阅读次数-->
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/blog/categories/java并发//" class="article-tag-list-link color2">java并发</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blog/2021/07/06/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E5%9B%9B%EF%BC%89/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-线程探究（三）" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E4%B8%89%EF%BC%89/">线程探究(三)</a>
+    </h1>
+  
+
+        
+        <a href="/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E4%B8%89%EF%BC%89/" class="archive-article-date">
+  	<time datetime="2021-06-30T13:59:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-06-30</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="线程探究-三"><a href="#线程探究-三" class="headerlink" title="线程探究(三)"></a>线程探究(三)</h1><h2 id="线程的状态与生命周期"><a href="#线程的状态与生命周期" class="headerlink" title="线程的状态与生命周期"></a>线程的状态与生命周期</h2><ul>
+<li>NEW：尚未调用start()方法</li>
+<li>Runable：调用start()方法后</li>
+<li>Blocked：进入synchronized保护的代码中但未拿到锁（进入Monitor锁的EntryList中）</li>
+<li>Waiting：调用LockSupport.park()或Object.notify()方法</li>
+<li>Timed_Waiting：调用Thread.sleep(time)或Object.notify(time)方法</li>
+<li>Terminated：执行完成</li>
+</ul>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">线程</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      <!--显示阅读次数-->
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/blog/categories/java并发//" class="article-tag-list-link color2">java并发</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E4%B8%89%EF%BC%89/">展开全文 >></a>
         </p>
       
 

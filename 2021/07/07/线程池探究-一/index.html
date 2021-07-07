@@ -11,12 +11,12 @@
   <meta name="description" content="线程池探究问题：为什么需要线程池首先给出答案：最主要的原因是为了避免线程被频繁创建销毁而产生的大量系统开销。 至于为什么会频繁创建销毁线程会产生大量系统开销，首先介绍一下线程的三种实现方式  用户线程（User Thread）：在用户空间实现的线程，不是由内核管理的线程，是由用户态的线程库来完成线程的管理；  内核线程（Kernel Thread）：在内核中实现的线程，是由内核管理的线程；  轻量">
 <meta property="og:type" content="article">
 <meta property="og:title" content="线程池探究(一)">
-<meta property="og:url" content="https://swz1216470093.github.io/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/index.html">
+<meta property="og:url" content="https://swz1216470093.github.io/blog/2021/07/07/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
 <meta property="og:description" content="线程池探究问题：为什么需要线程池首先给出答案：最主要的原因是为了避免线程被频繁创建销毁而产生的大量系统开销。 至于为什么会频繁创建销毁线程会产生大量系统开销，首先介绍一下线程的三种实现方式  用户线程（User Thread）：在用户空间实现的线程，不是由内核管理的线程，是由用户态的线程库来完成线程的管理；  内核线程（Kernel Thread）：在内核中实现的线程，是由内核管理的线程；  轻量">
 <meta property="og:locale">
-<meta property="article:published_time" content="2021-06-30T13:59:03.000Z">
-<meta property="article:modified_time" content="2021-07-06T14:39:27.603Z">
+<meta property="article:published_time" content="2021-07-07T14:12:33.000Z">
+<meta property="article:modified_time" content="2021-07-06T15:12:19.455Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="线程池">
 <meta name="twitter:card" content="summary">
@@ -157,8 +157,8 @@
   
 
         
-        <a href="/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/" class="archive-article-date">
-  	<time datetime="2021-06-30T13:59:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-06-30</time>
+        <a href="/blog/2021/07/07/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/" class="archive-article-date">
+  	<time datetime="2021-07-07T14:12:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-07-07</time>
 </a>
         
       </header>
@@ -259,7 +259,7 @@
 
       <!--显示阅读次数-->
 
-  <a class="cloud-tie-join-count" href="/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/" style="color:gray;font-size:14px;">
+  <a class="cloud-tie-join-count" href="/blog/2021/07/07/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/" style="color:gray;font-size:14px;">
     <span class="icon-smile"></span>
     <span id="busuanzi_container_page_pv">
       阅读量(<span id="busuanzi_value_page_pv"></span>)
@@ -327,7 +327,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=https://swz1216470093.github.io/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=https://swz1216470093.github.io/blog/2021/07/07/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -341,18 +341,9 @@
   
 <nav id="article-nav">
   
-    <a href="/blog/2021/07/06/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E4%B8%89%EF%BC%89/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          线程探究(三)
-        
-      </div>
-    </a>
   
-  
-    <a href="/blog/2021/06/29/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%BA%8C/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">线程原理探究(二)</div>
+    <a href="/blog/2021/07/06/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E5%9B%9B%EF%BC%89/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">线程探究（四）</div>
       <i class="icon-circle-right"></i>
     </a>
   
