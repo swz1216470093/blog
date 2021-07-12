@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210711232407.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210712223112.png">
 <meta property="article:published_time" content="2021-07-11T15:09:49.000Z">
-<meta property="article:modified_time" content="2021-07-12T14:31:50.599Z">
+<meta property="article:modified_time" content="2021-07-12T14:36:11.294Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="线程池">
 <meta name="twitter:card" content="summary">
@@ -173,6 +173,8 @@
 <p>Stop:拒绝新任务并抛弃阻塞队列中的任务，同时中断正在处理的任务</p>
 <p>Tidying:所有任务执行完成（包括阻塞队列中的任务）后，活动线程数为0，将要调用terminated方法</p>
 <p>Terminated：终止状态，调用完terminated方法后的状态</p>
+<span id="more"></span>
+
 <h4 id="状态转换"><a href="#状态转换" class="headerlink" title="状态转换"></a>状态转换</h4><p>Running –&gt; Shutdown：显式调用Shutdown()方法</p>
 <p>Running,Shutdown –&gt;Stop:显式调用ShutdownNow()方法</p>
 <p>Shutdown –&gt; Tidying:线程池和阻塞队列都为空时</p>
