@@ -20,18 +20,22 @@
     var CONFIG = {"hostname":"swz1216470093.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="线程原理探究(一)问题：线程创建的方式有几种,优先选哪种（1）继承Thread类，重写run方法 （2）实现Runnable接口，实现run方法，传递给Thread （3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类">
+  <meta name="description" content="线程原理探究(一)什么是线程线程是进程当中的一条执行流程。 同一个进程内多个线程之间可以共享代码段、数据段、打开的文件等资源，但每个线程都有独立一套的寄存器和栈，这样可以确保线程的控制流是相对独立的。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="线程原理探究(一)">
 <meta property="og:url" content="https://swz1216470093.github.io/blog/2021/05/18/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
-<meta property="og:description" content="线程原理探究(一)问题：线程创建的方式有几种,优先选哪种（1）继承Thread类，重写run方法 （2）实现Runnable接口，实现run方法，传递给Thread （3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类">
+<meta property="og:description" content="线程原理探究(一)什么是线程线程是进程当中的一条执行流程。 同一个进程内多个线程之间可以共享代码段、数据段、打开的文件等资源，但每个线程都有独立一套的寄存器和栈，这样可以确保线程的控制流是相对独立的。">
 <meta property="og:locale">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS96rc8W3QAycjLBS5jYp2WmeiasicDSMaXjfwlau4Jb0zGiaEbalcGuiaHMg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS929V7rcLXiaaB16boR9VraolG9Fgc9NpnxOSlHx7No6t0zSPrscaeuaA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS9CInoGdDVyYvtTfju7gVeKLjDNOMmul4kPzicTbczNiaBSzGiaEzDXtYTA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
 <meta property="article:published_time" content="2021-05-18T09:13:04.000Z">
-<meta property="article:modified_time" content="2021-07-06T14:43:42.660Z">
+<meta property="article:modified_time" content="2021-07-17T04:57:28.125Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="线程">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS96rc8W3QAycjLBS5jYp2WmeiasicDSMaXjfwlau4Jb0zGiaEbalcGuiaHMg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
 
 <link rel="canonical" href="https://swz1216470093.github.io/blog/2021/05/18/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/">
 
@@ -191,7 +195,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-06 22:43:42" itemprop="dateModified" datetime="2021-07-06T22:43:42+08:00">2021-07-06</time>
+                <time title="Modified: 2021-07-17 12:57:28" itemprop="dateModified" datetime="2021-07-17T12:57:28+08:00">2021-07-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -214,30 +218,155 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="线程原理探究-一"><a href="#线程原理探究-一" class="headerlink" title="线程原理探究(一)"></a>线程原理探究(一)</h1><h3 id="问题：线程创建的方式有几种-优先选哪种"><a href="#问题：线程创建的方式有几种-优先选哪种" class="headerlink" title="问题：线程创建的方式有几种,优先选哪种"></a>问题：线程创建的方式有几种,优先选哪种</h3><p>（1）继承Thread类，重写run方法</p>
-<p>（2）实现Runnable接口，实现run方法，传递给Thread</p>
-<p>（3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类</p>
+        <h1 id="线程原理探究-一"><a href="#线程原理探究-一" class="headerlink" title="线程原理探究(一)"></a>线程原理探究(一)</h1><h2 id="什么是线程"><a href="#什么是线程" class="headerlink" title="什么是线程"></a>什么是线程</h2><p><strong>线程是进程当中的一条执行流程。</strong></p>
+<p>同一个进程内多个线程之间可以共享代码段、数据段、打开的文件等资源，但每个线程都有独立一套的寄存器和栈，这样可以确保线程的控制流是相对独立的。</p>
 <span id="more"></span>
 
-<p>重点说一下第三种，第三种本质上也是实现Runable接口，因为FutureTask实现了RunnableFuture接口，而RunnableFuture接口继承了Future和Runnalbe接口</p>
-<p>如果用不到异步的情形下优先选实现Runnable接口，因为代码架构上来说 组合优于继承  而且java不支持多继承，继承了Thread类就不能继承其他类了。</p>
-<p>需要异步就用Callable接口</p>
-<h3 id="问题：即实现runnable接口，又继承Thread类-会调用哪个方法"><a href="#问题：即实现runnable接口，又继承Thread类-会调用哪个方法" class="headerlink" title="问题：即实现runnable接口，又继承Thread类 会调用哪个方法"></a>问题：即实现runnable接口，又继承Thread类 会调用哪个方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+ <span class="string">&quot;:&quot;</span>  + <span class="string">&quot;我来自runnable&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;,<span class="string">&quot;Thread&amp;Runnable&quot;</span>)&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">&quot;:&quot;</span> + <span class="string">&quot;我来自Thread类&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;.start();</span><br></pre></td></tr></table></figure>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS96rc8W3QAycjLBS5jYp2WmeiasicDSMaXjfwlau4Jb0zGiaEbalcGuiaHMg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片">多线程</p>
+<blockquote>
+<p>线程的优缺点？</p>
+</blockquote>
+<p>线程的优点：</p>
+<ul>
+<li>一个进程中可以同时存在多个线程；</li>
+<li>各个线程之间可以并发执行；</li>
+<li>各个线程之间可以共享地址空间和文件等资源；</li>
+</ul>
+<p>线程的缺点：</p>
+<ul>
+<li><p>当进程中的一个线程奔溃时，会导致其所属进程的所有线程奔溃。注：</p>
+<p>一般来说，每个线程都是独立执行的单位，每个线程都有自己的上下文堆栈，一个线程的的崩溃不会对其他线程造成影响。但是通常情况下，一个线程崩溃会产生一个进程内的错误，例如在linux操作系统中，可能会产生一个<strong>segment fault</strong>错误，这个错误会产生一个信号，操作系统默认对这个信号的处理就是关闭进程，整个进程都被销毁了，这样的话这个进程中存在的其他线程自然也就不存在了。在java里面，某个线程抛出异常没有捕获，对应的线程会崩溃，<strong>但是对应进程（JVM虚拟机）并不会随之崩溃。</strong></p>
+</li>
+</ul>
+<h2 id="为什么使用线程？"><a href="#为什么使用线程？" class="headerlink" title="为什么使用线程？"></a>为什么使用线程？</h2><p>我们举个例子，假设你要编写一个视频播放器软件，那么该软件功能的核心模块有三个：</p>
+<ul>
+<li>从视频文件当中读取数据；</li>
+<li>对读取的数据进行解压缩；</li>
+<li>把解压缩后的视频数据播放出来；</li>
+</ul>
+<p>对于单进程的实现方式，我想大家都会是以下这个方式：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS929V7rcLXiaaB16boR9VraolG9Fgc9NpnxOSlHx7No6t0zSPrscaeuaA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片">单进程实现方式</p>
+<p>对于单进程的这种方式，存在以下问题：</p>
+<ul>
+<li>播放出来的画面和声音会不连贯，因为当 CPU 能力不够强的时候，<code>Read</code> 的时候可能进程就等在这了，这样就会导致等半天才进行数据解压和播放；</li>
+<li>各个函数之间不是并发执行，影响资源的使用效率；</li>
+</ul>
+<p>那改进成多进程的方式：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS9CInoGdDVyYvtTfju7gVeKLjDNOMmul4kPzicTbczNiaBSzGiaEzDXtYTA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片">多进程实现方式</p>
+<p>对于多进程的这种方式，依然会存在问题：</p>
+<ul>
+<li>进程之间如何通信，共享数据？</li>
+<li>维护进程的系统开销较大，如创建进程时，分配资源、建立 PCB；终止进程时，回收资源、撤销 PCB；进程切换时，保存当前进程的状态信息；</li>
+</ul>
+<p>那到底如何解决呢？需要有一种新的实体，满足以下特性：</p>
+<ul>
+<li>实体之间可以并发运行；</li>
+<li>实体之间共享相同的地址空间；</li>
+</ul>
+<p>这个新的实体，就是**线程( Thread )**，线程之间可以并发运行且共享相同的地址空间。</p>
+<h2 id="线程与进程的比较"><a href="#线程与进程的比较" class="headerlink" title="线程与进程的比较"></a>线程与进程的比较</h2><p>线程与进程的比较如下：</p>
+<ul>
+<li>进程是资源（包括内存、打开的文件等）分配的单位，线程是 CPU 调度的单位；</li>
+<li>进程拥有一个完整的资源平台，而线程只独享必不可少的资源，如寄存器和栈；</li>
+<li>线程同样具有就绪、阻塞、执行三种基本状态，同样具有状态之间的转换关系；</li>
+<li>线程能减少并发执行的时间和空间开销；</li>
+</ul>
+<p>对于，线程相比进程能减少开销，体现在：</p>
+<ul>
+<li>线程的创建时间比进程快，因为进程在创建的过程中，还需要资源管理信息，比如内存管理信息、文件管理信息，而线程在创建的过程中，不会涉及这些资源管理信息，而是共享它们；</li>
+<li>线程的终止时间比进程快，因为线程释放的资源相比进程少很多；</li>
+<li>同一个进程内的线程切换比进程切换快，因为线程具有相同的地址空间（虚拟内存共享），这意味着同一个进程的线程都具有同一个页表，那么在切换的时候不需要切换页表。而对于进程之间的切换，切换的时候要把页表给切换掉，而页表的切换过程开销是比较大的；</li>
+<li>由于同一进程的各线程间共享内存和文件资源，那么在线程之间数据传递的时候，就不需要经过内核了，这就使得线程之间的数据交互效率更高了；</li>
+</ul>
+<p>所以，线程比进程不管是时间效率，还是空间效率都要高。</p>
+<h2 id="线程的上下文切换"><a href="#线程的上下文切换" class="headerlink" title="线程的上下文切换"></a>线程的上下文切换</h2><p>在前面我们知道了，线程与进程最大的区别在于：<strong>线程是调度的基本单位，而进程则是资源拥有的基本单位</strong>。</p>
+<p>所以，所谓操作系统的任务调度，实际上的调度对象是线程，而进程只是给线程提供了虚拟内存、全局变量等资源。</p>
+<p>对于线程和进程，我们可以这么理解：</p>
+<ul>
+<li>当进程只有一个线程时，可以认为进程就等于线程；</li>
+<li>当进程拥有多个线程时，这些线程会共享相同的虚拟内存和全局变量等资源，这些资源在上下文切换时是不需要修改的；</li>
+</ul>
+<p>另外，线程也有自己的私有数据，比如栈和寄存器等，这些在上下文切换时也是需要保存的。</p>
+<blockquote>
+<p>线程上下文切换的是什么？</p>
+</blockquote>
+<p>这还得看线程是不是属于同一个进程：</p>
+<ul>
+<li>当两个线程不是属于同一个进程，则切换的过程就跟进程上下文切换一样；</li>
+<li><strong>当两个线程是属于同一个进程，因为虚拟内存是共享的，所以在切换时，虚拟内存这些资源就保持不动，只需要切换线程的私有数据、寄存器等不共享的数据</strong>；</li>
+</ul>
+<p>所以，线程的上下文切换相比进程，开销要小很多。</p>
+<h2 id="线程实现方式"><a href="#线程实现方式" class="headerlink" title="线程实现方式"></a>线程实现方式</h2><p>线程有三种实现方式</p>
+<ul>
+<li><p><strong>用户线程（User Thread）</strong>：在用户空间实现的线程，不是由内核管理的线程，是由用户态的线程库来完成线程的管理；</p>
+</li>
+<li><p><strong>内核线程（Kernel Thread）</strong>：在内核中实现的线程，是由内核管理的线程；</p>
+</li>
+<li><p><strong>轻量级进程（LightWeight Process）</strong>：在内核中来支持用户线程；</p>
+</li>
+</ul>
+<p>用户线程是基于用户态的线程管理库来实现的，那么<strong>线程控制块（Thread Control Block, TCB）</strong> 也是在库里面来实现的，对于操作系统而言是看不到这个 TCB 的，它只能看到整个进程的 PCB。</p>
+<p>所以，<strong>用户线程的整个线程管理和调度，操作系统是不直接参与的，而是由用户级线程库函数来完成线程的管理，包括线程的创建、终止、同步和调度等。</strong></p>
+<p>用户级线程的模型，是<strong>多对一</strong>的关系，即多个用户线程对应同一个内核线程，</p>
+<p>用户线程的<strong>优点</strong>：</p>
+<ul>
+<li>每个进程都需要有它私有的线程控制块（TCB）列表，用来跟踪记录它各个线程状态信息（PC、栈指针、寄存器），TCB 由用户级线程库函数来维护，可用于不支持线程技术的操作系统；</li>
+<li>用户线程的切换也是由线程库函数来完成的，无需用户态与内核态的切换，所以速度特别快；</li>
+</ul>
+<p>用户线程的<strong>缺点</strong>：</p>
+<ul>
+<li>由于操作系统不参与线程的调度，如果一个线程发起了系统调用而阻塞，那进程所包含的用户线程都不能执行了。</li>
+<li>当一个线程开始运行后，除非它主动地交出 CPU 的使用权，否则它所在的进程当中的其他线程无法运行，因为用户态的线程没法打断当前运行中的线程，它没有这个特权，只有操作系统才有，但是用户线程不是由操作系统管理的。</li>
+<li>由于时间片分配给进程，故与其他进程比，在多线程执行时，每个线程得到的时间片较少，执行会比较慢；</li>
+</ul>
+<p><strong>内核线程是由操作系统管理的，线程对应的 TCB 自然是放在操作系统里的，这样线程的创建、终止和管理都是由操作系统负责。</strong></p>
+<p>内核线程的模型，是<strong>一对一</strong>的关系，即一个用户线程对应一个内核线程，如下图所示：</p>
+<p>内核线程的<strong>优点</strong>：</p>
+<ul>
+<li>在一个进程当中，如果某个内核线程发起系统调用而被阻塞，并不会影响其他内核线程的运行；</li>
+<li>分配给线程，多线程的进程获得更多的 CPU 运行时间；</li>
+</ul>
+<p>内核线程的<strong>缺点</strong>：</p>
+<ul>
+<li>在支持内核线程的操作系统中，由内核来维护进程和线程的上下问信息，如 PCB 和 TCB；</li>
+<li>线程的创建、终止和切换都是通过系统调用的方式来进行，因此对于系统来说，系统开销比较大；</li>
+</ul>
+<p><strong>轻量级进程（Light-weight process，LWP）是内核支持的用户线程，一个进程可有一个或多个 LWP，每个 LWP 是跟内核线程一对一映射的，也就是 LWP 都是由一个内核线程支持。</strong></p>
+<p>另外，LWP 只能由内核管理并像普通进程一样被调度，Linux 内核是支持 LWP 的典型例子。</p>
+<p>在大多数系统中，<strong>LWP与普通进程的区别也在于它只有一个最小的执行上下文和调度程序所需的统计信息</strong>。一般来说，一个进程代表程序的一个实例，而 LWP 代表程序的执行线程，因为一个执行线程不像进程那样需要那么多状态信息，所以 LWP 也不带有这样的信息。</p>
+<p>在 LWP 之上也是可以使用用户线程的，那么 LWP 与用户线程的对应关系就有三种：</p>
+<ul>
+<li><code>1 : 1</code>，即一个 LWP 对应 一个用户线程；</li>
+<li><code>N : 1</code>，即一个 LWP 对应多个用户线程；</li>
+<li><code>M : N</code>，即多个 LMP 对应多个用户线程；</li>
+</ul>
+<p>接下来针对上面这三种对应关系说明它们优缺点。</p>
+<p><strong>1 : 1 模式</strong></p>
+<p>一个线程对应到一个 LWP 再对应到一个内核线程。</p>
+<ul>
+<li>优点：实现并行，当一个 LWP 阻塞，不会影响其他 LWP；</li>
+<li>缺点：每一个用户线程，就产生一个内核线程，创建线程的开销较大。</li>
+</ul>
+<p><strong>N : 1 模式</strong></p>
+<p>多个用户线程对应一个 LWP 再对应一个内核线程，线程管理是在用户空间完成的，此模式中用户的线程对操作系统不可见。</p>
+<ul>
+<li>优点：用户线程要开几个都没问题，且上下文切换发生用户空间，切换的效率较高；</li>
+<li>缺点：一个用户线程如果阻塞了，则整个进程都将会阻塞，另外在多核 CPU  中，是没办法充分利用 CPU 的。</li>
+</ul>
+<p><strong>M : N 模式</strong></p>
+<p>根据前面的两个模型混搭一起，就形成 <code>M:N</code> 模型，该模型提供了两级控制，首先多个用户线程对应到多个 LWP，LWP 再一一对应到内核线程。</p>
+<ul>
+<li>优点：综合了前两种优点，大部分的线程上下文发生在用户空间，且多个线程又可以充分利用多核 CPU 的资源。</li>
+</ul>
+<h2 id="验证java线程实现方式"><a href="#验证java线程实现方式" class="headerlink" title="验证java线程实现方式"></a>验证java线程实现方式</h2><p><strong>java在linux下采用的是使用轻量级进程的1：1模式，即每个java线程都对应着一个内核线程</strong></p>
+<p>我们在linux下使用strace命令<code>strace -ff -o out java ThreadTest</code>追踪一下下面一段java程序的系统调用验证一下上边的结论。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName());</span><br><span class="line">        &#125;,<span class="string">&quot;Thread Test&quot;</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>先说结果 输出是<code>Thread&amp;Runnable:我来自Thread类</code></p>
-<p>查看Thread类run方法的源码就可以知道，实现Runable接口时 Thread类的run方法会调用Runable接口的run方法。而继承Thread类时，Thread类的run方法整个被重写，也就不会调用Runable接口的run方法了。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* What will be run. */</span></span><br><span class="line"><span class="keyword">private</span> Runnable target;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (target != <span class="keyword">null</span>) &#123;</span><br><span class="line">        target.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>发现调用了16次clone系统调用（创建了16个线程，其中15个为jvm的线程(如：”G1 Main Marker”)，最后一个是我们创建的线程）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">clone(child_stack&#x3D;0x7fb31d162fb0, flags&#x3D;CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, parent_tid&#x3D;[166], tls&#x3D;0x7fb31d163700, child_tidptr&#x3D;0x7fb31d1639d0) &#x3D; 166</span><br><span class="line">   ...</span><br><span class="line">clone(child_stack&#x3D;0x7fb2ecc80fb0, flags&#x3D;CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, parent_tid&#x3D;[184], tls&#x3D;0x7fb2ecc81700, child_tidptr&#x3D;0x7fb2ecc819d0) &#x3D; 184</span><br></pre></td></tr></table></figure>
 
-<h3 id="问题：run方法和start方法的区别，能否两次调用start方法"><a href="#问题：run方法和start方法的区别，能否两次调用start方法" class="headerlink" title="问题：run方法和start方法的区别，能否两次调用start方法"></a>问题：run方法和start方法的区别，能否两次调用start方法</h3><p>先看Thread对象的start方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Causes this thread to begin execution; the Java Virtual Machine</span></span><br><span class="line"><span class="comment">     * calls the &lt;code&gt;run&lt;/code&gt; method of this thread.</span></span><br><span class="line"><span class="comment">     * It is never legal to start a thread more than once.</span></span><br><span class="line"><span class="comment">     * In particular, a thread may not be restarted once it has completed</span></span><br><span class="line"><span class="comment">     * execution.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="comment">//A zero status value corresponds to state &quot;NEW&quot;.</span></span><br><span class="line">     <span class="keyword">if</span> (threadStatus != <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalThreadStateException();</span><br><span class="line">     <span class="comment">//忽略无关代码</span></span><br><span class="line">     start0();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<p>从上述源码和注释可以看出，调用Thread对象的start方法后JVM会调用Thread类的run方法，start方法会开启线程的生命周期，而run方法只是一个普通的方法。</p>
-<p>同时start方法会检测线程状态，如果线程不是new状态，则会抛出异常，所以start方法不能调用多次。</p>
-<h3 id="问题：Callable接口结果怎么得到，出异常了怎么办"><a href="#问题：Callable接口结果怎么得到，出异常了怎么办" class="headerlink" title="问题：Callable接口结果怎么得到，出异常了怎么办"></a>问题：Callable接口结果怎么得到，出异常了怎么办</h3><p>看FutureTask类的源码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** The result to return or exception to throw from get() */</span></span><br><span class="line"><span class="keyword">private</span> Object outcome; </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (state != NEW ||</span><br><span class="line">        !UNSAFE.compareAndSwapObject(<span class="keyword">this</span>, runnerOffset,</span><br><span class="line">                                     <span class="keyword">null</span>, Thread.currentThread()))</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Callable&lt;V&gt; c = callable;</span><br><span class="line">        <span class="keyword">if</span> (c != <span class="keyword">null</span> &amp;&amp; state == NEW) &#123;</span><br><span class="line">            V result;</span><br><span class="line">            <span class="keyword">boolean</span> ran;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                result = c.call();</span><br><span class="line">                ran = <span class="keyword">true</span>;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                result = <span class="keyword">null</span>;</span><br><span class="line">                ran = <span class="keyword">false</span>;</span><br><span class="line">                setException(ex);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (ran)</span><br><span class="line">                set(result);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(V v)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (UNSAFE.compareAndSwapInt(<span class="keyword">this</span>, stateOffset, NEW, COMPLETING)) &#123;</span><br><span class="line">        outcome = v;</span><br><span class="line">        UNSAFE.putOrderedInt(<span class="keyword">this</span>, stateOffset, NORMAL); <span class="comment">// final state</span></span><br><span class="line">        finishCompletion();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setException</span><span class="params">(Throwable t)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (UNSAFE.compareAndSwapInt(<span class="keyword">this</span>, stateOffset, NEW, COMPLETING)) &#123;</span><br><span class="line">        outcome = t;</span><br><span class="line">        UNSAFE.putOrderedInt(<span class="keyword">this</span>, stateOffset, EXCEPTIONAL); <span class="comment">// final state</span></span><br><span class="line">        finishCompletion();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> V <span class="title">get</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, ExecutionException </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> s = state;</span><br><span class="line">    <span class="keyword">if</span> (s &lt;= COMPLETING)</span><br><span class="line">        s = awaitDone(<span class="keyword">false</span>, <span class="number">0L</span>);</span><br><span class="line">    <span class="keyword">return</span> report(s);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> V <span class="title">report</span><span class="params">(<span class="keyword">int</span> s)</span> <span class="keyword">throws</span> ExecutionException </span>&#123;</span><br><span class="line">        Object x = outcome;</span><br><span class="line">        <span class="keyword">if</span> (s == NORMAL)</span><br><span class="line">            <span class="keyword">return</span> (V)x;</span><br><span class="line">        <span class="keyword">if</span> (s &gt;= CANCELLED)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> CancellationException();</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ExecutionException((Throwable)x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>从FutureTask的run方法可以看到在FutureTask的run方法中会调用Callable的run方法，如果没有发生异常就调用set(result)方法将结果赋给outcome成员变量，</p>
-<p>如果发生异常就将异常对象赋给outcome。调用get方法时会调用report方法判断结果状态，如果没有异常，返回执行结果，如果发生异常，则report方法抛出异常。这里注意一个点，<strong>异常不是在执行call方法的时候抛出来的，而是在调用get方法时才抛出来的</strong></p>
+<p>而clone系统调用的功能是创建轻量级进程，所以上述结论得证。</p>
+<p>部分引用：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/YXl6WZVzRKCfxzerJWyfrg">进程和线程基础知识全家桶，30 张图一套带走</a></p>
 
     </div>
 
@@ -319,7 +448,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%B8%80"><span class="nav-number">1.</span> <span class="nav-text">线程原理探究(一)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E7%BA%BF%E7%A8%8B%E5%88%9B%E5%BB%BA%E7%9A%84%E6%96%B9%E5%BC%8F%E6%9C%89%E5%87%A0%E7%A7%8D-%E4%BC%98%E5%85%88%E9%80%89%E5%93%AA%E7%A7%8D"><span class="nav-number">1.0.1.</span> <span class="nav-text">问题：线程创建的方式有几种,优先选哪种</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E5%8D%B3%E5%AE%9E%E7%8E%B0runnable%E6%8E%A5%E5%8F%A3%EF%BC%8C%E5%8F%88%E7%BB%A7%E6%89%BFThread%E7%B1%BB-%E4%BC%9A%E8%B0%83%E7%94%A8%E5%93%AA%E4%B8%AA%E6%96%B9%E6%B3%95"><span class="nav-number">1.0.2.</span> <span class="nav-text">问题：即实现runnable接口，又继承Thread类 会调用哪个方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9Arun%E6%96%B9%E6%B3%95%E5%92%8Cstart%E6%96%B9%E6%B3%95%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%8C%E8%83%BD%E5%90%A6%E4%B8%A4%E6%AC%A1%E8%B0%83%E7%94%A8start%E6%96%B9%E6%B3%95"><span class="nav-number">1.0.3.</span> <span class="nav-text">问题：run方法和start方法的区别，能否两次调用start方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9ACallable%E6%8E%A5%E5%8F%A3%E7%BB%93%E6%9E%9C%E6%80%8E%E4%B9%88%E5%BE%97%E5%88%B0%EF%BC%8C%E5%87%BA%E5%BC%82%E5%B8%B8%E4%BA%86%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="nav-number">1.0.4.</span> <span class="nav-text">问题：Callable接口结果怎么得到，出异常了怎么办</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%B8%80"><span class="nav-number">1.</span> <span class="nav-text">线程原理探究(一)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">什么是线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E7%BA%BF%E7%A8%8B%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">为什么使用线程？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">1.3.</span> <span class="nav-text">线程与进程的比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2"><span class="nav-number">1.4.</span> <span class="nav-text">线程的上下文切换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">1.5.</span> <span class="nav-text">线程实现方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81java%E7%BA%BF%E7%A8%8B%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">1.6.</span> <span class="nav-text">验证java线程实现方式</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

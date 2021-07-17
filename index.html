@@ -427,7 +427,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-06 23:12:19" itemprop="dateModified" datetime="2021-07-06T23:12:19+08:00">2021-07-06</time>
+                <time title="Modified: 2021-07-17 13:28:22" itemprop="dateModified" datetime="2021-07-17T13:28:22+08:00">2021-07-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -450,22 +450,36 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="线程池探究"><a href="#线程池探究" class="headerlink" title="线程池探究"></a>线程池探究</h1><h2 id="问题：为什么需要线程池"><a href="#问题：为什么需要线程池" class="headerlink" title="问题：为什么需要线程池"></a>问题：为什么需要线程池</h2><p>首先给出答案：最主要的原因是为了避免线程被频繁创建销毁而产生的大量系统开销。</p>
-<p>至于为什么会频繁创建销毁线程会产生大量系统开销，首先介绍一下线程的三种实现方式</p>
+          <h1 id="线程池探究"><a href="#线程池探究" class="headerlink" title="线程池探究"></a>线程池探究</h1><h2 id="线程池是什么"><a href="#线程池是什么" class="headerlink" title="线程池是什么"></a>线程池是什么</h2><p>线程池是基于池化思想管理线程的工具</p>
+<p>线程过多会带来额外的开销，其中包括创建销毁线程的开销，调度线程的开销等待，同时也降低了计算机的整体性能。线程池维护多个线程，等待监督管理者分配可并发执行的任务。这种做法，一方面避免了处理任务时创建销毁线程开销的代价，另一方面避免了线程数量膨胀导致的过分调度问题，保证了对内核的充分利用。</p>
+<p>使用线程池可以带来一系列好处：</p>
 <ul>
-<li><p><strong>用户线程（User Thread）</strong>：在用户空间实现的线程，不是由内核管理的线程，是由用户态的线程库来完成线程的管理；</p>
+<li><p><strong>降低资源消耗</strong>：通过池化技术重复利用已创建的线程，降低线程创建和销毁造成的损耗。</p>
 </li>
-<li><p><strong>内核线程（Kernel Thread）</strong>：在内核中实现的线程，是由内核管理的线程；</p>
+<li><p><strong>提高响应速度</strong>：任务到达时，无需等待线程创建即可立即执行。</p>
 </li>
-<li><p><strong>轻量级进程（LightWeight Process）</strong>：在内核中来支持用户线程；</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2021/07/07/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+<li><p><strong>提高线程的可管理性</strong>：线程是稀缺资源，如果无限制创建，不仅会消耗系统资源，还会因为线程的不合理分布导致资源调度失衡，降低系统的稳定性。使用线程池可以进行统一的分配、调优和监控。</p>
+</li>
+<li><p><strong>提供更多更强大的功能</strong>：线程池具备可拓展性，允许开发人员向其中增加更多的功能。比如延时定时线程池 ScheduledThreadPoolExecutor，就允许任务延期执行或定期执行。</p>
+</li>
+</ul>
+<h2 id="线程池解决的问题是什么"><a href="#线程池解决的问题是什么" class="headerlink" title="线程池解决的问题是什么"></a>线程池解决的问题是什么</h2><p>线程池解决的核心问题就是资源管理问题。在并发环境下，系统不能够确定在任意时刻中，有多少任务需要执行，有多少资源需要投入。这种不确定性将带来以下若干问题：</p>
+<ol>
+<li>频繁申请 / 销毁资源和调度资源，将带来额外的消耗，可能会非常巨大。</li>
+<li>对资源无限申请缺少抑制手段，易引发系统资源耗尽的风险。</li>
+<li>系统无法合理管理内部的资源分布，会降低系统的稳定性。</li>
+</ol>
+<p>为解决资源分配这个问题，线程池采用了 “池化”（Pooling）思想。池化，顾名思义，是为了最大化收益并最小化风险，而将资源统一在一起管理的一种思想。</p>
+<p>Pooling is the grouping together of resources (assets, equipment, personnel, effort, etc.) for the purposes of maximizing advantage or minimizing risk to the users. The term is used in finance, computing and equipment management.——wikipedia</p>
+<p>“池化” 思想不仅仅能应用在计算机领域，在金融、设备、人员管理、工作管理等领域也有相关的应用。</p>
+<p>在计算机领域中的表现为：统一管理 IT 资源，包括服务器、存储、和网络资源等等。通过共享资源，使用户在低投入中获益。除去线程池，还有其他比较典型的几种使用策略包括：</p>
+<ol>
+<li>内存池 (Memory Pooling)：预先申请内存，提升申请内存速度，减少内存碎片。</li>
+<li>连接池 (Connection Pooling)：预先申请数据库连接，提升申请连接的速度，降低系统的开销。</li>
+<li>实例池 (Object Pooling)：循环使用对象，减少资源在初始化和释放时的昂贵损耗。</li>
+</ol>
+<p>引用：<a target="_blank" rel="noopener" href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html">Java线程池实现原理及其在美团业务中的实践</a></p>
+
       
     </div>
 
@@ -684,7 +698,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-06 22:39:14" itemprop="dateModified" datetime="2021-07-06T22:39:14+08:00">2021-07-06</time>
+                <time title="Modified: 2021-07-17 11:11:50" itemprop="dateModified" datetime="2021-07-17T11:11:50+08:00">2021-07-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -707,7 +721,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="线程原理探究-二"><a href="#线程原理探究-二" class="headerlink" title="线程原理探究(二)"></a>线程原理探究(二)</h1><h2 id="问题：如何停止线程，可以使用stop方法吗"><a href="#问题：如何停止线程，可以使用stop方法吗" class="headerlink" title="问题：如何停止线程，可以使用stop方法吗"></a>问题：如何停止线程，可以使用stop方法吗</h2><p>不可以使用stop方法，因为stop方法会造成线程运行一半突然停止，没办法完成一个基本单位的操作，会产生脏数据</p>
+          <h1 id="线程原理探究-二"><a href="#线程原理探究-二" class="headerlink" title="线程原理探究(二)"></a>线程原理探究(二)</h1><h2 id="问题：线程创建的方式有几种-优先选哪种"><a href="#问题：线程创建的方式有几种-优先选哪种" class="headerlink" title="问题：线程创建的方式有几种,优先选哪种"></a>问题：线程创建的方式有几种,优先选哪种</h2><p>（1）继承Thread类，重写run方法</p>
+<p>（2）实现Runnable接口，实现run方法，传递给Thread</p>
+<p>（3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/blog/2021/06/29/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%BA%8C/#more" rel="contents">
@@ -765,7 +781,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-06 22:43:42" itemprop="dateModified" datetime="2021-07-06T22:43:42+08:00">2021-07-06</time>
+                <time title="Modified: 2021-07-17 12:57:28" itemprop="dateModified" datetime="2021-07-17T12:57:28+08:00">2021-07-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -788,9 +804,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="线程原理探究-一"><a href="#线程原理探究-一" class="headerlink" title="线程原理探究(一)"></a>线程原理探究(一)</h1><h3 id="问题：线程创建的方式有几种-优先选哪种"><a href="#问题：线程创建的方式有几种-优先选哪种" class="headerlink" title="问题：线程创建的方式有几种,优先选哪种"></a>问题：线程创建的方式有几种,优先选哪种</h3><p>（1）继承Thread类，重写run方法</p>
-<p>（2）实现Runnable接口，实现run方法，传递给Thread</p>
-<p>（3）实现Callable接口，实现call方法，传递给FutureTask，再传递给Thread类</p>
+          <h1 id="线程原理探究-一"><a href="#线程原理探究-一" class="headerlink" title="线程原理探究(一)"></a>线程原理探究(一)</h1><h2 id="什么是线程"><a href="#什么是线程" class="headerlink" title="什么是线程"></a>什么是线程</h2><p><strong>线程是进程当中的一条执行流程。</strong></p>
+<p>同一个进程内多个线程之间可以共享代码段、数据段、打开的文件等资源，但每个线程都有独立一套的寄存器和栈，这样可以确保线程的控制流是相对独立的。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/blog/2021/05/18/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/#more" rel="contents">

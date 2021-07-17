@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"swz1216470093.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="线程池探究问题：为什么需要线程池首先给出答案：最主要的原因是为了避免线程被频繁创建销毁而产生的大量系统开销。 至于为什么会频繁创建销毁线程会产生大量系统开销，首先介绍一下线程的三种实现方式  用户线程（User Thread）：在用户空间实现的线程，不是由内核管理的线程，是由用户态的线程库来完成线程的管理；  内核线程（Kernel Thread）：在内核中实现的线程，是由内核管理的线程；  轻量">
+  <meta name="description" content="线程池探究线程池是什么线程池是基于池化思想管理线程的工具 线程过多会带来额外的开销，其中包括创建销毁线程的开销，调度线程的开销等待，同时也降低了计算机的整体性能。线程池维护多个线程，等待监督管理者分配可并发执行的任务。这种做法，一方面避免了处理任务时创建销毁线程开销的代价，另一方面避免了线程数量膨胀导致的过分调度问题，保证了对内核的充分利用。 使用线程池可以带来一系列好处：  降低资源消耗：通过池">
 <meta property="og:type" content="article">
 <meta property="og:title" content="线程池探究(一)">
 <meta property="og:url" content="https://swz1216470093.github.io/blog/2021/07/07/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
-<meta property="og:description" content="线程池探究问题：为什么需要线程池首先给出答案：最主要的原因是为了避免线程被频繁创建销毁而产生的大量系统开销。 至于为什么会频繁创建销毁线程会产生大量系统开销，首先介绍一下线程的三种实现方式  用户线程（User Thread）：在用户空间实现的线程，不是由内核管理的线程，是由用户态的线程库来完成线程的管理；  内核线程（Kernel Thread）：在内核中实现的线程，是由内核管理的线程；  轻量">
+<meta property="og:description" content="线程池探究线程池是什么线程池是基于池化思想管理线程的工具 线程过多会带来额外的开销，其中包括创建销毁线程的开销，调度线程的开销等待，同时也降低了计算机的整体性能。线程池维护多个线程，等待监督管理者分配可并发执行的任务。这种做法，一方面避免了处理任务时创建销毁线程开销的代价，另一方面避免了线程数量膨胀导致的过分调度问题，保证了对内核的充分利用。 使用线程池可以带来一系列好处：  降低资源消耗：通过池">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-07-07T14:12:33.000Z">
-<meta property="article:modified_time" content="2021-07-06T15:12:19.455Z">
+<meta property="article:modified_time" content="2021-07-17T05:28:22.430Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="线程池">
 <meta name="twitter:card" content="summary">
@@ -191,7 +191,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-06 23:12:19" itemprop="dateModified" datetime="2021-07-06T23:12:19+08:00">2021-07-06</time>
+                <time title="Modified: 2021-07-17 13:28:22" itemprop="dateModified" datetime="2021-07-17T13:28:22+08:00">2021-07-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -214,79 +214,35 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="线程池探究"><a href="#线程池探究" class="headerlink" title="线程池探究"></a>线程池探究</h1><h2 id="问题：为什么需要线程池"><a href="#问题：为什么需要线程池" class="headerlink" title="问题：为什么需要线程池"></a>问题：为什么需要线程池</h2><p>首先给出答案：最主要的原因是为了避免线程被频繁创建销毁而产生的大量系统开销。</p>
-<p>至于为什么会频繁创建销毁线程会产生大量系统开销，首先介绍一下线程的三种实现方式</p>
+        <h1 id="线程池探究"><a href="#线程池探究" class="headerlink" title="线程池探究"></a>线程池探究</h1><h2 id="线程池是什么"><a href="#线程池是什么" class="headerlink" title="线程池是什么"></a>线程池是什么</h2><p>线程池是基于池化思想管理线程的工具</p>
+<p>线程过多会带来额外的开销，其中包括创建销毁线程的开销，调度线程的开销等待，同时也降低了计算机的整体性能。线程池维护多个线程，等待监督管理者分配可并发执行的任务。这种做法，一方面避免了处理任务时创建销毁线程开销的代价，另一方面避免了线程数量膨胀导致的过分调度问题，保证了对内核的充分利用。</p>
+<p>使用线程池可以带来一系列好处：</p>
 <ul>
-<li><p><strong>用户线程（User Thread）</strong>：在用户空间实现的线程，不是由内核管理的线程，是由用户态的线程库来完成线程的管理；</p>
+<li><p><strong>降低资源消耗</strong>：通过池化技术重复利用已创建的线程，降低线程创建和销毁造成的损耗。</p>
 </li>
-<li><p><strong>内核线程（Kernel Thread）</strong>：在内核中实现的线程，是由内核管理的线程；</p>
+<li><p><strong>提高响应速度</strong>：任务到达时，无需等待线程创建即可立即执行。</p>
 </li>
-<li><p><strong>轻量级进程（LightWeight Process）</strong>：在内核中来支持用户线程；</p>
-<span id="more"></span></li>
+<li><p><strong>提高线程的可管理性</strong>：线程是稀缺资源，如果无限制创建，不仅会消耗系统资源，还会因为线程的不合理分布导致资源调度失衡，降低系统的稳定性。使用线程池可以进行统一的分配、调优和监控。</p>
+</li>
+<li><p><strong>提供更多更强大的功能</strong>：线程池具备可拓展性，允许开发人员向其中增加更多的功能。比如延时定时线程池 ScheduledThreadPoolExecutor，就允许任务延期执行或定期执行。</p>
+</li>
 </ul>
-<p>用户线程是基于用户态的线程管理库来实现的，那么<strong>线程控制块（Thread Control Block, TCB）</strong> 也是在库里面来实现的，对于操作系统而言是看不到这个 TCB 的，它只能看到整个进程的 PCB。</p>
-<p>所以，<strong>用户线程的整个线程管理和调度，操作系统是不直接参与的，而是由用户级线程库函数来完成线程的管理，包括线程的创建、终止、同步和调度等。</strong></p>
-<p>用户级线程的模型，是<strong>多对一</strong>的关系，即多个用户线程对应同一个内核线程，</p>
-<p>用户线程的<strong>优点</strong>：</p>
-<ul>
-<li>每个进程都需要有它私有的线程控制块（TCB）列表，用来跟踪记录它各个线程状态信息（PC、栈指针、寄存器），TCB 由用户级线程库函数来维护，可用于不支持线程技术的操作系统；</li>
-<li>用户线程的切换也是由线程库函数来完成的，无需用户态与内核态的切换，所以速度特别快；</li>
-</ul>
-<p>用户线程的<strong>缺点</strong>：</p>
-<ul>
-<li>由于操作系统不参与线程的调度，如果一个线程发起了系统调用而阻塞，那进程所包含的用户线程都不能执行了。</li>
-<li>当一个线程开始运行后，除非它主动地交出 CPU 的使用权，否则它所在的进程当中的其他线程无法运行，因为用户态的线程没法打断当前运行中的线程，它没有这个特权，只有操作系统才有，但是用户线程不是由操作系统管理的。</li>
-<li>由于时间片分配给进程，故与其他进程比，在多线程执行时，每个线程得到的时间片较少，执行会比较慢；</li>
-</ul>
-<p><strong>内核线程是由操作系统管理的，线程对应的 TCB 自然是放在操作系统里的，这样线程的创建、终止和管理都是由操作系统负责。</strong></p>
-<p>内核线程的模型，是<strong>一对一</strong>的关系，即一个用户线程对应一个内核线程，如下图所示：</p>
-<p>内核线程的<strong>优点</strong>：</p>
-<ul>
-<li>在一个进程当中，如果某个内核线程发起系统调用而被阻塞，并不会影响其他内核线程的运行；</li>
-<li>分配给线程，多线程的进程获得更多的 CPU 运行时间；</li>
-</ul>
-<p>内核线程的<strong>缺点</strong>：</p>
-<ul>
-<li>在支持内核线程的操作系统中，由内核来维护进程和线程的上下问信息，如 PCB 和 TCB；</li>
-<li>线程的创建、终止和切换都是通过系统调用的方式来进行，因此对于系统来说，系统开销比较大；</li>
-</ul>
-<p><strong>轻量级进程（Light-weight process，LWP）是内核支持的用户线程，一个进程可有一个或多个 LWP，每个 LWP 是跟内核线程一对一映射的，也就是 LWP 都是由一个内核线程支持。</strong></p>
-<p>另外，LWP 只能由内核管理并像普通进程一样被调度，Linux 内核是支持 LWP 的典型例子。</p>
-<p>在大多数系统中，<strong>LWP与普通进程的区别也在于它只有一个最小的执行上下文和调度程序所需的统计信息</strong>。一般来说，一个进程代表程序的一个实例，而 LWP 代表程序的执行线程，因为一个执行线程不像进程那样需要那么多状态信息，所以 LWP 也不带有这样的信息。</p>
-<p>在 LWP 之上也是可以使用用户线程的，那么 LWP 与用户线程的对应关系就有三种：</p>
-<ul>
-<li><code>1 : 1</code>，即一个 LWP 对应 一个用户线程；</li>
-<li><code>N : 1</code>，即一个 LWP 对应多个用户线程；</li>
-<li><code>M : N</code>，即多个 LMP 对应多个用户线程；</li>
-</ul>
-<p>接下来针对上面这三种对应关系说明它们优缺点。</p>
-<p><strong>1 : 1 模式</strong></p>
-<p>一个线程对应到一个 LWP 再对应到一个内核线程。</p>
-<ul>
-<li>优点：实现并行，当一个 LWP 阻塞，不会影响其他 LWP；</li>
-<li>缺点：每一个用户线程，就产生一个内核线程，创建线程的开销较大。</li>
-</ul>
-<p><strong>N : 1 模式</strong></p>
-<p>多个用户线程对应一个 LWP 再对应一个内核线程，线程管理是在用户空间完成的，此模式中用户的线程对操作系统不可见。</p>
-<ul>
-<li>优点：用户线程要开几个都没问题，且上下文切换发生用户空间，切换的效率较高；</li>
-<li>缺点：一个用户线程如果阻塞了，则整个进程都将会阻塞，另外在多核 CPU  中，是没办法充分利用 CPU 的。</li>
-</ul>
-<p><strong>M : N 模式</strong></p>
-<p>根据前面的两个模型混搭一起，就形成 <code>M:N</code> 模型，该模型提供了两级控制，首先多个用户线程对应到多个 LWP，LWP 再一一对应到内核线程。</p>
-<ul>
-<li>优点：综合了前两种优点，大部分的线程上下文发生在用户空间，且多个线程又可以充分利用多核 CPU 的资源。</li>
-</ul>
-<p><strong>java在linux下采用的是使用轻量级进程的1：1模式，即每个java线程都对应着一个内核线程</strong></p>
-<p>我们在linux下使用strace命令<code>strace -ff -o out java ThreadTest</code>追踪一下下面一段java程序的系统调用验证一下上边的结论。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName());</span><br><span class="line">        &#125;,<span class="string">&quot;Thread Test&quot;</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>发现调用了16次clone系统调用（创建了16个线程，其中15个为jvm的线程(如：”G1 Main Marker”)，最后一个是我们创建的线程）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">clone(child_stack&#x3D;0x7fb31d162fb0, flags&#x3D;CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, parent_tid&#x3D;[166], tls&#x3D;0x7fb31d163700, child_tidptr&#x3D;0x7fb31d1639d0) &#x3D; 166</span><br><span class="line">   ...</span><br><span class="line">clone(child_stack&#x3D;0x7fb2ecc80fb0, flags&#x3D;CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, parent_tid&#x3D;[184], tls&#x3D;0x7fb2ecc81700, child_tidptr&#x3D;0x7fb2ecc819d0) &#x3D; 184</span><br></pre></td></tr></table></figure>
-
-<p>而clone系统调用的功能是创建轻量级进程，所以上述结论得证。</p>
-<p>最后，回到问题上来，为什么需要线程池，最主要的原因是java的线程和内核线程一一对应，频繁的创建和销毁线程会造成大量的系统开销。</p>
-<p>参考：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/YXl6WZVzRKCfxzerJWyfrg">https://mp.weixin.qq.com/s/YXl6WZVzRKCfxzerJWyfrg</a></p>
+<h2 id="线程池解决的问题是什么"><a href="#线程池解决的问题是什么" class="headerlink" title="线程池解决的问题是什么"></a>线程池解决的问题是什么</h2><p>线程池解决的核心问题就是资源管理问题。在并发环境下，系统不能够确定在任意时刻中，有多少任务需要执行，有多少资源需要投入。这种不确定性将带来以下若干问题：</p>
+<ol>
+<li>频繁申请 / 销毁资源和调度资源，将带来额外的消耗，可能会非常巨大。</li>
+<li>对资源无限申请缺少抑制手段，易引发系统资源耗尽的风险。</li>
+<li>系统无法合理管理内部的资源分布，会降低系统的稳定性。</li>
+</ol>
+<p>为解决资源分配这个问题，线程池采用了 “池化”（Pooling）思想。池化，顾名思义，是为了最大化收益并最小化风险，而将资源统一在一起管理的一种思想。</p>
+<p>Pooling is the grouping together of resources (assets, equipment, personnel, effort, etc.) for the purposes of maximizing advantage or minimizing risk to the users. The term is used in finance, computing and equipment management.——wikipedia</p>
+<p>“池化” 思想不仅仅能应用在计算机领域，在金融、设备、人员管理、工作管理等领域也有相关的应用。</p>
+<p>在计算机领域中的表现为：统一管理 IT 资源，包括服务器、存储、和网络资源等等。通过共享资源，使用户在低投入中获益。除去线程池，还有其他比较典型的几种使用策略包括：</p>
+<ol>
+<li>内存池 (Memory Pooling)：预先申请内存，提升申请内存速度，减少内存碎片。</li>
+<li>连接池 (Connection Pooling)：预先申请数据库连接，提升申请连接的速度，降低系统的开销。</li>
+<li>实例池 (Object Pooling)：循环使用对象，减少资源在初始化和释放时的昂贵损耗。</li>
+</ol>
+<p>引用：<a target="_blank" rel="noopener" href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html">Java线程池实现原理及其在美团业务中的实践</a></p>
 
     </div>
 
@@ -371,7 +327,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6"><span class="nav-number">1.</span> <span class="nav-text">线程池探究</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%BA%BF%E7%A8%8B%E6%B1%A0"><span class="nav-number">1.1.</span> <span class="nav-text">问题：为什么需要线程池</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6"><span class="nav-number">1.</span> <span class="nav-text">线程池探究</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.1.</span> <span class="nav-text">线程池是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.2.</span> <span class="nav-text">线程池解决的问题是什么</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
