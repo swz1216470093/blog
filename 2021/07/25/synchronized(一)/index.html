@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swz1216470093.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="synchronized(一)在介绍synchronized之前先介绍两个概念：竞态条件和临界区">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Synchronized(一)">
+<meta property="og:url" content="https://swz1216470093.github.io/blog/2021/07/25/synchronized(%E4%B8%80)/index.html">
+<meta property="og:site_name" content="swz&#39;blog">
+<meta property="og:description" content="synchronized(一)在介绍synchronized之前先介绍两个概念：竞态条件和临界区">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210726150112.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210726150112.png">
+<meta property="article:published_time" content="2021-07-25T13:01:07.000Z">
+<meta property="article:modified_time" content="2021-07-26T16:00:01.582Z">
+<meta property="article:author" content="swz">
+<meta property="article:tag" content="锁">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210726150112.png">
+
+<link rel="canonical" href="https://swz1216470093.github.io/blog/2021/07/25/synchronized(%E4%B8%80)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Synchronized(一) | swz'blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swz'blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/25/synchronized(%E4%B8%80)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="swz">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swz'blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Synchronized(一)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-07-25 21:01:07" itemprop="dateCreated datePublished" datetime="2021-07-25T21:01:07+08:00">2021-07-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-07-27 00:00:01" itemprop="dateModified" datetime="2021-07-27T00:00:01+08:00">2021-07-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">java并发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="synchronized-一"><a href="#synchronized-一" class="headerlink" title="synchronized(一)"></a>synchronized(一)</h1><p>在介绍synchronized之前先介绍两个概念：<strong>竞态条件</strong>和<strong>临界区</strong></p>
+<span id="more"></span>
+
+<h2 id="竞态条件"><a href="#竞态条件" class="headerlink" title="竞态条件"></a>竞态条件</h2><p>当代码的执行结果取决于进程或线程的执行顺序或时间时，就会出现竞态条件</p>
+<h2 id="临界区"><a href="#临界区" class="headerlink" title="临界区"></a>临界区</h2><p>发生竞态条件的代码区称为临界区</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span></span>&#123;</span><br><span class="line"><span class="comment">// 临界区</span></span><br><span class="line">    a++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">dec</span><span class="params">()</span></span>&#123;</span><br><span class="line"><span class="comment">// 临界区</span></span><br><span class="line">    a--;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为了避免临界区发生竞态条件，可以使用的方法有</p>
+<ul>
+<li>使用Synchronized关键字，Lock等悲观锁</li>
+<li>使用基于CAS乐观锁</li>
+</ul>
+<p>本文介绍Synchronize关键字的用法和原理</p>
+<h2 id="Synchronized的使用"><a href="#Synchronized的使用" class="headerlink" title="Synchronized的使用"></a>Synchronized的使用</h2><h3 id="加在对象上"><a href="#加在对象上" class="headerlink" title="加在对象上"></a>加在对象上</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Object object = <span class="keyword">new</span> Object();</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span>(object)&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="加在方法上"><a href="#加在方法上" class="headerlink" title="加在方法上"></a>加在方法上</h3><h4 id="加在非静态方法上"><a href="#加在非静态方法上" class="headerlink" title="加在非静态方法上"></a>加在非静态方法上</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//等价于</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123;</span><br><span class="line">        &#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="加在静态方法上"><a href="#加在静态方法上" class="headerlink" title="加在静态方法上"></a>加在静态方法上</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//等价于</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    	<span class="keyword">synchronized</span>(Test.class)&#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Synchronized的原理"><a href="#Synchronized的原理" class="headerlink" title="Synchronized的原理"></a>Synchronized的原理</h2><h3 id="Monitor锁"><a href="#Monitor锁" class="headerlink" title="Monitor锁"></a>Monitor锁</h3><p>每个java对象都关联一个Monitor锁，如果使用synchronized给对象加锁，则锁对象的MarkWord会被设为指向Monitor锁的指针</p>
+<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210726150112.png"></p>
+<ul>
+<li>刚开始时Owner为null</li>
+<li>当Thread-2执行Synchronized(object)时会将Monitor的Owner置为Thread-2，Monitor中只能有一个Owner</li>
+<li>当Thread-3执行Synchronized(object)时发现Owner不为空，进入EntryList阻塞</li>
+<li>Thread-2执行完同步代码块中的代码后释放锁，并唤醒EntryList中的线程竞争Monitor锁，竞争过程是非公平的</li>
+<li>count为重入计数</li>
+</ul>
+<h3 id="从字节码看Synchronized"><a href="#从字节码看Synchronized" class="headerlink" title="从字节码看Synchronized"></a>从字节码看Synchronized</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SyncTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> Object object = <span class="keyword">new</span> Object();</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">synchronized</span> (object)&#123;</span><br><span class="line">            count++;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>;</span><br><span class="line">   descriptor: ()V</span><br><span class="line">   flags: ACC_PUBLIC</span><br><span class="line">   Code:</span><br><span class="line">     stack=<span class="number">2</span>, locals=<span class="number">4</span>, args_size=<span class="number">1</span></span><br><span class="line">        <span class="number">0</span>: iconst_0                          <span class="comment">// 将0放入操作数栈</span></span><br><span class="line">        <span class="number">1</span>: istore_1						  <span class="comment">// 将操作数栈顶元素(0)弹出赋给局部变量表的1号槽位(i)</span></span><br><span class="line">        <span class="number">2</span>: aload_0							  <span class="comment">// 将局部变量表0号槽位的引用(this)放入操作数栈</span></span><br><span class="line">        3: getfield      #3                  // 将栈顶元素(this)弹出得到栈顶元素的成员变量(object)并放入栈中</span><br><span class="line">        <span class="number">6</span>: dup								  <span class="comment">// 将栈顶元素(object)复制一份放入栈顶</span></span><br><span class="line">        <span class="number">7</span>: astore_2                          <span class="comment">// 将栈顶元素(object)放入局部变量表2号槽位</span></span><br><span class="line">        <span class="number">8</span>: monitorenter                      <span class="comment">// 将object的MarkWord置为指向Monitor的指针</span></span><br><span class="line">        9: getstatic     #4                  // 将静态变量(count)放入操作数栈</span><br><span class="line">       <span class="number">12</span>: iconst_1						  <span class="comment">// 将1放入操作数栈</span></span><br><span class="line">       <span class="number">13</span>: iadd                              <span class="comment">// 从栈中弹出两个元素(count) (1) 将它们相加 和放入栈中</span></span><br><span class="line">       14: putstatic     #4                  // 将栈顶元素赋给静态变量(count)</span><br><span class="line">       <span class="number">17</span>: iinc          <span class="number">1</span>, <span class="number">1</span>				  <span class="comment">// 将局部变量表中1号槽位元素(i)自增1</span></span><br><span class="line">       <span class="number">20</span>: aload_2							  <span class="comment">// 将局部变量表中2号槽位元素(object)放入栈顶</span></span><br><span class="line">       <span class="number">21</span>: monitorexit						  <span class="comment">// 将object的MarkWord重置,唤醒EntryList中阻塞的线程</span></span><br><span class="line">       <span class="number">22</span>: goto          <span class="number">30</span>                  <span class="comment">// 下边的几行指令是为了在发生异常时也能释放锁</span></span><br><span class="line">       <span class="number">25</span>: astore_3						  <span class="comment">// 将栈顶元素(exception)放入局部变量表的3号槽位</span></span><br><span class="line">       <span class="number">26</span>: aload_2                           <span class="comment">// 将局部变量表中2号槽位元素(object)放入栈顶</span></span><br><span class="line">       <span class="number">27</span>: monitorexit						  <span class="comment">// 将object的MarkWord重置,唤醒EntryList中阻塞的线程</span></span><br><span class="line">       <span class="number">28</span>: aload_3							  <span class="comment">// 将局部变量表的3号槽位元素加载到栈顶</span></span><br><span class="line">       <span class="number">29</span>: athrow                            <span class="comment">// throw exception</span></span><br><span class="line">       <span class="number">30</span>: <span class="keyword">return</span></span><br><span class="line">     Exception table:</span><br><span class="line">        from    to  target type</span><br><span class="line">            <span class="number">9</span>    <span class="number">22</span>    <span class="number">25</span>   any</span><br><span class="line">           <span class="number">25</span>    <span class="number">28</span>    <span class="number">25</span>   any</span><br><span class="line">     LocalVariableTable:</span><br><span class="line">       Start  Length  Slot  Name   Signature</span><br><span class="line">           <span class="number">0</span>      <span class="number">31</span>     <span class="number">0</span>  <span class="keyword">this</span>   Lorg/example/test/SyncTest;</span><br><span class="line">           <span class="number">2</span>      <span class="number">29</span>     <span class="number">1</span>     i   I</span><br></pre></td></tr></table></figure>
+
+<p>可以发synchronized同步代码块是通过<strong>monitorenter</strong>和<strong>monitorexit</strong>指令实现的。<br><strong>monitorenter</strong>：</p>
+<ol>
+<li><p>如果<code>monitor</code>的进入数为 0，则线程进入到<code>monitor</code>，然后将进入数设置为<code>1</code>，该线程称为<code>monitor</code>的所有者。</p>
+</li>
+<li><p>如果是线程已经拥有此<code>monitor</code>(即<code>monitor</code>进入数不为 0)，然后该线程又重新进入<code>monitor</code>，则将<code>monitor</code>的进入数<code>+1</code>，这个即为<strong>锁的重入</strong>。</p>
+</li>
+<li><p>如果其他线程已经占用了<code>monitor</code>，则该线程进入到<strong>阻塞状态</strong>，直到<code>monitor</code>的进入数为 0，该线程再去重新尝试获取**<code>monitor</code>**的所有权。</p>
+</li>
+</ol>
+<p><strong>monitorexit</strong>：执行该指令的线程必须是<code>monitor</code>的所有者，指令执行时，<code>monitor</code>进入数<code>-1</code>，如果<code>-1</code>后进入数为<code>0</code>，那么线程退出<code>monitor</code>，不再是这个<code>monitor</code>的所有者。这个时候其它阻塞的线程可以尝试获取<code>monitor</code>的所有权。</p>
+<blockquote>
+<p>注意<br>方法级别的 synchronized 不会在字节码指令中有所体现</p>
+</blockquote>
+<blockquote>
+<p>上边的字节码分析中有一个彩蛋 我们可以看到静态变量的count++ 和 局部变量的i++字节码指令是不一样的</p>
+<p>静态变量的count++有三条指令 需要将count 先放入操作数栈 在栈顶完成加1的操作 再赋值给count</p>
+<p>而i++只有一条指令 它是直接在局部变量表中进行自增操作的</p>
+</blockquote>
+<h2 id="wait-notify原理"><a href="#wait-notify原理" class="headerlink" title="wait notify原理"></a>wait notify原理</h2><p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210726150112.png"></p>
+<ul>
+<li>Owner 线程发现条件不满足，调用 wait 方法，即可进入 WaitSet 变为 WAITING 状态</li>
+<li>BLOCKED 和 WAITING 的线程都处于阻塞状态，不占用 CPU 时间片</li>
+<li>BLOCKED 线程会在 Owner 线程释放锁时唤醒</li>
+<li>WAITING 线程会在 Owner 线程调用 notify 或 notifyAll 时唤醒，但唤醒后并不意味者立刻获得锁，仍需进入EntryList 重新竞争</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/%E9%94%81/" rel="tag"># 锁</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/07/14/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%B1%A0/" rel="prev" title="自己实现简单线程池">
+      <i class="fa fa-chevron-left"></i> 自己实现简单线程池
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/07/26/Synchronized(%E4%BA%8C)/" rel="next" title="Synchronized(二)">
+      Synchronized(二) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#synchronized-%E4%B8%80"><span class="nav-number">1.</span> <span class="nav-text">synchronized(一)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AB%9E%E6%80%81%E6%9D%A1%E4%BB%B6"><span class="nav-number">1.1.</span> <span class="nav-text">竞态条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%B4%E7%95%8C%E5%8C%BA"><span class="nav-number">1.2.</span> <span class="nav-text">临界区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Synchronized%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">Synchronized的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%9C%A8%E5%AF%B9%E8%B1%A1%E4%B8%8A"><span class="nav-number">1.3.1.</span> <span class="nav-text">加在对象上</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%9C%A8%E6%96%B9%E6%B3%95%E4%B8%8A"><span class="nav-number">1.3.2.</span> <span class="nav-text">加在方法上</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A0%E5%9C%A8%E9%9D%9E%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E4%B8%8A"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">加在非静态方法上</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A0%E5%9C%A8%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E4%B8%8A"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">加在静态方法上</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Synchronized%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">1.4.</span> <span class="nav-text">Synchronized的原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Monitor%E9%94%81"><span class="nav-number">1.4.1.</span> <span class="nav-text">Monitor锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E5%AD%97%E8%8A%82%E7%A0%81%E7%9C%8BSynchronized"><span class="nav-number">1.4.2.</span> <span class="nav-text">从字节码看Synchronized</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#wait-notify%E5%8E%9F%E7%90%86"><span class="nav-number">1.5.</span> <span class="nav-text">wait notify原理</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swz</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swz</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://swz1216470093.github.io/blog/2021/07/25/synchronized(%E4%B8%80)/',]
+      });
+      });
+  </script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'cefa39253970229f8e5d',
+      clientSecret: '81e0d672d6a3abf97548e8614c36a567dc55237a',
+      repo        : 'blogComments',
+      owner       : 'swz1216470093',
+      admin       : ['swz1216470093'],
+      id          : '0cf6e498d23655af11881386a8b5be0d',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
