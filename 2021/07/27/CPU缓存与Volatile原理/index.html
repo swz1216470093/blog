@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swz1216470093.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="CPU缓存与Volatile原理CPU高速缓存CPU为什么要有高速缓存，是因为最近几十年CPU频率不断提升，而内存在访问速度上却没有质的突破，导致CPU的处理速度和内存的访问速度差矩越来越大。这种情况下传统的 CPU 直连内存的方式显然就会因为内存访问的等待，导致计算资源大量闲置，降低 CPU 整体吞吐量。同时又由于局部性原理，在 CPU 和内存之间加入一层高速缓存就显得性价比极高了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPU缓存与Volatile原理">
+<meta property="og:url" content="https://swz1216470093.github.io/blog/2021/07/27/CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="swz&#39;blog">
+<meta property="og:description" content="CPU缓存与Volatile原理CPU高速缓存CPU为什么要有高速缓存，是因为最近几十年CPU频率不断提升，而内存在访问速度上却没有质的突破，导致CPU的处理速度和内存的访问速度差矩越来越大。这种情况下传统的 CPU 直连内存的方式显然就会因为内存访问的等待，导致计算资源大量闲置，降低 CPU 整体吞吐量。同时又由于局部性原理，在 CPU 和内存之间加入一层高速缓存就显得性价比极高了。">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727163530.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727170949.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727183508.png">
+<meta property="og:image" content="https://swz1216470093.github.io/blog/2021/07/AppData/Roaming/Typora/typora-user-images/image-20210727183704292.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727173709.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727184128.png">
+<meta property="article:published_time" content="2021-07-27T09:58:28.000Z">
+<meta property="article:modified_time" content="2021-07-27T12:02:09.291Z">
+<meta property="article:author" content="swz">
+<meta property="article:tag" content="volatile CPU缓存 伪共享">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727163530.png">
+
+<link rel="canonical" href="https://swz1216470093.github.io/blog/2021/07/27/CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>CPU缓存与Volatile原理 | swz'blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swz'blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/27/CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="swz">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swz'blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CPU缓存与Volatile原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-07-27 17:58:28 / Modified: 20:02:09" itemprop="dateCreated datePublished" datetime="2021-07-27T17:58:28+08:00">2021-07-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">java并发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="CPU缓存与Volatile原理"><a href="#CPU缓存与Volatile原理" class="headerlink" title="CPU缓存与Volatile原理"></a>CPU缓存与Volatile原理</h1><h2 id="CPU高速缓存"><a href="#CPU高速缓存" class="headerlink" title="CPU高速缓存"></a>CPU高速缓存</h2><p>CPU为什么要有高速缓存，是因为最近几十年CPU频率不断提升，而内存在访问速度上却没有质的突破，导致CPU的处理速度和内存的访问速度差矩越来越大。这种情况下传统的 CPU 直连内存的方式显然就会因为内存访问的等待，导致计算资源大量闲置，降低 CPU 整体吞吐量。同时又由于局部性原理，在 CPU 和内存之间加入一层高速缓存就显得性价比极高了。</p>
+<span id="more"></span>
+
+<blockquote>
+<p>在CPU访问存储设备时，无论是存取数据抑或存取指令，都趋于聚集在一片连续的区域中，这就被称为局部性原理。</p>
+<p><strong>时间局部性（Temporal Locality）</strong>：如果一个信息项正在被访问，那么在近期它很可能还会被再次访问。</p>
+<p><strong>空间局部性（Spatial Locality）</strong>：如果一个存储器的位置被引用，那么将来他附近的位置也会被引用。</p>
+</blockquote>
+<h2 id="CPU缓存结构"><a href="#CPU缓存结构" class="headerlink" title="CPU缓存结构"></a>CPU缓存结构</h2><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727163530.png" style="zoom:50%;" />
+
+<p>​    速度比较</p>
+<table>
+<thead>
+<tr>
+<th>从cpu到</th>
+<th>大约需要的时钟周期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>寄存器</td>
+<td>1</td>
+</tr>
+<tr>
+<td>L1</td>
+<td>3 ~ 4</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>10 ~ 20</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>40 ~ 45</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>120 ~ 240</td>
+</tr>
+</tbody></table>
+<h2 id="缓存行"><a href="#缓存行" class="headerlink" title="缓存行"></a>缓存行</h2><p>缓存行(cache line)是CPU Cache中的最小单位，CPU Cache 由若干缓存行组成，一个缓存行的大小通常是 64 字节（这取决于 CPU），并且它有效地引用主内存中的一块地址。一个 Java 的 long 类型是 8 字节，因此在一个缓存行中可以存 8 个 long 类型的变量。</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727170949.png" style="zoom:50%;" />
+
+<h2 id="伪共享"><a href="#伪共享" class="headerlink" title="伪共享"></a>伪共享</h2><p>通常提到缓存行，大多数文章都会提到伪共享问题</p>
+<p>伪共享指的是多个线程同时读写同一个缓存行的不同变量时导致的 CPU 缓存失效（失效原因可参考下边的MESI协议），尽管这些变量之间没有任何关系，但由于在主内存中邻近，存在于同一个缓存行之中，它们的相互覆盖会导致频繁的缓存未命中，引发性能下降。伪共享问题难以被定位，如果系统设计者不理解 CPU 缓存架构，甚至永远无法发现 — 原来我的程序还可以更快。</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727183508.png" style="zoom:50%;" />
+
+<p>正如图中所述，如果多个线程的变量共享了同一个 CacheLine，任意一方的修改操作都会使得整个 CacheLine 失效（因为 CacheLine 是 CPU 缓存的最小单位），也就意味着，频繁的多线程操作，CPU 缓存将会彻底失效，降级为 CPU core 和主内存的直接交互。</p>
+<p>伪共享问题的解决方法便是字节填充。 (java8使用@Contended 注解)</p>
+<img src="../../AppData/Roaming/Typora/typora-user-images/image-20210727183704292.png" alt="image-20210727183704292" style="zoom:50%;" />
+
+<h2 id="缓存一致性协议MESI"><a href="#缓存一致性协议MESI" class="headerlink" title="缓存一致性协议MESI"></a>缓存一致性协议MESI</h2><p>多核CPU的情况下有多个一级缓存，如何保证缓存内部数据的一致,不让系统数据混乱。这里就引出了一个一致性的协议MESI</p>
+<h3 id="MESI协议缓存状态"><a href="#MESI协议缓存状态" class="headerlink" title="MESI协议缓存状态"></a>MESI协议缓存状态</h3><p>MESI 是指4中状态的首字母。每个Cache line有4个状态，可用2个bit表示，它们分别是：</p>
+<p>M 修改 (Modified)  E 独享、互斥 (Exclusive) S 共享 (Shared) I 无效 (Invalid)</p>
+<ol>
+<li>E、S、M 状态的缓存行都可以满足 CPU 的读请求</li>
+<li>E 状态的缓存行，有写请求，会将状态改为 M，这时并不触发向主存的写</li>
+<li>E 状态的缓存行，必须监听该缓存行的读操作，如果有，要变为 S 状态</li>
+<li>M 状态的缓存行，必须监听该缓存行的读操作，如果有，先将其它缓存（S 状态）中该缓存行变成 I 状态（即6.的流程），写入主存，自己变为 S 状态</li>
+<li>S 状态的缓存行，有写请求，变为M状态 然后走 4. 的流程</li>
+<li>S 状态的缓存行，必须监听该缓存行的失效操作，如果有，自己变为 I 状态</li>
+<li>I状态的缓存行，有读请求，必须从主存读取</li>
+</ol>
+<h3 id="MESI状态转换"><a href="#MESI状态转换" class="headerlink" title="MESI状态转换"></a>MESI状态转换</h3><p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727173709.png"></p>
+<p>理解该图的前置说明：</p>
+<p>1.触发事件</p>
+<table>
+<thead>
+<tr>
+<th align="left">触发事件</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">本地读取（Local read）</td>
+<td align="left">本地cache读取本地cache数据</td>
+</tr>
+<tr>
+<td align="left">本地写入（Local write）</td>
+<td align="left">本地cache写入本地cache数据</td>
+</tr>
+<tr>
+<td align="left">远端读取（Remote read）</td>
+<td align="left">其他cache读取本地cache数据</td>
+</tr>
+<tr>
+<td align="left">远端写入（Remote write）</td>
+<td align="left">其他cache写入本地cache数据</td>
+</tr>
+</tbody></table>
+<p>2.cache分类：<br>前提：所有的cache共同缓存了主内存中的某一条数据。</p>
+<p>本地cache:指当前cpu的cache。<br>触发cache:触发读写事件的cache。<br>其他cache:指既除了以上两种之外的cache。<br>注意：本地的事件触发 本地cache和触发cache为相同。</p>
+<p>下图示意了，当一个cache line的调整的状态的时候，另外一个cache line 需要调整的状态。</p>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">M</th>
+<th align="center">E</th>
+<th align="center">S</th>
+<th align="center"><strong>I</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>M</strong></td>
+<td align="center">×</td>
+<td align="center">×</td>
+<td align="center">×</td>
+<td align="center">√</td>
+</tr>
+<tr>
+<td align="center"><strong>E</strong></td>
+<td align="center">×</td>
+<td align="center">×</td>
+<td align="center">×</td>
+<td align="center">√</td>
+</tr>
+<tr>
+<td align="center"><strong>S</strong></td>
+<td align="center">×</td>
+<td align="center">×</td>
+<td align="center">√</td>
+<td align="center">√</td>
+</tr>
+<tr>
+<td align="center"><strong>I</strong></td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">√</td>
+</tr>
+</tbody></table>
+<h2 id="MESI优化和他们引入的问题"><a href="#MESI优化和他们引入的问题" class="headerlink" title="MESI优化和他们引入的问题"></a>MESI优化和他们引入的问题</h2><p>缓存的一致性消息传递是要时间的，这就使其切换时会产生延迟。当一个缓存被切换状态时其他缓存收到消息完成各自的切换并且发出回应消息这么一长串的时间中CPU都会等待所有缓存响应完成。可能出现的阻塞都会导致各种各样的性能问题和稳定性问题。</p>
+<h3 id="CPU切换状态阻塞解决-Store-Bufferes"><a href="#CPU切换状态阻塞解决-Store-Bufferes" class="headerlink" title="CPU切换状态阻塞解决(Store Bufferes)"></a>CPU切换状态阻塞解决(Store Bufferes)</h3><p>比如你需要修改本地缓存中的一条信息，那么你必须将I（无效）状态通知到其他拥有该缓存数据的CPU缓存中，并且等待确认。等待确认的过程会阻塞处理器，这会降低处理器的性能。应为这个等待远远比一个指令的执行时间长的多。</p>
+<h4 id="Store-Bufferes"><a href="#Store-Bufferes" class="headerlink" title="Store Bufferes"></a>Store Bufferes</h4><p>为了避免这种CPU运算能力的浪费，Store Bufferes被引入使用。处理器把它想要写入到主存的值写到缓存，然后继续去处理其他事情。当所有失效确认（Invalidate Acknowledge）都接收到时，数据才会最终被提交。</p>
+<h4 id="Store-Bufferes的风险"><a href="#Store-Bufferes的风险" class="headerlink" title="Store Bufferes的风险"></a>Store Bufferes的风险</h4><p>这么做有两个风险</p>
+<p>第一、就是处理器会尝试从存储缓存（Store buffer）中读取值，但它还没有进行提交。这个的解决方案称为Store Forwarding，它使得加载的时候，如果存储缓存中存在，则进行返回。<br>第二、保存什么时候会完成，这个并没有任何保证。</p>
+<h4 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h4><p>执行Invalidate 也不是一个简单的操作，它需要处理器去处理。另外，存储缓存（Store Buffers）并不是无穷大的，所以处理器有时需要等待失效确认的返回。这两个操作都会使得性能大幅降低。为了应付这种情况，引入了失效队列。它们的约定如下：</p>
+<ul>
+<li>对于所有的收到的Invalidate请求，Invalidate Acknowlege消息必须立刻发送</li>
+<li>Invalidate并不真正执行，而是被放在一个特殊的队列(失效队列)中，在方便的时候才会去执行。</li>
+<li>处理器不会发送任何消息给所处理的缓存条目，直到它处理Invalidate。</li>
+</ul>
+<p>即便是这样处理器依然不知道什么时候优化是允许的，而什么时候并不允许。<br>干脆处理器将这个任务丢给了写代码的人。这就是内存屏障（Memory Barriers）。</p>
+<blockquote>
+<p><strong>写屏障 Store Memory Barrier是一条告诉处理器在执行这之后的指令之前，应用所有已经在存储缓存（store buffer）中的保存的指令。</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>读屏障Load Memory Barrier  是一条告诉处理器在执行任何的加载前，先应用所有已经在失效队列中的失效操作的指令。</strong></p>
+</blockquote>
+<h2 id="流水线技术和指令重排"><a href="#流水线技术和指令重排" class="headerlink" title="流水线技术和指令重排"></a>流水线技术和指令重排</h2><p>现代 CPU 支持多级指令流水线，例如支持同时执行 <code>取指令 </code>- <code>指令译码</code> - <code>执行指令</code> - <code>内存访问</code> - <code>数据写回</code> 的处理器，就可以称之为五级指令流水线。这时 CPU 可以在一个时钟周期内，同时运行五条指令的不同阶段（相当于一条执行时间最长的复杂指令），本质上，流水线技术并不能缩短单条指令的执行时间，但它变相地提高了指令地吞吐率。</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727184128.png" style="zoom:50%;" />
+
+<p>在不改变程序结果的前提下，这些指令的各个阶段可以通过<strong>重排序</strong>和<strong>组合</strong>来实现指令级并行  指令重排的前提是，重排指令不能影响结果</p>
+<h2 id="Volatile原理"><a href="#Volatile原理" class="headerlink" title="Volatile原理"></a>Volatile原理</h2><p>volatile 的底层实现原理是内存屏障，它通过内存屏障来保证可见性和有序性</p>
+<ul>
+<li>对 volatile 变量的写指令后会加入写屏障</li>
+<li>对 volatile 变量的读指令前会加入读屏障</li>
+</ul>
+<h3 id="如何保证可见性"><a href="#如何保证可见性" class="headerlink" title="如何保证可见性"></a>如何保证可见性</h3><ul>
+<li><p>写屏障保证在该屏障之前的，对共享变量的改动，都同步到主存当中</p>
+</li>
+<li><p>```java<br>public void actor2(I_Result r) {</p>
+<pre><code>num = 2;
+ready = true; // ready 是 volatile 赋值带写屏障
+// 写屏障
+</code></pre>
+<p>}</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* 而读屏障保证在该屏障之后，对共享变量的读取，加载的是主存中最新数据</span><br><span class="line"></span><br><span class="line">* &#96;&#96;&#96;java</span><br><span class="line">  public void actor1(I_Result r) &#123;</span><br><span class="line">      &#x2F;&#x2F; 读屏障</span><br><span class="line">      &#x2F;&#x2F; ready 是 volatile 读取值带读屏障</span><br><span class="line">      if(ready) &#123;</span><br><span class="line">          r.r1 &#x3D; num + num;</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          r.r1 &#x3D; 1;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="如何保证有序性"><a href="#如何保证有序性" class="headerlink" title="如何保证有序性"></a>如何保证有序性</h3><ul>
+<li><p>写屏障会确保指令重排序时，不会将写屏障之前的代码排在写屏障之后</p>
+</li>
+<li><p>```java<br>public void actor2(I_Result r) {</p>
+<pre><code>num = 2;
+ready = true; // ready 是 volatile 赋值带写屏障
+// 写屏障
+</code></pre>
+<p>}</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* 读屏障会确保指令重排序时，不会将读屏障之后的代码排在读屏障之前</span><br><span class="line"></span><br><span class="line">* &#96;&#96;&#96;java</span><br><span class="line">  public void actor1(I_Result r) &#123;</span><br><span class="line">      &#x2F;&#x2F; 读屏障</span><br><span class="line">      &#x2F;&#x2F; ready 是 volatile 读取值带读屏障</span><br><span class="line">      if(ready) &#123;</span><br><span class="line">          r.r1 &#x3D; num + num;</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          r.r1 &#x3D; 1;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>但Volatile不能保证原子性，不能解决指令交错</p>
+<ul>
+<li>写屏障仅仅是保证之后的读能够读到最新的结果，但不能保证读跑到它前面去</li>
+<li>而有序性的保证也只是保证了本线程内相关代码不被重排序</li>
+</ul>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yanlong300/p/8986041.html">并发研究之CPU缓存一致性协议(MESI)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnkirito.moe/cache-line">JAVA 拾遗 — CPU Cache 与缓存行</a></p>
+<p>黑马视频 《java并发编程》</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/volatile-CPU%E7%BC%93%E5%AD%98-%E4%BC%AA%E5%85%B1%E4%BA%AB/" rel="tag"># volatile CPU缓存 伪共享</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/07/26/Synchronized(%E4%BA%8C)/" rel="prev" title="Synchronized(二)">
+      <i class="fa fa-chevron-left"></i> Synchronized(二)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">CPU缓存与Volatile原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98"><span class="nav-number">1.1.</span> <span class="nav-text">CPU高速缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E7%BC%93%E5%AD%98%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">CPU缓存结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E8%A1%8C"><span class="nav-number">1.3.</span> <span class="nav-text">缓存行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%AA%E5%85%B1%E4%BA%AB"><span class="nav-number">1.4.</span> <span class="nav-text">伪共享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AEMESI"><span class="nav-number">1.5.</span> <span class="nav-text">缓存一致性协议MESI</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MESI%E5%8D%8F%E8%AE%AE%E7%BC%93%E5%AD%98%E7%8A%B6%E6%80%81"><span class="nav-number">1.5.1.</span> <span class="nav-text">MESI协议缓存状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MESI%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.5.2.</span> <span class="nav-text">MESI状态转换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MESI%E4%BC%98%E5%8C%96%E5%92%8C%E4%BB%96%E4%BB%AC%E5%BC%95%E5%85%A5%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.6.</span> <span class="nav-text">MESI优化和他们引入的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU%E5%88%87%E6%8D%A2%E7%8A%B6%E6%80%81%E9%98%BB%E5%A1%9E%E8%A7%A3%E5%86%B3-Store-Bufferes"><span class="nav-number">1.6.1.</span> <span class="nav-text">CPU切换状态阻塞解决(Store Bufferes)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Store-Bufferes"><span class="nav-number">1.6.1.1.</span> <span class="nav-text">Store Bufferes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Store-Bufferes%E7%9A%84%E9%A3%8E%E9%99%A9"><span class="nav-number">1.6.1.2.</span> <span class="nav-text">Store Bufferes的风险</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C"><span class="nav-number">1.6.1.3.</span> <span class="nav-text">内存屏障</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E6%B0%B4%E7%BA%BF%E6%8A%80%E6%9C%AF%E5%92%8C%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92"><span class="nav-number">1.7.</span> <span class="nav-text">流水线技术和指令重排</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Volatile%E5%8E%9F%E7%90%86"><span class="nav-number">1.8.</span> <span class="nav-text">Volatile原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7"><span class="nav-number">1.8.1.</span> <span class="nav-text">如何保证可见性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%9C%89%E5%BA%8F%E6%80%A7"><span class="nav-number">1.8.2.</span> <span class="nav-text">如何保证有序性</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swz</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swz</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://swz1216470093.github.io/blog/2021/07/27/CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86/',]
+      });
+      });
+  </script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'cefa39253970229f8e5d',
+      clientSecret: '81e0d672d6a3abf97548e8614c36a567dc55237a',
+      repo        : 'blogComments',
+      owner       : 'swz1216470093',
+      admin       : ['swz1216470093'],
+      id          : '27e5330cebef5380323ea514a9dae716',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
