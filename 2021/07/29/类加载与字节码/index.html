@@ -54,10 +54,10 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210719221549539.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210719221815476.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210719215926573.png">
-<meta property="og:image" content="c:/Users/向前走不回头/AppData/Roaming/Typora/typora-user-images/image-20210718211545368.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718211545368.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210720000140849.png">
 <meta property="article:published_time" content="2021-07-29T05:29:32.000Z">
-<meta property="article:modified_time" content="2021-07-29T07:19:22.503Z">
+<meta property="article:modified_time" content="2021-07-29T07:41:08.620Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="类加载器">
 <meta property="article:tag" content="字节码">
@@ -213,7 +213,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-07-29 13:29:32 / Modified: 15:19:22" itemprop="dateCreated datePublished" datetime="2021-07-29T13:29:32+08:00">2021-07-29</time>
+              <time title="Created: 2021-07-29 13:29:32 / Modified: 15:41:08" itemprop="dateCreated datePublished" datetime="2021-07-29T13:29:32+08:00">2021-07-29</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -345,7 +345,7 @@
 <td>表示一个动态方法调用点</td>
 </tr>
 </tbody></table>
-<p>8<del>9 字节，表示常量池长度，00 1f （31） 表示常量池有 #1</del>#30项，注意 #0 项不计入，也没有值</p>
+<p>8-9 字节，表示常量池长度，00 1f （31） 表示常量池有 #1-#30项，注意 #0 项不计入，也没有值</p>
 <p>0000000 ca fe ba be 00 00 00 34 <strong>00 1f</strong> 0a 00 06 00 11 09</p>
 <p>第#1项 0a 表示一个 Method 信息，00 06 和 00 11（17） 表示它引用了常量池中 #6 和 #17 项来获得<br>这个方法的【所属类】和【方法名】</p>
 <p>0000000 ca fe ba be 00 00 00 34 00 1f <strong>0a 00 06 00 11</strong> 09</p>
@@ -749,7 +749,7 @@
 <li>instanceKlass 这样的【元数据】是存储在方法区（1.8 后的元空间内），但 _java_mirror是存储在堆中</li>
 </ul>
 </blockquote>
-<p><img src="C:/Users/向前走不回头/AppData/Roaming/Typora/typora-user-images/image-20210718211545368.png" alt="image-20210718211545368"></p>
+<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718211545368.png" alt="image-20210718211545368"></p>
 <h3 id="4-2链接"><a href="#4-2链接" class="headerlink" title="4.2链接"></a>4.2链接</h3><h4 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h4><p>验证类是否符合 JVM规范，安全性检查</p>
 <h4 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h4><p>为 static 变量分配空间，设置默认值</p>
 <ul>
