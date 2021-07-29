@@ -20,28 +20,64 @@
     var CONFIG = {"hostname":"swz1216470093.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="swz&#39;blog">
-<meta property="og:url" content="https://swz1216470093.github.io/blog/index.html">
+  <meta name="description" content="类加载与字节码1.类文件结构将HelloWorld.java编译 12345public class HelloWorld &amp;#123;    public static void main(String[] args) &amp;#123;        System.out.println(&quot;hello world&quot;);    &amp;#125;&amp;#125;  执行 javac -par">
+<meta property="og:type" content="article">
+<meta property="og:title" content="类加载与字节码">
+<meta property="og:url" content="https://swz1216470093.github.io/blog/2021/07/29/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%AD%97%E8%8A%82%E7%A0%81/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
+<meta property="og:description" content="类加载与字节码1.类文件结构将HelloWorld.java编译 12345public class HelloWorld &amp;#123;    public static void main(String[] args) &amp;#123;        System.out.println(&quot;hello world&quot;);    &amp;#125;&amp;#125;  执行 javac -par">
 <meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718132420364.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718132546669.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718133746939.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718140103397.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718140126212.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718140130985.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718140153638.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718140207715.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718140212852.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718140229738.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718140235416.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718144038345.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718144203337.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718144805204.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718144813264.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718144855717.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718144925709.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718144944047.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718145000294.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718145050984.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718145920462.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210719220509988.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210719220732187.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210719220937979.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210719221549539.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210719221815476.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210719215926573.png">
+<meta property="og:image" content="c:/Users/向前走不回头/AppData/Roaming/Typora/typora-user-images/image-20210718211545368.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210720000140849.png">
+<meta property="article:published_time" content="2021-07-29T05:29:32.000Z">
+<meta property="article:modified_time" content="2021-07-29T07:14:54.140Z">
 <meta property="article:author" content="swz">
+<meta property="article:tag" content="类加载器">
+<meta property="article:tag" content="字节码">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210718132420364.png">
 
-<link rel="canonical" href="https://swz1216470093.github.io/blog/">
+<link rel="canonical" href="https://swz1216470093.github.io/blog/2021/07/29/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%AD%97%E8%8A%82%E7%A0%81/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-Hans'
   };
 </script>
 
-  <title>swz'blog</title>
+  <title>类加载与字节码 | swz'blog</title>
   
 
 
@@ -146,9 +182,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
@@ -164,10 +201,9 @@
       <meta itemprop="name" content="swz'blog">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/29/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%AD%97%E8%8A%82%E7%A0%81/" class="post-title-link" itemprop="url">类加载与字节码</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          类加载与字节码
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -200,7 +236,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="类加载与字节码"><a href="#类加载与字节码" class="headerlink" title="类加载与字节码"></a>类加载与字节码</h1><h2 id="1-类文件结构"><a href="#1-类文件结构" class="headerlink" title="1.类文件结构"></a>1.类文件结构</h2><p>将HelloWorld.java编译</p>
+        <h1 id="类加载与字节码"><a href="#类加载与字节码" class="headerlink" title="类加载与字节码"></a>类加载与字节码</h1><h2 id="1-类文件结构"><a href="#1-类文件结构" class="headerlink" title="1.类文件结构"></a>1.类文件结构</h2><p>将HelloWorld.java编译</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorld</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;hello world&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>执行 javac -parameters -d . HellowWorld.java</p>
@@ -896,1050 +932,41 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassLoaderTest</span> <span class="keyword">extends</span> <span class="title">ClassLoader</span></span>&#123;</span><br><span class="line">    <span class="comment">//name 就是类名称</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        String path = <span class="string">&quot;D:\\&quot;</span> + name + <span class="string">&quot;.class&quot;</span>;</span><br><span class="line">        ByteArrayOutputStream bos = <span class="keyword">new</span> ByteArrayOutputStream();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Files.copy(Paths.get(path),bos);</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">byte</span>[] bytes = bos.toByteArray();</span><br><span class="line">            <span class="keyword">return</span> defineClass(name,bytes,<span class="number">0</span>,bytes.length);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ClassNotFoundException(<span class="string">&quot;类文件未找到&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException, InstantiationException, IllegalAccessException, IOException </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> ClassLoaderTest classLoaderTest = <span class="keyword">new</span> ClassLoaderTest();</span><br><span class="line">        <span class="keyword">final</span> Class&lt;?&gt; mapImpl1 = classLoaderTest.loadClass(<span class="string">&quot;MyMapImpl1&quot;</span>);</span><br><span class="line">        <span class="keyword">final</span> Class&lt;?&gt; mapImpl2 = classLoaderTest.loadClass(<span class="string">&quot;MyMapImpl2&quot;</span>);</span><br><span class="line">        System.out.println(mapImpl2 == mapImpl1);</span><br><span class="line">        System.out.println(mapImpl2.newInstance());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/blog/tags/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" rel="tag"># 类加载器</a>
+              <a href="/blog/tags/%E5%AD%97%E8%8A%82%E7%A0%81/" rel="tag"># 字节码</a>
+          </div>
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/28/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/28/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" class="post-title-link" itemprop="url">垃圾回收</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-07-28 23:29:32" itemprop="dateCreated datePublished" datetime="2021-07-28T23:29:32+08:00">2021-07-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-29 14:45:12" itemprop="dateModified" datetime="2021-07-29T14:45:12+08:00">2021-07-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="1-如何判断对象可以回收"><a href="#1-如何判断对象可以回收" class="headerlink" title="1. 如何判断对象可以回收"></a>1. 如何判断对象可以回收</h2><h3 id="1-1-引用计数法"><a href="#1-1-引用计数法" class="headerlink" title="1.1 引用计数法"></a>1.1 引用计数法</h3><p>定义：只要有变量引用它，引用计数就+1，如果某个变量不再引用它，计数就-1，没有引用计数变为0时，就进行垃圾回收</p>
-<p>缺点：无法解决循环引用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">	A对象--&gt;B对象</span><br><span class="line">	B对象--&gt;A对象</span><br></pre></td></tr></table></figure>
-
-<h3 id="1-2-可达性分析算法"><a href="#1-2-可达性分析算法" class="headerlink" title="1.2 可达性分析算法"></a>1.2 可达性分析算法</h3><p>定义：扫描堆中对象，看能否沿着GCROOT对象为起点的引用链找到该对象，找不到就说明可以回收</p>
-<p>根对象：（可以理解为肯定不能被回收的对象） 上下文对象：虚拟机栈和本地方法栈引用的对象  全局对象：方法区中的常量，静态变量。 </p>
-<h3 id="1-3-四种引用"><a href="#1-3-四种引用" class="headerlink" title="1.3 四种引用"></a>1.3 四种引用</h3><ol>
-<li><p>强引用<br>只有所有 GC Roots 对象都不通过强引用引用该对象，该对象才能被垃圾回收</p>
-</li>
-<li><p>软引用（SoftReference）<br>仅有软引用引用该对象时，在垃圾回收后，内存仍不足时会再次出发垃圾回收，回收软引用<br>对象<br>可以配合引用队列来释放软引用自身</p>
-</li>
-<li><p>弱引用（WeakReference）<br>仅有弱引用引用该对象时，在垃圾回收时，无论内存是否充足，都会回收弱引用对象<br>可以配合引用队列来释放弱引用自身</p>
-</li>
-<li><p>虚引用（PhantomReference）<br>必须配合引用队列使用，主要配合 ByteBuffer 使用，被引用对象回收时，会将虚引用入队，<br>由 Reference Handler 线程调用虚引用相关方法释放直接内存</p>
-</li>
-</ol>
-<h4 id="软引用配合引用队列释放软引用自身"><a href="#软引用配合引用队列释放软引用自身" class="headerlink" title="软引用配合引用队列释放软引用自身"></a>软引用配合引用队列释放软引用自身</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//-Xmx20m -XX:+PrintGCDetails -verbose:gc</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SoftReferenceTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> _4MB=<span class="number">4</span> * <span class="number">1024</span> * <span class="number">1024</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        List&lt;SoftReference&lt;<span class="keyword">byte</span>[]&gt;&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"><span class="comment">//        引用队列</span></span><br><span class="line">        ReferenceQueue&lt;<span class="keyword">byte</span>[]&gt; queue = <span class="keyword">new</span> ReferenceQueue&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line"><span class="comment">//            关联了引用队列，当软引用所关联的byte[]被回收时，软引用自己会加入到queue中去</span></span><br><span class="line">            SoftReference&lt;<span class="keyword">byte</span>[]&gt; ref = <span class="keyword">new</span> SoftReference&lt;&gt;(<span class="keyword">new</span> <span class="keyword">byte</span>[_4MB],queue);</span><br><span class="line">             System.out.println(<span class="string">&quot;ref:&quot;</span>+ref.get());</span><br><span class="line">            list.add(ref);</span><br><span class="line">            System.out.println(<span class="string">&quot;size:&quot;</span> + list.size());</span><br><span class="line">        &#125;</span><br><span class="line"><span class="comment">//         从引用队列中获取无用的软引用对象并移除</span></span><br><span class="line">        Reference&lt;? extends <span class="keyword">byte</span>[]&gt; poll = queue.poll();</span><br><span class="line">        <span class="keyword">while</span> (poll != <span class="keyword">null</span>) &#123;</span><br><span class="line">            list.remove(poll);</span><br><span class="line">            poll = queue.poll();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">            System.out.println(<span class="string">&quot;===========================================================================&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> (SoftReference&lt;<span class="keyword">byte</span>[]&gt; reference : list) &#123;</span><br><span class="line">            System.out.println(reference.get());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">ref:[B@135fbaa4</span><br><span class="line">size:<span class="number">1</span></span><br><span class="line">ref:[B@45ee12a7</span><br><span class="line">size:<span class="number">2</span></span><br><span class="line">ref:[B@330bedb4</span><br><span class="line">size:<span class="number">3</span></span><br><span class="line">[GC (Allocation Failure) [PSYoungGen: 1946K-&gt;488K(6144K)] 14234K-&gt;13060K(19968K), <span class="number">0.0009561</span> secs] [Times: user=<span class="number">0.00</span> sys=<span class="number">0.00</span>, real=<span class="number">0.00</span> secs] </span><br><span class="line">ref:[B@2503dbd3</span><br><span class="line">size:<span class="number">4</span></span><br><span class="line">[GC (Allocation Failure) --[PSYoungGen: 4696K-&gt;4696K(6144K)] 17268K-&gt;17284K(19968K), <span class="number">0.0009838</span> secs] [Times: user=<span class="number">0.00</span> sys=<span class="number">0.00</span>, real=<span class="number">0.00</span> secs] </span><br><span class="line">[<span class="function">Full <span class="title">GC</span> <span class="params">(Ergonomics)</span> [PSYoungGen: 4696K-&gt;4496<span class="title">K</span><span class="params">(6144K)</span>] [ParOldGen: 12588K-&gt;12541<span class="title">K</span><span class="params">(13824K)</span>] 17284K-&gt;17037<span class="title">K</span><span class="params">(19968K)</span>, [Metaspace: 3296K-&gt;3296<span class="title">K</span><span class="params">(1056768K)</span>], 0.0054321 secs] [Times: user</span>=<span class="number">0.00</span> sys=<span class="number">0.00</span>, real=<span class="number">0.01</span> secs] </span><br><span class="line">[GC (Allocation Failure) --[PSYoungGen: 4496K-&gt;4496K(6144K)] 17037K-&gt;17045K(19968K), <span class="number">0.0008573</span> secs] [Times: user=<span class="number">0.00</span> sys=<span class="number">0.00</span>, real=<span class="number">0.00</span> secs] </span><br><span class="line">[<span class="function">Full <span class="title">GC</span> <span class="params">(Allocation Failure)</span> [PSYoungGen: 4496K-&gt;0<span class="title">K</span><span class="params">(6144K)</span>] [ParOldGen: 12549K-&gt;635<span class="title">K</span><span class="params">(8704K)</span>] 17045K-&gt;635<span class="title">K</span><span class="params">(14848K)</span>, [Metaspace: 3296K-&gt;3296<span class="title">K</span><span class="params">(1056768K)</span>], 0.0069821 secs] [Times: user</span>=<span class="number">0.02</span> sys=<span class="number">0.00</span>, real=<span class="number">0.01</span> secs] </span><br><span class="line">ref:[B@4b67cf4d</span><br><span class="line">size:<span class="number">5</span></span><br><span class="line">====================</span><br><span class="line">[B@4b67cf4d</span><br><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 6144K, used 4264K [<span class="number">0x00000000ff980000</span>, <span class="number">0x0000000100000000</span>, <span class="number">0x0000000100000000</span>)</span><br><span class="line">  eden space 5632K, <span class="number">75</span>% used [<span class="number">0x00000000ff980000</span>,<span class="number">0x00000000ffdaa290</span>,<span class="number">0x00000000fff00000</span>)</span><br><span class="line">  from space 512K, <span class="number">0</span>% used [<span class="number">0x00000000fff00000</span>,<span class="number">0x00000000fff00000</span>,<span class="number">0x00000000fff80000</span>)</span><br><span class="line">  to   space 512K, <span class="number">0</span>% used [<span class="number">0x00000000fff80000</span>,<span class="number">0x00000000fff80000</span>,<span class="number">0x0000000100000000</span>)</span><br><span class="line"> ParOldGen       total 8704K, used 635K [<span class="number">0x00000000fec00000</span>, <span class="number">0x00000000ff480000</span>, <span class="number">0x00000000ff980000</span>)</span><br><span class="line">  object space 8704K, <span class="number">7</span>% used [<span class="number">0x00000000fec00000</span>,<span class="number">0x00000000fec9ed40</span>,<span class="number">0x00000000ff480000</span>)</span><br><span class="line"> Metaspace       used 3304K, capacity 4500K, committed 4864K, reserved 1056768K</span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">space</span>    <span class="title">used</span> 359<span class="title">K</span>, <span class="title">capacity</span> 388<span class="title">K</span>, <span class="title">committed</span> 512<span class="title">K</span>, <span class="title">reserved</span> 1048576<span class="title">K</span></span></span><br></pre></td></tr></table></figure>
-
-<h4 id="结合DirectByteBuffer源码分析PhantomReference"><a href="#结合DirectByteBuffer源码分析PhantomReference" class="headerlink" title="结合DirectByteBuffer源码分析PhantomReference"></a>结合DirectByteBuffer源码分析PhantomReference</h4><p>DirectByteBuffer在构造函数中使用unsafe分配直接内存，并创建Cleaner(虚引用)与DirectByteBuffer关联起来，在创建Cleaner的时候，cleaner会关联引用队列，并设置回调，然后当DirectByteBuffer对象被回收时，Cleaner进入引用队列，由ReferenceHandler守护线程轮询队列，调用cleaner的clean方法 clean方法调用回调使用unsafe.freeMemory释放内存。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//DirectByteBuffer构造函数</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DirectByteBuffer</span>  <span class="keyword">extends</span> <span class="title">MappedByteBuffer</span> <span class="keyword">implements</span> <span class="title">DirectBuffer</span></span>&#123;</span><br><span class="line"> DirectByteBuffer(<span class="keyword">int</span> cap) &#123;                 </span><br><span class="line">       <span class="comment">//省略无关代码</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            base = unsafe.allocateMemory(size);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (OutOfMemoryError x) &#123;</span><br><span class="line">            Bits.unreserveMemory(size, cap);</span><br><span class="line">            <span class="keyword">throw</span> x;</span><br><span class="line">        &#125;</span><br><span class="line">     	<span class="comment">//省略无关代码</span></span><br><span class="line">        unsafe.setMemory(base, size, (<span class="keyword">byte</span>) <span class="number">0</span>);</span><br><span class="line">        cleaner = Cleaner.create(<span class="keyword">this</span>, <span class="keyword">new</span> Deallocator(base, size, cap));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Deallocator</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> Unsafe unsafe = Unsafe.getUnsafe();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">long</span> address;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">long</span> size;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> capacity;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="title">Deallocator</span><span class="params">(<span class="keyword">long</span> address, <span class="keyword">long</span> size, <span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">assert</span> (address != <span class="number">0</span>);</span><br><span class="line">            <span class="keyword">this</span>.address = address;</span><br><span class="line">            <span class="keyword">this</span>.size = size;</span><br><span class="line">            <span class="keyword">this</span>.capacity = capacity;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (address == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">// Paranoia</span></span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            unsafe.freeMemory(address);</span><br><span class="line">            address = <span class="number">0</span>;</span><br><span class="line">            Bits.unreserveMemory(size, capacity);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Cleaner</span> <span class="keyword">extends</span> <span class="title">PhantomReference</span>&lt;<span class="title">Object</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ReferenceQueue&lt;Object&gt; dummyQueue = <span class="keyword">new</span> ReferenceQueue();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Cleaner <span class="title">create</span><span class="params">(Object var0, Runnable var1)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//创建Cleaner的同时放入引用队列</span></span><br><span class="line">        <span class="keyword">return</span> var1 == <span class="keyword">null</span> ? <span class="keyword">null</span> : add(<span class="keyword">new</span> Cleaner(var0, var1));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//省略无关代码</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">clean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (remove(<span class="keyword">this</span>)) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">//调用Deallocator的run方法 使用unsafe释放直接内存</span></span><br><span class="line">                <span class="keyword">this</span>.thunk.run();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (<span class="keyword">final</span> Throwable var2) &#123;</span><br><span class="line">                AccessController.doPrivileged(<span class="keyword">new</span> PrivilegedAction&lt;Void&gt;() &#123;</span><br><span class="line">                    <span class="function"><span class="keyword">public</span> Void <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                        <span class="keyword">if</span> (System.err != <span class="keyword">null</span>) &#123;</span><br><span class="line">                            (<span class="keyword">new</span> Error(<span class="string">&quot;Cleaner terminated abnormally&quot;</span>, var2)).printStackTrace();</span><br><span class="line">                        &#125;</span><br><span class="line">                        System.exit(<span class="number">1</span>);</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Reference</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReferenceHandler</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">         <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                tryHandlePending(<span class="keyword">true</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">     <span class="function"><span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">tryHandlePending</span><span class="params">(<span class="keyword">boolean</span> waitForNotify)</span> </span>&#123;</span><br><span class="line">        Reference&lt;Object&gt; r;</span><br><span class="line">        Cleaner c;</span><br><span class="line">		<span class="comment">//省略无关代码</span></span><br><span class="line">        <span class="keyword">if</span> (c != <span class="keyword">null</span>) &#123;</span><br><span class="line">            c.clean();</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ReferenceQueue&lt;? <span class="keyword">super</span> Object&gt; q = r.queue;</span><br><span class="line">        <span class="keyword">if</span> (q != ReferenceQueue.NULL) q.enqueue(r);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-垃圾回收算法"><a href="#2-垃圾回收算法" class="headerlink" title="2.垃圾回收算法"></a>2.垃圾回收算法</h2><h3 id="2-1-标记清除算法"><a href="#2-1-标记清除算法" class="headerlink" title="2.1 标记清除算法"></a>2.1 标记清除算法</h3><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210715201951182.png" alt="image-20210715201951182" style="zoom:50%;" />
-
-<p>优点： 速度快 不会导致STW</p>
-<p>缺点：容易产生内存碎片</p>
-<h3 id="2-2标记整理算法"><a href="#2-2标记整理算法" class="headerlink" title="2.2标记整理算法"></a>2.2标记整理算法</h3><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210715202314058.png" alt="image-20210715202314058" style="zoom:50%;" />
-
-<p>优点：没有内存碎片</p>
-<p>缺点：效率低 会导致STW</p>
-<h3 id="2-3标记复制"><a href="#2-3标记复制" class="headerlink" title="2.3标记复制"></a>2.3标记复制</h3><p>将From区存活的对象复制到To区，然后交换From区和To区</p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210715203128026.png" style="zoom:50%;" />
-
-<p>优点：没有内存碎片</p>
-<p>缺点：会浪费一半的内存，会STW</p>
-<h2 id="3-分代垃圾回收"><a href="#3-分代垃圾回收" class="headerlink" title="3.分代垃圾回收"></a>3.分代垃圾回收</h2><p>实际的jvm不会只使用一种垃圾回收算法，而是根据情况综合使用。</p>
-<p>根据弱分代理论：大多数对象都是朝生夕死的，强分代理论：活的越久的对象越不容易消亡，将堆内存分为老年代和新生代。</p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210715211419932.png" alt="image-20210715211419932" style="zoom:50%;" />
-
-<ul>
-<li>对象首先分配在伊甸园区域</li>
-<li>新生代内存不足时，触发minor gc，eden区和Survivor From区存活的对象复制到Survivor To区，存活的对象年龄加1并交换from和to区。</li>
-<li>minor gc会导致STW,暂停其他用户线程，等垃圾回收结束，用户线程才恢复运行</li>
-<li>当对象年龄大于阈值（默认值15）时，会晋升到老年代。</li>
-<li>当老年代空间不足时，会先尝试触发minor gc,如果之后空间仍不足，那么触发full gc, STW更长</li>
-</ul>
-<p>新生代使用复制算法，只需要付出较小的复制代价就能实现新生代的回收，而且新生代内存占比为8：2：2，只有20%的内存被浪费。</p>
-<p>老年代使用标记清除或标记整理算法。</p>
-<h3 id="GC相关参数"><a href="#GC相关参数" class="headerlink" title="GC相关参数"></a>GC相关参数</h3><table>
-<thead>
-<tr>
-<th>描述</th>
-<th>参数</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>堆初始大小</td>
-<td>-Xms</td>
-</tr>
-<tr>
-<td>堆最大大小</td>
-<td>-Xmx</td>
-</tr>
-<tr>
-<td>新生代大小</td>
-<td>-Xmn</td>
-</tr>
-<tr>
-<td>survivor区比例</td>
-<td>-XX:SurvivorRatio=ratio</td>
-</tr>
-<tr>
-<td>晋升阈值</td>
-<td>-XX:MaxTenuringThreshold=threshold</td>
-</tr>
-<tr>
-<td>GC详情</td>
-<td>-XX:PrintGCDetails -verbose:gc</td>
-</tr>
-<tr>
-<td>FullGC前MinorGC</td>
-<td>-XX:ScavengeBeforeFullGC</td>
-</tr>
-</tbody></table>
-<h2 id="4-垃圾回收器"><a href="#4-垃圾回收器" class="headerlink" title="4.垃圾回收器"></a>4.垃圾回收器</h2><h3 id="1-串行垃圾回收器"><a href="#1-串行垃圾回收器" class="headerlink" title="1.串行垃圾回收器"></a>1.串行垃圾回收器</h3><ul>
-<li>单线程</li>
-<li>堆内存较小，适合个人电脑</li>
-</ul>
-<p>-XX:UseSerialGC = Serial + SerialOld</p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717143210525.png" alt="image-20210717143210525" style="zoom:50%;" />
-
-<h3 id="2-吞吐量优先"><a href="#2-吞吐量优先" class="headerlink" title="2. 吞吐量优先"></a>2. 吞吐量优先</h3><ul>
-<li><p>多线程</p>
-</li>
-<li><p>堆内存较大，多核CPU</p>
-</li>
-<li><p>吞吐量是指应用程序线程用时占程序总用时的比例。让单位时间内STW的时间最短，垃圾回收时间占比最低，这样就称吞吐量高</p>
-</li>
-</ul>
-<p>-XX:UseParalleGC</p>
-<p>-XX:+UseAdaptiveSizePolicy 动态调整堆大小</p>
-<p>-XX:GCTimeRatio = ratio  ratio 默认值为99  一般设为19 公式（1/1 + ratio）100分钟内有1分钟进行垃圾回收。 通过调整堆大小来进行调整</p>
-<p>-XX:MaxGCPauseMillis = ms  默认值200ms</p>
-<p>-XX:ParallelGCThread = n</p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717143309999.png" alt="image-20210717143309999" style="zoom:50%;" />
-
-<h3 id="3-响应时间优先"><a href="#3-响应时间优先" class="headerlink" title="3.响应时间优先"></a>3.响应时间优先</h3><ul>
-<li>多线程</li>
-<li>堆内存较大，多核CPU</li>
-<li>尽可能让单次STW时间最短</li>
-<li>最大问题：因为内存碎片过多导致并发失败，CMS退化为serial old 进行一次标记整理STW时间更长了</li>
-</ul>
-<p>-XX:UseConcMarkSweepGC</p>
-<p>-XX:ParallelGCThreads = n</p>
-<p>-XX:CMSInitiatingOccupancyFraction=percent  当老年代内存占用到percent时，就执行垃圾回收  为了预留空间给浮动垃圾</p>
-<p>-XX:+CMSScavengeBeforeRemark </p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717145202078.png" alt="image-20210717145202078" style="zoom:50%;" />
-
-<h4 id="3-1CMSScavengeBeforeRemark-参数"><a href="#3-1CMSScavengeBeforeRemark-参数" class="headerlink" title="3.1CMSScavengeBeforeRemark 参数"></a>3.1CMSScavengeBeforeRemark 参数</h4><p>参考：<a target="_blank" rel="noopener" href="https://tech.meituan.com/2017/12/29/jvm-optimize.html">从实际案例聊聊Java应用的GC优化</a></p>
-<p>CMS对老年代做回收，Remark阶段仅扫描老年代是否可行？结论是不可行，原因如下：<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717161938273.png" alt="image-20210717161938273" style="zoom:50%;" /></p>
-<p>如果仅扫描老年代中对象，即以老年代中对象为根，判断对象是否存在引用，上图中，对象A因为引用存在新生代中，它在Remark阶段就不会被修正标记为可达，GC时会被错误回收。 <strong>新生代对象持有老年代中对象的引用</strong>，这种情况称为<strong>“跨代引用”</strong>。因它的存在，Remark阶段必须扫描整个堆来判断对象是否存活，包括图中灰色的不可达对象。</p>
-<p>灰色对象已经不可达，但仍然需要扫描的原因：<strong>新生代GC和老年代的GC是各自分开独立进行的</strong>，只有Minor GC时才会使用根搜索算法，标记新生代对象是否可达，也就是说虽然一些对象已经不可达，但在Minor GC发生前不会被标记为不可达，CMS也无法辨认哪些对象存活，只能全堆扫描（新生代+老年代）。由此可见堆中对象的数目影响了Remark阶段耗时。 分析GC日志可以得出同样的规律，Remark耗时&gt;500ms时，新生代使用率都在75%以上。这样降低Remark阶段耗时问题转换成如何减少新生代对象数量。</p>
-<p>新生代中对象的特点是“朝生夕灭”，这样如果Remark前执行一次Minor GC，大部分对象就会被回收。CMS就采用了这样的方式，在Remark前增加了一个可中断的并发预清理（CMS-concurrent-abortable-preclean），该阶段主要工作仍然是并发标记对象是否存活，只是这个过程可被中断。此阶段在Eden区使用超过2M时启动，当然2M是默认的阈值，可以通过参数修改。如果此阶段执行时等到了Minor GC，那么上述灰色对象将被回收，Reamark阶段需要扫描的对象就少了。</p>
-<p>除此之外CMS为了避免这个阶段没有等到Minor GC而陷入无限等待，提供了参数CMSMaxAbortablePrecleanTime ，默认为5s，含义是如果可中断的预清理执行超过5s，不管发没发生Minor GC，都会中止此阶段，进入Remark。可中断的并发预清理执行了5.35s，超过了设置的5s被中断，期间没有等到Minor GC ，所以Remark时新生代中仍然有很多对象。</p>
-<p>对于这种情况，CMS提供CMSScavengeBeforeRemark参数，用来保证Remark前强制进行一次Minor GC</p>
-<h3 id="4-G1"><a href="#4-G1" class="headerlink" title="4.G1"></a>4.G1</h3><ul>
-<li>同时注重吞吐量（Throughput）和低延迟（Low latency），默认的暂停目标是 200 ms</li>
-<li>超大堆内存，会将堆划分为多个大小相等的 Region</li>
-<li>整体上是标记+整理算法，两个区域之间是复制算法</li>
-</ul>
-<p>-XX:+UseG1GC<br>-XX:G1HeapRegionSize=size<br>-XX:MaxGCPauseMillis=time</p>
-<h4 id="4-1-回收阶段"><a href="#4-1-回收阶段" class="headerlink" title="4.1 回收阶段"></a>4.1 回收阶段</h4><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717151532924.png" alt="image-20210717151532924" style="zoom:50%;" />
-
-<h4 id="4-2-Young-Collection"><a href="#4-2-Young-Collection" class="headerlink" title="4.2 Young Collection"></a>4.2 Young Collection</h4><ul>
-<li>会STW</li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717151702199.png" alt="image-20210717151702199" style="zoom:25%;" /><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717151742748.png" style="zoom:25%;" /><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717151805431.png" style="zoom:25%;" /></p>
-<h4 id="4-3-Young-Collection-CM"><a href="#4-3-Young-Collection-CM" class="headerlink" title="4.3 Young Collection + CM"></a>4.3 Young Collection + CM</h4><ul>
-<li><p>在 Young GC 时会进行 GC Root 的初始标记</p>
-</li>
-<li><p>老年代占用堆空间比例达到阈值时，进行并发标记（不会 STW），由下面的 JVM 参数决定</p>
-<p>-XX:InitiatingHeapOccupancyPercent=percent （默认占比45%）</p>
-</li>
-</ul>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717152427089.png" style="zoom:25%;" />
-
-<h4 id="4-4Mixed-Collection"><a href="#4-4Mixed-Collection" class="headerlink" title="4.4Mixed Collection"></a>4.4Mixed Collection</h4><p>会对 E、S、O 进行全面垃圾回收</p>
-<ul>
-<li>最终标记（Remark）会 STW</li>
-<li>拷贝存活（Evacuation）会 STW</li>
-<li>根据-XX:MaxGCPauseMillis=ms 选择回收价值最高的老年代region进行回收</li>
-</ul>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717152847324.png" style="zoom:25%;" />
-
-<h4 id="4-5-FullGC"><a href="#4-5-FullGC" class="headerlink" title="4.5 FullGC"></a>4.5 FullGC</h4><ul>
-<li>SerialGC<ul>
-<li>新生代内存不足发生的垃圾收集 - minor gc</li>
-<li>老年代内存不足发生的垃圾收集 - full gc</li>
-</ul>
-</li>
-<li>ParallelGC<ul>
-<li>新生代内存不足发生的垃圾收集 - minor gc</li>
-<li>老年代内存不足发生的垃圾收集 - full gc</li>
-</ul>
-</li>
-<li>CMS<ul>
-<li>新生代内存不足发生的垃圾收集 - minor gc</li>
-<li>老年代内存不足 并发失败时进行 Full GC</li>
-</ul>
-</li>
-<li>G1<ul>
-<li>新生代内存不足发生的垃圾收集 - minor gc</li>
-<li>老年代内存不足 回收速度低于后台垃圾产生速度时 并发失败使用serial垃圾回收时进行 Full GC</li>
-</ul>
-</li>
-</ul>
-<h4 id="4-6-Young-Collection跨代引用"><a href="#4-6-Young-Collection跨代引用" class="headerlink" title="4.6 Young Collection跨代引用"></a>4.6 Young Collection跨代引用</h4><ul>
-<li>新生代回收跨代引用（老年代引用新生代）问题</li>
-</ul>
-<p>如果通过扫描老年代去寻找根对象，效率很低，所以采用卡表的技术  将老年代region 细分分为512k的card,如果有老年代对象引用了新生代对象，则将对应的卡标记为脏卡</p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717163640557.png" style="zoom:25%;" />
-
-<p>每个region中有记忆集，记录外界region对自己的引用（脏卡集合）</p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717163956946.png" style="zoom:25%;" />
-
-<ul>
-<li>在引用变更时通过 post-write barrier + dirty card queue</li>
-<li>concurrent refinement threads 更新 Remembered Set</li>
-</ul>
-<h4 id="4-7-重标记"><a href="#4-7-重标记" class="headerlink" title="4.7 重标记"></a>4.7 重标记</h4><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210717170335759.png" alt="image-20210717170335759" style="zoom:25%;" />
-
-<p>在初始标记后，因为并发标记和用户线程是同时运行的，可能因为并发标记阶段用户线程更改了对象引用，导致原来不可达的对象变为可达。所以使用pre-write barrier + satb_mark_queue  写前屏障和原始快照标记队列</p>
-<h2 id="5-垃圾回收调优"><a href="#5-垃圾回收调优" class="headerlink" title="5.垃圾回收调优"></a>5.垃圾回收调优</h2><p>GC优化一般步骤可以概括为：确定目标、优化参数、验收结果。</p>
-<p>确定目标：</p>
-<ul>
-<li>【低延迟】还是【高吞吐量】，选择合适的回收器</li>
-<li>低延迟选择 CMS，G1，ZGC 一般web项目都关注的是响应时间 也就是低延迟</li>
-<li>高吞吐量选ParallelGC  一般科学计算项目关注吞吐量</li>
-</ul>
-<p>优化</p>
-<p>通过收集GC信息，结合系统需求，确定优化方案，例如选用合适的GC回收器、重新设置内存比例、调整JVM参数等。</p>
-<p>进行调整后，将不同的优化方案分别应用到多台机器上，然后比较这些机器上GC的性能差异，有针对性的做出选择，再通过不断的试验和观察，找到最合适的参数。</p>
-<p>验证</p>
-<p>将修改应用到所有服务器，判断优化结果是否符合预期，总结相关经验。</p>
-<h3 id="5-1-新生代调优"><a href="#5-1-新生代调优" class="headerlink" title="5.1 新生代调优"></a>5.1 新生代调优</h3><ul>
-<li><p>新生代特点</p>
-<ul>
-<li>所有new的对象操作的内存分配非常廉价<ul>
-<li>TLAB thread-local allocate buffer(每个线程都会在Eden区分配一块私有的区域，优先在TLAB中创建对象)</li>
-</ul>
-</li>
-<li>死亡对象的回收代价为零（因为新生代使用复制算法 只将存活对象复制到Survivor区）</li>
-<li>大部分对象用过即死</li>
-<li>minor gc 时间远远低于Full gc 大约1到2个数量级</li>
-</ul>
-</li>
-<li><p>新生代越大越好吗？</p>
-<p>-Xmn </p>
-<p><code>Sets the initial and maximum size (in bytes) of the heap for the young generation (nursery).</code><br><code>GC is performed in this region more often than in other regions. If the size for the young</code><br><code>generation is too small, then a lot of minor garbage collections are performed. If the size is too</code><br><code>large, then only full garbage collections are performed, which can take a long time to complete.</code><br><code>Oracle recommends that you keep the size for the young generation greater than 25% and less</code><br><code>than 50% of the overall heap size.</code></p>
-</li>
-<li><p>新生代能容纳所有【并发量 * (请求-响应)】的数据 </p>
-</li>
-<li><p>幸存区大到能保留【当前活跃对象+需要晋升对象】</p>
-</li>
-<li><p>晋升阈值配置得当，让长时间存活对象尽快晋升<br><code>-XX:MaxTenuringThreshold=threshold</code><br><code>-XX:+PrintTenuringDistribution</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Desired survivor size 48286924 bytes, new threshold 10 (max 10)</span><br><span class="line">- age 1: 28992024 bytes, 28992024 total</span><br><span class="line">- age 2: 1366864 bytes, 30358888 total</span><br><span class="line">- age 3: 1425912 bytes, 31784800 total</span><br><span class="line">...</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="5-2老年代调优"><a href="#5-2老年代调优" class="headerlink" title="5.2老年代调优"></a>5.2老年代调优</h3><p>以 CMS 为例</p>
-<ul>
-<li><p>CMS 的老年代内存越大越好</p>
-</li>
-<li><p>先尝试不做调优，如果没有 Full GC 那么已经很好了，否则先尝试调优新生代</p>
-</li>
-<li><p>观察发生 Full GC 时老年代内存占用，将老年代内存预设调大 1/4 ~ 1/3</p>
-</li>
-<li><p>-XX:CMSInitiatingOccupancyFraction=percent</p>
-</li>
-</ul>
-<p>参考：黑马视频解密JVM</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/28/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95RPC%E6%A1%86%E6%9E%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/28/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95RPC%E6%A1%86%E6%9E%B6/" class="post-title-link" itemprop="url">自己实现一个简单的RPC框架</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2021-07-28 21:01:07 / Modified: 23:10:17" itemprop="dateCreated datePublished" datetime="2021-07-28T21:01:07+08:00">2021-07-28</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/%E9%A1%B9%E7%9B%AE/" itemprop="url" rel="index"><span itemprop="name">项目</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="自己实现一个简单的RPC框架"><a href="#自己实现一个简单的RPC框架" class="headerlink" title="自己实现一个简单的RPC框架"></a>自己实现一个简单的RPC框架</h1><h2 id="RPC简介"><a href="#RPC简介" class="headerlink" title="RPC简介"></a>RPC简介</h2><p>RPC（Remote Procedure Call）全称远程过程调用，简而言之就是像调用本地方法一样调用远程服务，整个过程用户是无感知的。</p>
-<p>一款分布式RPC框架离不开三个基本要素：</p>
-<ul>
-<li><p>服务提供方（Service Provider）</p>
-</li>
-<li><p>服务消费方（Service Consumer）</p>
-</li>
-<li><p>注册中心（Registery）</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2021/07/28/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95RPC%E6%A1%86%E6%9E%B6/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/28/%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/28/%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/" class="post-title-link" itemprop="url">内存结构</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-07-28 13:29:32" itemprop="dateCreated datePublished" datetime="2021-07-28T13:29:32+08:00">2021-07-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-29 15:16:03" itemprop="dateModified" datetime="2021-07-29T15:16:03+08:00">2021-07-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="内存结构"><a href="#内存结构" class="headerlink" title="内存结构"></a>内存结构</h1><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210729001034.png" style="zoom:50%;" />
-
-<h2 id="1-程序计数器"><a href="#1-程序计数器" class="headerlink" title="1. 程序计数器"></a>1. 程序计数器</h2><h3 id="1-1定义"><a href="#1-1定义" class="headerlink" title="1. 1定义"></a>1. 1定义</h3><p>​    作用：指向虚拟机下一条执行的指令的地址</p>
-<p>​    特点：</p>
-<ul>
-<li>线程私有</li>
-<li>唯一一个不会产生内存溢出的区域</li>
-</ul>
-<h2 id="2-虚拟机栈"><a href="#2-虚拟机栈" class="headerlink" title="2. 虚拟机栈"></a>2. 虚拟机栈</h2><h3 id="2-1定义"><a href="#2-1定义" class="headerlink" title="2.1定义"></a>2.1定义</h3><ul>
-<li><p>线程运行时需要的内存空间，称为虚拟机栈</p>
-</li>
-<li><p>每个栈由栈帧组成，对应着每次方法调用时所占用的内存</p>
-</li>
-<li><p>每个线程只能有一个活动栈帧，对应着当前执行的方法</p>
-<h2 id="2-2-线程运行诊断"><a href="#2-2-线程运行诊断" class="headerlink" title="2.2 线程运行诊断"></a>2.2 线程运行诊断</h2><p>top命令 查看哪个进程CPU占用过高</p>
-<p>ps H -eo pid,tid,%cpu | grep 进程ID 找到具体是哪个线程占用CPU</p>
-<p>jstack 线程ID | grep nid =十六进制的线程ID </p>
-</li>
-</ul>
-<h2 id="3-本地方法栈"><a href="#3-本地方法栈" class="headerlink" title="3. 本地方法栈"></a>3. 本地方法栈</h2><h3 id="3-1定义"><a href="#3-1定义" class="headerlink" title="3.1定义"></a>3.1定义</h3><p>​        本地方法运行时需要的内存</p>
-<h2 id="4-堆"><a href="#4-堆" class="headerlink" title="4. 堆"></a>4. 堆</h2><h3 id="4-1-定义"><a href="#4-1-定义" class="headerlink" title="4.1 定义"></a>4.1 定义</h3><p>定义：对象存储的空间</p>
-<h3 id="4-2-堆诊断"><a href="#4-2-堆诊断" class="headerlink" title="4.2 堆诊断"></a>4.2 堆诊断</h3><p>​       jmap -heap pid 查看堆内存占用</p>
-<p>​       jmap -dump:format=b,file = a.bin pid 导出内存快照</p>
-<p>​       内存分析工具 分析</p>
-<h2 id="5-方法区"><a href="#5-方法区" class="headerlink" title="5. 方法区"></a>5. 方法区</h2><p>   <img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710171045240.png" alt="image-20210710171045240"></p>
-<h3 id="5-3运行时常量池"><a href="#5-3运行时常量池" class="headerlink" title="5.3运行时常量池"></a>5.3运行时常量池</h3><ul>
-<li>常量池，就是一张表，存储于.class文件中，虚拟机指令根据这张表找到要执行的类名，方法名，参数类型，字面量（字符串的值，常量的值）信息。</li>
-<li>运行时常量池，常量池是*.class文件中的，当该类被加载时，它的常量池的信息就会放入运行时常量池，并把里边的符号地址变为真实地址</li>
-</ul>
-<h4 id="5-3-1常量池"><a href="#5-3-1常量池" class="headerlink" title="5.3.1常量池"></a>5.3.1常量池</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//类基本信息</span></span><br><span class="line">Classfile /root/java/java_learn/TryCatchTest.class</span><br><span class="line">  Last modified Apr <span class="number">5</span>, <span class="number">2021</span>; size <span class="number">613</span> bytes</span><br><span class="line">  MD5 checksum b5ccb1ea7bc7c043b9ae0726a4eafa15</span><br><span class="line">  Compiled from <span class="string">&quot;TryCatchTest.java&quot;</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TryCatchTest</span></span></span><br><span class="line">  minor version: 0</span><br><span class="line">  major version: <span class="number">55</span></span><br><span class="line">  flags: (<span class="number">0x0021</span>) ACC_PUBLIC, ACC_SUPER</span><br><span class="line">  this_class: #8                          // TryCatchTest</span><br><span class="line">  super_class: #9                         // java/lang/Object</span><br><span class="line">  interfaces: <span class="number">0</span>, fields: <span class="number">0</span>, methods: <span class="number">2</span>, attributes: <span class="number">1</span></span><br><span class="line"><span class="comment">//常量池</span></span><br><span class="line">Constant pool:</span><br><span class="line">   <span class="comment">//#9.#19 --&gt;#29 java/lang/Object.#19--&gt;#10:#11 --&gt; &quot;&lt;init&gt;&quot;:()V --&gt;java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span></span><br><span class="line">   #1 = Methodref          #9.#19         // java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span><br><span class="line">   #2 = Fieldref           #20.#21        // java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">   #3 = String             #22            // hello</span><br><span class="line">   #4 = Methodref          #23.#24        // java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">   #5 = String             #25            // finally</span><br><span class="line">   #6 = Class              #26            // java/lang/Exception</span><br><span class="line">   #7 = String             #27            // catch exception</span><br><span class="line">   #8 = Class              #28            // TryCatchTest</span><br><span class="line">   #9 = Class              #29            // java/lang/Object</span><br><span class="line">  #10 = Utf8               &lt;init&gt;</span><br><span class="line">  #11 = Utf8               ()V</span><br><span class="line">  #12 = Utf8               Code</span><br><span class="line">  #13 = Utf8               LineNumberTable</span><br><span class="line">  #14 = Utf8               test</span><br><span class="line">  #15 = Utf8               StackMapTable</span><br><span class="line">  #16 = Class              #30            // java/lang/Throwable</span><br><span class="line">  #17 = Utf8               SourceFile</span><br><span class="line">  #18 = Utf8               TryCatchTest.java</span><br><span class="line">  #19 = NameAndType        #10:#11        // &quot;&lt;init&gt;&quot;:()V</span><br><span class="line">  #20 = Class              #31            // java/lang/System</span><br><span class="line">  #21 = NameAndType        #32:#33        // out:Ljava/io/PrintStream;</span><br><span class="line">  #22 = Utf8               hello</span><br><span class="line">  #23 = Class              #34            // java/io/PrintStream</span><br><span class="line">  #24 = NameAndType        #35:#36        // println:(Ljava/lang/String;)V</span><br><span class="line">  #25 = Utf8               finally</span><br><span class="line">  #26 = Utf8               java/lang/Exception</span><br><span class="line">  #27 = Utf8               catch exception</span><br><span class="line">  #28 = Utf8               TryCatchTest</span><br><span class="line">  #29 = Utf8               java/lang/Object</span><br><span class="line">  #30 = Utf8               java/lang/Throwable</span><br><span class="line">  #31 = Utf8               java/lang/System</span><br><span class="line">  #32 = Utf8               out</span><br><span class="line">  #33 = Utf8               Ljava/io/PrintStream;</span><br><span class="line">  #34 = Utf8               java/io/PrintStream</span><br><span class="line">  #35 = Utf8               println</span><br><span class="line">  #36 = Utf8               (Ljava/lang/String;)V</span><br><span class="line"><span class="comment">//类方法定义</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">TryCatchTest</span><span class="params">()</span></span>;</span><br><span class="line">    descriptor: ()V</span><br><span class="line">    flags: (<span class="number">0x0001</span>) ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=<span class="number">1</span>, locals=<span class="number">1</span>, args_size=<span class="number">1</span></span><br><span class="line">         <span class="number">0</span>: aload_0</span><br><span class="line">         1: invokespecial #1                  // Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span><br><span class="line">         <span class="number">4</span>: <span class="keyword">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line <span class="number">1</span>: <span class="number">0</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>;</span><br><span class="line">    descriptor: ()V</span><br><span class="line">    flags: (<span class="number">0x0001</span>) ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=<span class="number">2</span>, locals=<span class="number">3</span>, args_size=<span class="number">1</span></span><br><span class="line">         0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">         3: ldc           #3                  // String hello</span><br><span class="line">         5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">         8: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        11: ldc           #5                  // String finally</span><br><span class="line">        13: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        <span class="number">16</span>: goto          <span class="number">50</span></span><br><span class="line">        <span class="number">19</span>: astore_1</span><br><span class="line">        20: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        23: ldc           #7                  // String catch exception</span><br><span class="line">        25: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        28: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        31: ldc           #5                  // String finally</span><br><span class="line">        33: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        <span class="number">36</span>: goto          <span class="number">50</span></span><br><span class="line">        <span class="number">39</span>: astore_2</span><br><span class="line">        40: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        43: ldc           #5                  // String finally</span><br><span class="line">        45: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        <span class="number">48</span>: aload_2</span><br><span class="line">        <span class="number">49</span>: athrow</span><br><span class="line">        <span class="number">50</span>: <span class="keyword">return</span></span><br><span class="line">      Exception table:</span><br><span class="line">         from    to  target type</span><br><span class="line">             <span class="number">0</span>     <span class="number">8</span>    <span class="number">19</span>   Class java/lang/Exception</span><br><span class="line">             <span class="number">0</span>     <span class="number">8</span>    <span class="number">39</span>   any</span><br><span class="line">            <span class="number">19</span>    <span class="number">28</span>    <span class="number">39</span>   any</span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line <span class="number">4</span>: <span class="number">0</span></span><br><span class="line">        line <span class="number">8</span>: <span class="number">8</span></span><br><span class="line">        line <span class="number">9</span>: <span class="number">16</span></span><br><span class="line">        line <span class="number">5</span>: <span class="number">19</span></span><br><span class="line">        line <span class="number">6</span>: <span class="number">20</span></span><br><span class="line">        line <span class="number">8</span>: <span class="number">28</span></span><br><span class="line">        line <span class="number">9</span>: <span class="number">36</span></span><br><span class="line">        line <span class="number">8</span>: <span class="number">39</span></span><br><span class="line">        line <span class="number">9</span>: <span class="number">48</span></span><br><span class="line">        line <span class="number">11</span>: <span class="number">50</span></span><br><span class="line">      StackMapTable: number_of_entries = <span class="number">3</span></span><br><span class="line">        frame_type = <span class="number">83</span> <span class="comment">/* same_locals_1_stack_item */</span></span><br><span class="line">          stack = [ class java/lang/Exception ]</span><br><span class="line">        frame_type = <span class="number">83</span> <span class="comment">/* same_locals_1_stack_item */</span></span><br><span class="line">          stack = [ class java/lang/Throwable ]</span><br><span class="line">        frame_type = <span class="number">10</span> <span class="comment">/* same */</span></span><br><span class="line">&#125;</span><br><span class="line">SourceFile: <span class="string">&quot;TryCatchTest.java&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="5-4字符串常量池"><a href="#5-4字符串常量池" class="headerlink" title="5.4字符串常量池"></a>5.4字符串常量池</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringTableTest</span></span>&#123;</span><br><span class="line">    <span class="comment">//stringtable[&#x27;a&#x27;,&#x27;b&#x27;,&#x27;ab&#x27;]   hashtable结构 不能扩容</span></span><br><span class="line">    <span class="comment">//常量池中的信息，都会被加载到运行时常量池中，这时 a a ab都是常量池中的符号，还没有转换为java字符串对象</span></span><br><span class="line">    <span class="comment">// ldc #2 把a符号变为 &quot;a&quot; 字符串对象</span></span><br><span class="line">    <span class="comment">// ldc #3 把b符号变为 &quot;b&quot; 字符串对象</span></span><br><span class="line">    <span class="comment">// ldc #4 把ab符号变为 &quot;a&quot; 字符串对象</span></span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">      String s1 = <span class="string">&quot;a&quot;</span>;</span><br><span class="line">      String s2 = <span class="string">&quot;b&quot;</span>;</span><br><span class="line">      String s3 = <span class="string">&quot;ab&quot;</span>;</span><br><span class="line">      String s4 = s1 + s2; <span class="comment">//new StringBuilder.append(&quot;a&quot;).append(&quot;b&quot;).toString()</span></span><br><span class="line">      String s5 = <span class="string">&quot;a&quot;</span> + <span class="string">&quot;b&quot;</span>; <span class="comment">//javac在编译期的优化，结果在编译期已经确定为ab</span></span><br><span class="line">         </span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(java.lang.String[])</span></span>;</span><br><span class="line">    descriptor: ([Ljava/lang/String;)V</span><br><span class="line">    flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=<span class="number">2</span>, locals=<span class="number">6</span>, args_size=<span class="number">1</span></span><br><span class="line">         0: ldc           #2                  // String a</span><br><span class="line">         <span class="number">2</span>: astore_1</span><br><span class="line">         3: ldc           #3                  // String b</span><br><span class="line">         <span class="number">5</span>: astore_2</span><br><span class="line">         6: ldc           #4                  // String ab</span><br><span class="line">         <span class="number">8</span>: astore_3</span><br><span class="line">         9: new           #5                  // class java/lang/StringBuilder</span><br><span class="line">        <span class="number">12</span>: dup</span><br><span class="line">        13: invokespecial #6                  // Method java/lang/StringBuilder.&quot;&lt;init&gt;&quot;:()V</span><br><span class="line">        <span class="number">16</span>: aload_1</span><br><span class="line">        17: invokevirtual #7                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;</span><br><span class="line">        <span class="number">20</span>: aload_2</span><br><span class="line">        21: invokevirtual #7                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;</span><br><span class="line">        24: invokevirtual #8                  // Method java/lang/StringBuilder.toString:()Ljava/lang/String;</span><br><span class="line">        <span class="number">27</span>: astore        <span class="number">4</span></span><br><span class="line">        29: ldc           #4                  // String ab</span><br><span class="line">        <span class="number">31</span>: astore        <span class="number">5</span></span><br><span class="line">        <span class="number">33</span>: <span class="keyword">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line <span class="number">3</span>: <span class="number">0</span></span><br><span class="line">        line <span class="number">4</span>: <span class="number">3</span></span><br><span class="line">        line <span class="number">5</span>: <span class="number">6</span></span><br><span class="line">        line <span class="number">6</span>: <span class="number">9</span></span><br><span class="line">        line <span class="number">7</span>: <span class="number">29</span></span><br><span class="line">        line <span class="number">8</span>: <span class="number">33</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="5-4-1-StringTable特性"><a href="#5-4-1-StringTable特性" class="headerlink" title="5.4.1 StringTable特性"></a>5.4.1 StringTable特性</h4><ul>
-<li>常量池中的字符串仅仅是符号，第一次用到才变为对象</li>
-<li>利用串池的机制，来避免重复创建字符串对象</li>
-<li>字符串拼接的原理是StringBuilder（java1.8）</li>
-<li>字符串常量拼接的原理是编译期优化</li>
-<li>可以使用intern方法，主动将串池中还没有的字符串对象放入串池中<ul>
-<li>1.8  将这个字符串对象尝试放入串池中，如果有则不放入，没有则放入串池中，然后返回串池中的对象。</li>
-<li>1.6 将这个字符串对象尝试放入串池中，如果有则不放入，没有则把此对象复制一份放入串池中，然后返回串池中的对象。</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    String s = <span class="keyword">new</span> String(<span class="string">&quot;a&quot;</span>) + <span class="keyword">new</span> String(<span class="string">&quot;b&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//堆 new String(&quot;a&quot;)  new String(&quot;b&quot;) new String(&quot;ab&quot;)</span></span><br><span class="line">    String s2 = s.intern();</span><br><span class="line"><span class="comment">//        将这个字符串对象尝试放入串池中，如果有则不放入，没有则放入串池中，然后返回串池中的对象。</span></span><br><span class="line">    System.out.println(s2 == <span class="string">&quot;ab&quot;</span>);</span><br><span class="line">    System.out.println(s2 == s);</span><br><span class="line">    </span><br><span class="line">    String x2 = <span class="keyword">new</span> String(<span class="string">&quot;c&quot;</span>) + <span class="keyword">new</span> String(<span class="string">&quot;d&quot;</span>);</span><br><span class="line">   	x2.intern(); <span class="comment">// &quot;cd&quot;入池</span></span><br><span class="line">    String x1 = <span class="string">&quot;cd&quot;</span>; <span class="comment">//解析字面量时直接引用常量池中的&quot;cd&quot;不再创建新的String对象</span></span><br><span class="line">    System.out.println(x1 == x2);<span class="comment">//true</span></span><br><span class="line">    <span class="comment">// 1.6情况下 false 因为x1引用的常量池中的对象是由x2复制得来的 不是同一个对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="5-4-2-StringTable位置"><a href="#5-4-2-StringTable位置" class="headerlink" title="5.4.2 StringTable位置"></a>5.4.2 StringTable位置</h4><p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710212120880.png" alt="image-20210710212120880"></p>
-<p>1.7开始在堆中，因为永久代的回收效率比较低，因为需要Full GC时才会触发回收，而字符串常量池使用非常频繁，如果字符串常量池的回收效率不高，会导致永久代占用大量内存，最终导致永久代OOM</p>
-<h4 id="5-4-3-StringTable垃圾回收"><a href="#5-4-3-StringTable垃圾回收" class="headerlink" title="5.4.3 StringTable垃圾回收"></a>5.4.3 StringTable垃圾回收</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//-Xmx10m -XX:+PrintStringTableStatistics -XX:+PrintGCDetails -verbose:gc</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">10000</span>; j++) &#123;</span><br><span class="line">            String.valueOf(j).intern();</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">        System.out.println(i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">[GC (Allocation Failure) [PSYoungGen: 2048K-&gt;488K(2560K)] 2048K-&gt;664K(9728K), 0.0009191 secs] [Times: user&#x3D;0.00 sys&#x3D;0.00, real&#x3D;0.00 secs] </span><br><span class="line">10000</span><br><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 2560K, used 683K [0x00000000ffd00000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 2048K, 9% used [0x00000000ffd00000,0x00000000ffd30fb8,0x00000000fff00000)</span><br><span class="line">  from space 512K, 95% used [0x00000000fff00000,0x00000000fff7a020,0x00000000fff80000)</span><br><span class="line">  to   space 512K, 0% used [0x00000000fff80000,0x00000000fff80000,0x0000000100000000)</span><br><span class="line"> ParOldGen       total 7168K, used 176K [0x00000000ff600000, 0x00000000ffd00000, 0x00000000ffd00000)</span><br><span class="line">  object space 7168K, 2% used [0x00000000ff600000,0x00000000ff62c000,0x00000000ffd00000)</span><br><span class="line"> Metaspace       used 3284K, capacity 4496K, committed 4864K, reserved 1056768K</span><br><span class="line">  class space    used 356K, capacity 388K, committed 512K, reserved 1048576K</span><br><span class="line">SymbolTable statistics:</span><br><span class="line">Number of buckets       :     20011 &#x3D;    160088 bytes, avg   8.000</span><br><span class="line">Number of entries       :     13546 &#x3D;    325104 bytes, avg  24.000</span><br><span class="line">Number of literals      :     13546 &#x3D;    577328 bytes, avg  42.620</span><br><span class="line">Total footprint         :           &#x3D;   1062520 bytes</span><br><span class="line">Average bucket size     :     0.677</span><br><span class="line">Variance of bucket size :     0.680</span><br><span class="line">Std. dev. of bucket size:     0.825</span><br><span class="line">Maximum bucket size     :         6</span><br><span class="line">StringTable statistics:</span><br><span class="line">Number of buckets       :     60013 &#x3D;    480104 bytes, avg   8.000</span><br><span class="line">Number of entries       :      4844 &#x3D;    116256 bytes, avg  24.000</span><br><span class="line">Number of literals      :      4844 &#x3D;    306352 bytes, avg  63.244</span><br><span class="line">Total footprint         :           &#x3D;    902712 bytes</span><br><span class="line">Average bucket size     :     0.081</span><br><span class="line">Variance of bucket size :     0.078</span><br><span class="line">Std. dev. of bucket size:     0.280</span><br><span class="line">Maximum bucket size     :         3</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="5-4-4-StringTable性能调优"><a href="#5-4-4-StringTable性能调优" class="headerlink" title="5.4.4 StringTable性能调优"></a>5.4.4 StringTable性能调优</h4><p>StringTable的底层是一个hashtable它的性能和桶大小密切相关</p>
-<ul>
-<li>使用-XX:StringTableSize = 桶个数</li>
-<li>考虑字符串对象是否入池</li>
-</ul>
-<h2 id="6-直接内存"><a href="#6-直接内存" class="headerlink" title="6 直接内存"></a>6 直接内存</h2><h3 id="6-1定义"><a href="#6-1定义" class="headerlink" title="6.1定义"></a>6.1定义</h3><p>Direct Mermory</p>
-<ul>
-<li>常见于NIO操作，用于数据缓冲区</li>
-<li>分配回收成本较高，但读写性能高</li>
-<li>不受JVM垃圾回收影响</li>
-</ul>
-<p>堆内存读写性能不高的原因：</p>
-<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710230157994.png" alt="image-20210710230157994"></p>
-<p>​    java 本身并不具备 IO 读写能力，因此 read 方法调用后，要从 java 程序的<strong>用户态</strong>切换至<strong>内核态</strong>，去调用操作系统（Kernel）的读能力，将数据读入<strong>系统缓冲区</strong> 然后从<strong>内核态</strong>切换到<strong>用户态</strong>将系统缓存区的数据拷贝到java缓冲区。</p>
-<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710232133345.png" alt="image-20210710232133345"></p>
-<p>直接内存省略了一步数据拷贝</p>
-<h3 id="6-2-直接内存释放原理"><a href="#6-2-直接内存释放原理" class="headerlink" title="6.2 直接内存释放原理"></a>6.2 直接内存释放原理</h3><ul>
-<li>使用了 Unsafe 对象完成直接内存的分配回收，并且回收需要主动调用 freeMemory 方法</li>
-<li>ByteBuffer 的实现类内部，使用了 Cleaner （虚引用）来监测 ByteBuffer 对象，一旦ByteBuffer 对象被垃圾回收，那么就会由一个 叫ReferenceHandler的守护线程通过 Cleaner 的 clean 方法调用 freeMemory 来释放直接内存</li>
-</ul>
-<h3 id="6-3禁用显示垃圾回收对直接内存的影响"><a href="#6-3禁用显示垃圾回收对直接内存的影响" class="headerlink" title="6.3禁用显示垃圾回收对直接内存的影响"></a>6.3禁用显示垃圾回收对直接内存的影响</h3><p>当使用<code>-XX:+DisableExplicitGC</code>禁用显式GC(System.gc())后，必须等待ByteBuffer对象被垃圾回收掉之后直接内存才能被释放</p>
-<p>解决方案：当直接内存使用较多时，直接使用unsafe管理直接内存，使用unsafe.freeMemory释放掉内存 </p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/27/CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/27/CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">CPU缓存与Volatile原理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2021-07-27 17:58:28 / Modified: 20:18:38" itemprop="dateCreated datePublished" datetime="2021-07-27T17:58:28+08:00">2021-07-27</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">java并发</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="CPU缓存与Volatile原理"><a href="#CPU缓存与Volatile原理" class="headerlink" title="CPU缓存与Volatile原理"></a>CPU缓存与Volatile原理</h1><h2 id="CPU高速缓存"><a href="#CPU高速缓存" class="headerlink" title="CPU高速缓存"></a>CPU高速缓存</h2><p>CPU为什么要有高速缓存，是因为最近几十年CPU频率不断提升，而内存在访问速度上却没有质的突破，导致CPU的处理速度和内存的访问速度差矩越来越大。这种情况下传统的 CPU 直连内存的方式显然就会因为内存访问的等待，导致计算资源大量闲置，降低 CPU 整体吞吐量。同时又由于局部性原理，在 CPU 和内存之间加入一层高速缓存就显得性价比极高了。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2021/07/27/CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/07/28/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" rel="prev" title="垃圾回收">
+      <i class="fa fa-chevron-left"></i> 垃圾回收
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
   
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/26/Synchronized(%E4%BA%8C)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/26/Synchronized(%E4%BA%8C)/" class="post-title-link" itemprop="url">Synchronized(二)</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-07-26 14:47:21" itemprop="dateCreated datePublished" datetime="2021-07-26T14:47:21+08:00">2021-07-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-27 00:02:46" itemprop="dateModified" datetime="2021-07-27T00:02:46+08:00">2021-07-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">java并发</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Synchronized-二"><a href="#Synchronized-二" class="headerlink" title="Synchronized(二)"></a>Synchronized(二)</h1><p>在jdk1.6之前 使用Synchronized只有一种方式即重量级锁，即关联Monitor对象，但Monitor的实现使用到了futex系统调用，会导致上下文切换，所以1.6以后引入一些优化手段来减少竞争带来的上下文切换</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2021/07/26/Synchronized(%E4%BA%8C)/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/25/synchronized(%E4%B8%80)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/25/synchronized(%E4%B8%80)/" class="post-title-link" itemprop="url">Synchronized(一)</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-07-25 21:01:07" itemprop="dateCreated datePublished" datetime="2021-07-25T21:01:07+08:00">2021-07-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-27 00:05:43" itemprop="dateModified" datetime="2021-07-27T00:05:43+08:00">2021-07-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">java并发</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="synchronized-一"><a href="#synchronized-一" class="headerlink" title="synchronized(一)"></a>synchronized(一)</h1><p>在介绍synchronized之前先介绍两个概念：<strong>竞态条件</strong>和<strong>临界区</strong></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2021/07/25/synchronized(%E4%B8%80)/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/14/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%B1%A0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/14/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%B1%A0/" class="post-title-link" itemprop="url">自己实现简单线程池</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2021-07-14 23:18:59 / Modified: 23:56:07" itemprop="dateCreated datePublished" datetime="2021-07-14T23:18:59+08:00">2021-07-14</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">java并发</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="自己实现一个简单线程池"><a href="#自己实现一个简单线程池" class="headerlink" title="自己实现一个简单线程池"></a>自己实现一个简单线程池</h1>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2021/07/14/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%B1%A0/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/12/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/12/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%89/" class="post-title-link" itemprop="url">线程池探究(三)</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-07-12 23:20:00" itemprop="dateCreated datePublished" datetime="2021-07-12T23:20:00+08:00">2021-07-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-14 23:56:27" itemprop="dateModified" datetime="2021-07-14T23:56:27+08:00">2021-07-14</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">java并发</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="线程池探究-三"><a href="#线程池探究-三" class="headerlink" title="线程池探究(三)"></a>线程池探究(三)</h1>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2021/07/12/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%89/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/11/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%BA%8C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/11/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%BA%8C/" class="post-title-link" itemprop="url">线程池探究(二)</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-07-11 23:09:49" itemprop="dateCreated datePublished" datetime="2021-07-11T23:09:49+08:00">2021-07-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-13 20:50:50" itemprop="dateModified" datetime="2021-07-13T20:50:50+08:00">2021-07-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">java并发</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="线程池探究（二）"><a href="#线程池探究（二）" class="headerlink" title="线程池探究（二）"></a>线程池探究（二）</h1><h2 id="线程池的状态和状态转换"><a href="#线程池的状态和状态转换" class="headerlink" title="线程池的状态和状态转换"></a>线程池的状态和状态转换</h2><h4 id="线程池状态"><a href="#线程池状态" class="headerlink" title="线程池状态"></a>线程池状态</h4><p>Running：接收新任务并处理阻塞队列中的任务</p>
-<p>Shutdown：拒绝新任务但可以处理阻塞队列中的任务</p>
-<p>Stop:拒绝新任务并抛弃阻塞队列中的任务，同时中断正在处理的任务</p>
-<p>Tidying:所有任务执行完成（包括阻塞队列中的任务）后，活动线程数为0，将要调用terminated方法</p>
-<p>Terminated：终止状态，调用完terminated方法后的状态</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2021/07/11/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%BA%8C/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
 
 
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -1986,6 +1013,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%AD%97%E8%8A%82%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">类加载与字节码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">1.类文件结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%E9%AD%94%E6%95%B0"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1魔数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E7%89%88%E6%9C%AC"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.2 版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="nav-number">1.1.3.</span> <span class="nav-text">1.3 常量池</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-%E7%BB%A7%E6%89%BF%E5%92%8C%E8%AE%BF%E9%97%AE%E6%A0%87%E8%AF%86%E4%BF%A1%E6%81%AF"><span class="nav-number">1.1.4.</span> <span class="nav-text">1.4 继承和访问标识信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-5-Field-%E4%BF%A1%E6%81%AF"><span class="nav-number">1.1.5.</span> <span class="nav-text">1.5 Field 信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-6-Method-%E4%BF%A1%E6%81%AF"><span class="nav-number">1.1.6.</span> <span class="nav-text">1.6 Method 信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-7%E9%99%84%E5%8A%A0%E5%B1%9E%E6%80%A7"><span class="nav-number">1.1.7.</span> <span class="nav-text">1.7附加属性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%AD%97%E8%8A%82%E7%A0%81%E6%8C%87%E4%BB%A4"><span class="nav-number">1.2.</span> <span class="nav-text">2.字节码指令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E5%8E%9F%E5%A7%8Bjava%E4%BB%A3%E7%A0%81"><span class="nav-number">1.2.1.</span> <span class="nav-text">1原始java代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%BC%96%E8%AF%91%E5%90%8E%E7%9A%84%E5%AD%97%E8%8A%82%E7%A0%81%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.编译后的字节码文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%B8%B8%E9%87%8F%E6%B1%A0%E8%BD%BD%E5%85%A5%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">1.2.3.</span> <span class="nav-text">3.常量池载入运行时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%96%B9%E6%B3%95%E5%AD%97%E8%8A%82%E7%A0%81%E8%BD%BD%E5%85%A5%E6%96%B9%E6%B3%95%E5%8C%BA"><span class="nav-number">1.2.4.</span> <span class="nav-text">4.方法字节码载入方法区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-main-%E7%BA%BF%E7%A8%8B%E5%BC%80%E5%A7%8B%E8%BF%90%E8%A1%8C%EF%BC%8C%E5%88%86%E9%85%8D%E6%A0%88%E5%B8%A7%E5%86%85%E5%AD%98"><span class="nav-number">1.2.5.</span> <span class="nav-text">5.main 线程开始运行，分配栈帧内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E%E5%BC%80%E5%A7%8B%E6%89%A7%E8%A1%8C%E5%AD%97%E8%8A%82%E7%A0%81"><span class="nav-number">1.2.6.</span> <span class="nav-text">6.执行引擎开始执行字节码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.7.</span> <span class="nav-text">7构造方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-lt-cinit-gt-V"><span class="nav-number">1.2.7.1.</span> <span class="nav-text">1. &lt;cinit&gt;()V</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-lt-init-gt-V"><span class="nav-number">1.2.7.2.</span> <span class="nav-text">2. &lt;init&gt;()V</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8"><span class="nav-number">1.2.8.</span> <span class="nav-text">8. 方法调用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E7%BB%91%E5%AE%9A%E5%92%8C%E5%8A%A8%E6%80%81%E7%BB%91%E5%AE%9A"><span class="nav-number">1.2.8.1.</span> <span class="nav-text">静态绑定和动态绑定</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-%E5%A4%9A%E6%80%81%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.9.</span> <span class="nav-text">9.多态的原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E4%BD%BF%E7%94%A8HSDB%E6%9F%A5%E7%9C%8B%E5%AF%B9%E8%B1%A1%E5%9C%B0%E5%9D%80"><span class="nav-number">1.2.9.1.</span> <span class="nav-text">1. 使用HSDB查看对象地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%9F%A5%E7%9C%8B%E5%AF%B9%E8%B1%A1%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.9.2.</span> <span class="nav-text">2.查看对象内存结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%9F%A5%E7%9C%8B%E5%AF%B9%E8%B1%A1-Class-%E7%9A%84%E5%86%85%E5%AD%98%E5%9C%B0%E5%9D%80"><span class="nav-number">1.2.9.3.</span> <span class="nav-text">3.查看对象 Class 的内存地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E6%9F%A5%E7%9C%8B%E7%B1%BB%E7%9A%84-vtable"><span class="nav-number">1.2.9.4.</span> <span class="nav-text">4.查看类的 vtable</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E9%AA%8C%E8%AF%81%E6%96%B9%E6%B3%95%E5%9C%B0%E5%9D%80"><span class="nav-number">1.2.9.5.</span> <span class="nav-text">5.验证方法地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E5%B0%8F%E7%BB%93"><span class="nav-number">1.2.9.6.</span> <span class="nav-text">6.小结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="nav-number">1.2.10.</span> <span class="nav-text">10.异常处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-try-catch"><span class="nav-number">1.2.10.1.</span> <span class="nav-text">1.try-catch</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%A4%9A%E4%B8%AA-single-catch-%E5%9D%97%E7%9A%84%E6%83%85%E5%86%B5"><span class="nav-number">1.2.10.2.</span> <span class="nav-text">2.多个 single-catch 块的情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-multi-catch-%E7%9A%84%E6%83%85%E5%86%B5"><span class="nav-number">1.2.10.3.</span> <span class="nav-text">3.multi-catch 的情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-finally"><span class="nav-number">1.2.10.4.</span> <span class="nav-text">4.finally</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E7%BB%83%E4%B9%A0-finally-%E9%9D%A2%E8%AF%95%E9%A2%98"><span class="nav-number">1.2.10.5.</span> <span class="nav-text">5 练习 - finally 面试题</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-finally-%E5%87%BA%E7%8E%B0%E4%BA%86-return"><span class="nav-number">1.2.10.5.1.</span> <span class="nav-text">1. finally 出现了 return</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-finally-%E5%AF%B9%E8%BF%94%E5%9B%9E%E5%80%BC%E5%BD%B1%E5%93%8D"><span class="nav-number">1.2.10.5.2.</span> <span class="nav-text">2.finally 对返回值影响</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%BC%96%E8%AF%91%E6%9C%9F%E5%A4%84%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">3.编译期处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%9E%9A%E4%B8%BE%E7%B1%BB"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">1.枚举类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%8C%BF%E5%90%8D%E5%86%85%E9%83%A8%E7%B1%BB"><span class="nav-number">1.3.0.2.</span> <span class="nav-text">2. 匿名内部类</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E9%98%B6%E6%AE%B5"><span class="nav-number">1.4.</span> <span class="nav-text">4.类加载阶段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%8A%A0%E8%BD%BD"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1 加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2%E9%93%BE%E6%8E%A5"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2链接</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">验证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%86%E5%A4%87"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">准备</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E6%9E%90"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">解析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.4.2.4.</span> <span class="nav-text">初始化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#lt-cinit-gt-V-%E6%96%B9%E6%B3%95"><span class="nav-number">1.4.2.4.1.</span> <span class="nav-text">&lt;cinit&gt;()V 方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%91%E7%94%9F%E7%9A%84%E6%97%B6%E6%9C%BA"><span class="nav-number">1.4.2.4.2.</span> <span class="nav-text">发生的时机</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="nav-number">1.4.3.</span> <span class="nav-text">5.类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">1.双亲委派</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%BA%BF%E7%A8%8B%E4%B8%8A%E4%B8%8B%E6%96%87%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">2.线程上下文类加载器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">3.自定义类加载器</span></a></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -2121,11 +1149,30 @@ if (document.querySelectorAll('pre.mermaid').length) {
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://swz1216470093.github.io/blog/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://swz1216470093.github.io/blog/2021/07/29/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%AD%97%E8%8A%82%E7%A0%81/',]
       });
       });
   </script>
 
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'cefa39253970229f8e5d',
+      clientSecret: '81e0d672d6a3abf97548e8614c36a567dc55237a',
+      repo        : 'blogComments',
+      owner       : 'swz1216470093',
+      admin       : ['swz1216470093'],
+      id          : '2f4cc468af7f8978e795ef0f19364265',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 </body>
 </html>

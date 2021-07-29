@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swz1216470093.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="内存结构  1. 程序计数器1. 1定义​    作用：指向虚拟机下一条执行的指令的地址 ​    特点：  线程私有 唯一一个不会产生内存溢出的区域  2. 虚拟机栈2.1定义 线程运行时需要的内存空间，称为虚拟机栈  每个栈由栈帧组成，对应着每次方法调用时所占用的内存  每个线程只能有一个活动栈帧，对应着当前执行的方法 2.2 线程运行诊断top命令 查看哪个进程CPU占用过高 ps H -e">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存结构">
+<meta property="og:url" content="https://swz1216470093.github.io/blog/2021/07/28/%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="swz&#39;blog">
+<meta property="og:description" content="内存结构  1. 程序计数器1. 1定义​    作用：指向虚拟机下一条执行的指令的地址 ​    特点：  线程私有 唯一一个不会产生内存溢出的区域  2. 虚拟机栈2.1定义 线程运行时需要的内存空间，称为虚拟机栈  每个栈由栈帧组成，对应着每次方法调用时所占用的内存  每个线程只能有一个活动栈帧，对应着当前执行的方法 2.2 线程运行诊断top命令 查看哪个进程CPU占用过高 ps H -e">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210729001034.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710171045240.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710212120880.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710230157994.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710232133345.png">
+<meta property="article:published_time" content="2021-07-28T05:29:32.000Z">
+<meta property="article:modified_time" content="2021-07-29T07:16:03.478Z">
+<meta property="article:author" content="swz">
+<meta property="article:tag" content="内存结构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210729001034.png">
+
+<link rel="canonical" href="https://swz1216470093.github.io/blog/2021/07/28/%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>内存结构 | swz'blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swz'blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/28/%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="swz">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swz'blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          内存结构
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-07-28 13:29:32" itemprop="dateCreated datePublished" datetime="2021-07-28T13:29:32+08:00">2021-07-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-07-29 15:16:03" itemprop="dateModified" datetime="2021-07-29T15:16:03+08:00">2021-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="内存结构"><a href="#内存结构" class="headerlink" title="内存结构"></a>内存结构</h1><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210729001034.png" style="zoom:50%;" />
+
+<h2 id="1-程序计数器"><a href="#1-程序计数器" class="headerlink" title="1. 程序计数器"></a>1. 程序计数器</h2><h3 id="1-1定义"><a href="#1-1定义" class="headerlink" title="1. 1定义"></a>1. 1定义</h3><p>​    作用：指向虚拟机下一条执行的指令的地址</p>
+<p>​    特点：</p>
+<ul>
+<li>线程私有</li>
+<li>唯一一个不会产生内存溢出的区域</li>
+</ul>
+<h2 id="2-虚拟机栈"><a href="#2-虚拟机栈" class="headerlink" title="2. 虚拟机栈"></a>2. 虚拟机栈</h2><h3 id="2-1定义"><a href="#2-1定义" class="headerlink" title="2.1定义"></a>2.1定义</h3><ul>
+<li><p>线程运行时需要的内存空间，称为虚拟机栈</p>
+</li>
+<li><p>每个栈由栈帧组成，对应着每次方法调用时所占用的内存</p>
+</li>
+<li><p>每个线程只能有一个活动栈帧，对应着当前执行的方法</p>
+<h2 id="2-2-线程运行诊断"><a href="#2-2-线程运行诊断" class="headerlink" title="2.2 线程运行诊断"></a>2.2 线程运行诊断</h2><p>top命令 查看哪个进程CPU占用过高</p>
+<p>ps H -eo pid,tid,%cpu | grep 进程ID 找到具体是哪个线程占用CPU</p>
+<p>jstack 线程ID | grep nid =十六进制的线程ID </p>
+</li>
+</ul>
+<h2 id="3-本地方法栈"><a href="#3-本地方法栈" class="headerlink" title="3. 本地方法栈"></a>3. 本地方法栈</h2><h3 id="3-1定义"><a href="#3-1定义" class="headerlink" title="3.1定义"></a>3.1定义</h3><p>​        本地方法运行时需要的内存</p>
+<h2 id="4-堆"><a href="#4-堆" class="headerlink" title="4. 堆"></a>4. 堆</h2><h3 id="4-1-定义"><a href="#4-1-定义" class="headerlink" title="4.1 定义"></a>4.1 定义</h3><p>定义：对象存储的空间</p>
+<h3 id="4-2-堆诊断"><a href="#4-2-堆诊断" class="headerlink" title="4.2 堆诊断"></a>4.2 堆诊断</h3><p>​       jmap -heap pid 查看堆内存占用</p>
+<p>​       jmap -dump:format=b,file = a.bin pid 导出内存快照</p>
+<p>​       内存分析工具 分析</p>
+<h2 id="5-方法区"><a href="#5-方法区" class="headerlink" title="5. 方法区"></a>5. 方法区</h2><p>   <img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710171045240.png" alt="image-20210710171045240"></p>
+<h3 id="5-3运行时常量池"><a href="#5-3运行时常量池" class="headerlink" title="5.3运行时常量池"></a>5.3运行时常量池</h3><ul>
+<li>常量池，就是一张表，存储于.class文件中，虚拟机指令根据这张表找到要执行的类名，方法名，参数类型，字面量（字符串的值，常量的值）信息。</li>
+<li>运行时常量池，常量池是*.class文件中的，当该类被加载时，它的常量池的信息就会放入运行时常量池，并把里边的符号地址变为真实地址</li>
+</ul>
+<h4 id="5-3-1常量池"><a href="#5-3-1常量池" class="headerlink" title="5.3.1常量池"></a>5.3.1常量池</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//类基本信息</span></span><br><span class="line">Classfile /root/java/java_learn/TryCatchTest.class</span><br><span class="line">  Last modified Apr <span class="number">5</span>, <span class="number">2021</span>; size <span class="number">613</span> bytes</span><br><span class="line">  MD5 checksum b5ccb1ea7bc7c043b9ae0726a4eafa15</span><br><span class="line">  Compiled from <span class="string">&quot;TryCatchTest.java&quot;</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TryCatchTest</span></span></span><br><span class="line">  minor version: 0</span><br><span class="line">  major version: <span class="number">55</span></span><br><span class="line">  flags: (<span class="number">0x0021</span>) ACC_PUBLIC, ACC_SUPER</span><br><span class="line">  this_class: #8                          // TryCatchTest</span><br><span class="line">  super_class: #9                         // java/lang/Object</span><br><span class="line">  interfaces: <span class="number">0</span>, fields: <span class="number">0</span>, methods: <span class="number">2</span>, attributes: <span class="number">1</span></span><br><span class="line"><span class="comment">//常量池</span></span><br><span class="line">Constant pool:</span><br><span class="line">   <span class="comment">//#9.#19 --&gt;#29 java/lang/Object.#19--&gt;#10:#11 --&gt; &quot;&lt;init&gt;&quot;:()V --&gt;java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span></span><br><span class="line">   #1 = Methodref          #9.#19         // java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span><br><span class="line">   #2 = Fieldref           #20.#21        // java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">   #3 = String             #22            // hello</span><br><span class="line">   #4 = Methodref          #23.#24        // java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">   #5 = String             #25            // finally</span><br><span class="line">   #6 = Class              #26            // java/lang/Exception</span><br><span class="line">   #7 = String             #27            // catch exception</span><br><span class="line">   #8 = Class              #28            // TryCatchTest</span><br><span class="line">   #9 = Class              #29            // java/lang/Object</span><br><span class="line">  #10 = Utf8               &lt;init&gt;</span><br><span class="line">  #11 = Utf8               ()V</span><br><span class="line">  #12 = Utf8               Code</span><br><span class="line">  #13 = Utf8               LineNumberTable</span><br><span class="line">  #14 = Utf8               test</span><br><span class="line">  #15 = Utf8               StackMapTable</span><br><span class="line">  #16 = Class              #30            // java/lang/Throwable</span><br><span class="line">  #17 = Utf8               SourceFile</span><br><span class="line">  #18 = Utf8               TryCatchTest.java</span><br><span class="line">  #19 = NameAndType        #10:#11        // &quot;&lt;init&gt;&quot;:()V</span><br><span class="line">  #20 = Class              #31            // java/lang/System</span><br><span class="line">  #21 = NameAndType        #32:#33        // out:Ljava/io/PrintStream;</span><br><span class="line">  #22 = Utf8               hello</span><br><span class="line">  #23 = Class              #34            // java/io/PrintStream</span><br><span class="line">  #24 = NameAndType        #35:#36        // println:(Ljava/lang/String;)V</span><br><span class="line">  #25 = Utf8               finally</span><br><span class="line">  #26 = Utf8               java/lang/Exception</span><br><span class="line">  #27 = Utf8               catch exception</span><br><span class="line">  #28 = Utf8               TryCatchTest</span><br><span class="line">  #29 = Utf8               java/lang/Object</span><br><span class="line">  #30 = Utf8               java/lang/Throwable</span><br><span class="line">  #31 = Utf8               java/lang/System</span><br><span class="line">  #32 = Utf8               out</span><br><span class="line">  #33 = Utf8               Ljava/io/PrintStream;</span><br><span class="line">  #34 = Utf8               java/io/PrintStream</span><br><span class="line">  #35 = Utf8               println</span><br><span class="line">  #36 = Utf8               (Ljava/lang/String;)V</span><br><span class="line"><span class="comment">//类方法定义</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">TryCatchTest</span><span class="params">()</span></span>;</span><br><span class="line">    descriptor: ()V</span><br><span class="line">    flags: (<span class="number">0x0001</span>) ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=<span class="number">1</span>, locals=<span class="number">1</span>, args_size=<span class="number">1</span></span><br><span class="line">         <span class="number">0</span>: aload_0</span><br><span class="line">         1: invokespecial #1                  // Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span><br><span class="line">         <span class="number">4</span>: <span class="keyword">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line <span class="number">1</span>: <span class="number">0</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>;</span><br><span class="line">    descriptor: ()V</span><br><span class="line">    flags: (<span class="number">0x0001</span>) ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=<span class="number">2</span>, locals=<span class="number">3</span>, args_size=<span class="number">1</span></span><br><span class="line">         0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">         3: ldc           #3                  // String hello</span><br><span class="line">         5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">         8: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        11: ldc           #5                  // String finally</span><br><span class="line">        13: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        <span class="number">16</span>: goto          <span class="number">50</span></span><br><span class="line">        <span class="number">19</span>: astore_1</span><br><span class="line">        20: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        23: ldc           #7                  // String catch exception</span><br><span class="line">        25: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        28: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        31: ldc           #5                  // String finally</span><br><span class="line">        33: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        <span class="number">36</span>: goto          <span class="number">50</span></span><br><span class="line">        <span class="number">39</span>: astore_2</span><br><span class="line">        40: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        43: ldc           #5                  // String finally</span><br><span class="line">        45: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        <span class="number">48</span>: aload_2</span><br><span class="line">        <span class="number">49</span>: athrow</span><br><span class="line">        <span class="number">50</span>: <span class="keyword">return</span></span><br><span class="line">      Exception table:</span><br><span class="line">         from    to  target type</span><br><span class="line">             <span class="number">0</span>     <span class="number">8</span>    <span class="number">19</span>   Class java/lang/Exception</span><br><span class="line">             <span class="number">0</span>     <span class="number">8</span>    <span class="number">39</span>   any</span><br><span class="line">            <span class="number">19</span>    <span class="number">28</span>    <span class="number">39</span>   any</span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line <span class="number">4</span>: <span class="number">0</span></span><br><span class="line">        line <span class="number">8</span>: <span class="number">8</span></span><br><span class="line">        line <span class="number">9</span>: <span class="number">16</span></span><br><span class="line">        line <span class="number">5</span>: <span class="number">19</span></span><br><span class="line">        line <span class="number">6</span>: <span class="number">20</span></span><br><span class="line">        line <span class="number">8</span>: <span class="number">28</span></span><br><span class="line">        line <span class="number">9</span>: <span class="number">36</span></span><br><span class="line">        line <span class="number">8</span>: <span class="number">39</span></span><br><span class="line">        line <span class="number">9</span>: <span class="number">48</span></span><br><span class="line">        line <span class="number">11</span>: <span class="number">50</span></span><br><span class="line">      StackMapTable: number_of_entries = <span class="number">3</span></span><br><span class="line">        frame_type = <span class="number">83</span> <span class="comment">/* same_locals_1_stack_item */</span></span><br><span class="line">          stack = [ class java/lang/Exception ]</span><br><span class="line">        frame_type = <span class="number">83</span> <span class="comment">/* same_locals_1_stack_item */</span></span><br><span class="line">          stack = [ class java/lang/Throwable ]</span><br><span class="line">        frame_type = <span class="number">10</span> <span class="comment">/* same */</span></span><br><span class="line">&#125;</span><br><span class="line">SourceFile: <span class="string">&quot;TryCatchTest.java&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-4字符串常量池"><a href="#5-4字符串常量池" class="headerlink" title="5.4字符串常量池"></a>5.4字符串常量池</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringTableTest</span></span>&#123;</span><br><span class="line">    <span class="comment">//stringtable[&#x27;a&#x27;,&#x27;b&#x27;,&#x27;ab&#x27;]   hashtable结构 不能扩容</span></span><br><span class="line">    <span class="comment">//常量池中的信息，都会被加载到运行时常量池中，这时 a a ab都是常量池中的符号，还没有转换为java字符串对象</span></span><br><span class="line">    <span class="comment">// ldc #2 把a符号变为 &quot;a&quot; 字符串对象</span></span><br><span class="line">    <span class="comment">// ldc #3 把b符号变为 &quot;b&quot; 字符串对象</span></span><br><span class="line">    <span class="comment">// ldc #4 把ab符号变为 &quot;a&quot; 字符串对象</span></span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">      String s1 = <span class="string">&quot;a&quot;</span>;</span><br><span class="line">      String s2 = <span class="string">&quot;b&quot;</span>;</span><br><span class="line">      String s3 = <span class="string">&quot;ab&quot;</span>;</span><br><span class="line">      String s4 = s1 + s2; <span class="comment">//new StringBuilder.append(&quot;a&quot;).append(&quot;b&quot;).toString()</span></span><br><span class="line">      String s5 = <span class="string">&quot;a&quot;</span> + <span class="string">&quot;b&quot;</span>; <span class="comment">//javac在编译期的优化，结果在编译期已经确定为ab</span></span><br><span class="line">         </span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(java.lang.String[])</span></span>;</span><br><span class="line">    descriptor: ([Ljava/lang/String;)V</span><br><span class="line">    flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=<span class="number">2</span>, locals=<span class="number">6</span>, args_size=<span class="number">1</span></span><br><span class="line">         0: ldc           #2                  // String a</span><br><span class="line">         <span class="number">2</span>: astore_1</span><br><span class="line">         3: ldc           #3                  // String b</span><br><span class="line">         <span class="number">5</span>: astore_2</span><br><span class="line">         6: ldc           #4                  // String ab</span><br><span class="line">         <span class="number">8</span>: astore_3</span><br><span class="line">         9: new           #5                  // class java/lang/StringBuilder</span><br><span class="line">        <span class="number">12</span>: dup</span><br><span class="line">        13: invokespecial #6                  // Method java/lang/StringBuilder.&quot;&lt;init&gt;&quot;:()V</span><br><span class="line">        <span class="number">16</span>: aload_1</span><br><span class="line">        17: invokevirtual #7                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;</span><br><span class="line">        <span class="number">20</span>: aload_2</span><br><span class="line">        21: invokevirtual #7                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;</span><br><span class="line">        24: invokevirtual #8                  // Method java/lang/StringBuilder.toString:()Ljava/lang/String;</span><br><span class="line">        <span class="number">27</span>: astore        <span class="number">4</span></span><br><span class="line">        29: ldc           #4                  // String ab</span><br><span class="line">        <span class="number">31</span>: astore        <span class="number">5</span></span><br><span class="line">        <span class="number">33</span>: <span class="keyword">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line <span class="number">3</span>: <span class="number">0</span></span><br><span class="line">        line <span class="number">4</span>: <span class="number">3</span></span><br><span class="line">        line <span class="number">5</span>: <span class="number">6</span></span><br><span class="line">        line <span class="number">6</span>: <span class="number">9</span></span><br><span class="line">        line <span class="number">7</span>: <span class="number">29</span></span><br><span class="line">        line <span class="number">8</span>: <span class="number">33</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-4-1-StringTable特性"><a href="#5-4-1-StringTable特性" class="headerlink" title="5.4.1 StringTable特性"></a>5.4.1 StringTable特性</h4><ul>
+<li>常量池中的字符串仅仅是符号，第一次用到才变为对象</li>
+<li>利用串池的机制，来避免重复创建字符串对象</li>
+<li>字符串拼接的原理是StringBuilder（java1.8）</li>
+<li>字符串常量拼接的原理是编译期优化</li>
+<li>可以使用intern方法，主动将串池中还没有的字符串对象放入串池中<ul>
+<li>1.8  将这个字符串对象尝试放入串池中，如果有则不放入，没有则放入串池中，然后返回串池中的对象。</li>
+<li>1.6 将这个字符串对象尝试放入串池中，如果有则不放入，没有则把此对象复制一份放入串池中，然后返回串池中的对象。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    String s = <span class="keyword">new</span> String(<span class="string">&quot;a&quot;</span>) + <span class="keyword">new</span> String(<span class="string">&quot;b&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//堆 new String(&quot;a&quot;)  new String(&quot;b&quot;) new String(&quot;ab&quot;)</span></span><br><span class="line">    String s2 = s.intern();</span><br><span class="line"><span class="comment">//        将这个字符串对象尝试放入串池中，如果有则不放入，没有则放入串池中，然后返回串池中的对象。</span></span><br><span class="line">    System.out.println(s2 == <span class="string">&quot;ab&quot;</span>);</span><br><span class="line">    System.out.println(s2 == s);</span><br><span class="line">    </span><br><span class="line">    String x2 = <span class="keyword">new</span> String(<span class="string">&quot;c&quot;</span>) + <span class="keyword">new</span> String(<span class="string">&quot;d&quot;</span>);</span><br><span class="line">   	x2.intern(); <span class="comment">// &quot;cd&quot;入池</span></span><br><span class="line">    String x1 = <span class="string">&quot;cd&quot;</span>; <span class="comment">//解析字面量时直接引用常量池中的&quot;cd&quot;不再创建新的String对象</span></span><br><span class="line">    System.out.println(x1 == x2);<span class="comment">//true</span></span><br><span class="line">    <span class="comment">// 1.6情况下 false 因为x1引用的常量池中的对象是由x2复制得来的 不是同一个对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-4-2-StringTable位置"><a href="#5-4-2-StringTable位置" class="headerlink" title="5.4.2 StringTable位置"></a>5.4.2 StringTable位置</h4><p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710212120880.png" alt="image-20210710212120880"></p>
+<p>1.7开始在堆中，因为永久代的回收效率比较低，因为需要Full GC时才会触发回收，而字符串常量池使用非常频繁，如果字符串常量池的回收效率不高，会导致永久代占用大量内存，最终导致永久代OOM</p>
+<h4 id="5-4-3-StringTable垃圾回收"><a href="#5-4-3-StringTable垃圾回收" class="headerlink" title="5.4.3 StringTable垃圾回收"></a>5.4.3 StringTable垃圾回收</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//-Xmx10m -XX:+PrintStringTableStatistics -XX:+PrintGCDetails -verbose:gc</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">10000</span>; j++) &#123;</span><br><span class="line">            String.valueOf(j).intern();</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">        System.out.println(i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">[GC (Allocation Failure) [PSYoungGen: 2048K-&gt;488K(2560K)] 2048K-&gt;664K(9728K), 0.0009191 secs] [Times: user&#x3D;0.00 sys&#x3D;0.00, real&#x3D;0.00 secs] </span><br><span class="line">10000</span><br><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 2560K, used 683K [0x00000000ffd00000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 2048K, 9% used [0x00000000ffd00000,0x00000000ffd30fb8,0x00000000fff00000)</span><br><span class="line">  from space 512K, 95% used [0x00000000fff00000,0x00000000fff7a020,0x00000000fff80000)</span><br><span class="line">  to   space 512K, 0% used [0x00000000fff80000,0x00000000fff80000,0x0000000100000000)</span><br><span class="line"> ParOldGen       total 7168K, used 176K [0x00000000ff600000, 0x00000000ffd00000, 0x00000000ffd00000)</span><br><span class="line">  object space 7168K, 2% used [0x00000000ff600000,0x00000000ff62c000,0x00000000ffd00000)</span><br><span class="line"> Metaspace       used 3284K, capacity 4496K, committed 4864K, reserved 1056768K</span><br><span class="line">  class space    used 356K, capacity 388K, committed 512K, reserved 1048576K</span><br><span class="line">SymbolTable statistics:</span><br><span class="line">Number of buckets       :     20011 &#x3D;    160088 bytes, avg   8.000</span><br><span class="line">Number of entries       :     13546 &#x3D;    325104 bytes, avg  24.000</span><br><span class="line">Number of literals      :     13546 &#x3D;    577328 bytes, avg  42.620</span><br><span class="line">Total footprint         :           &#x3D;   1062520 bytes</span><br><span class="line">Average bucket size     :     0.677</span><br><span class="line">Variance of bucket size :     0.680</span><br><span class="line">Std. dev. of bucket size:     0.825</span><br><span class="line">Maximum bucket size     :         6</span><br><span class="line">StringTable statistics:</span><br><span class="line">Number of buckets       :     60013 &#x3D;    480104 bytes, avg   8.000</span><br><span class="line">Number of entries       :      4844 &#x3D;    116256 bytes, avg  24.000</span><br><span class="line">Number of literals      :      4844 &#x3D;    306352 bytes, avg  63.244</span><br><span class="line">Total footprint         :           &#x3D;    902712 bytes</span><br><span class="line">Average bucket size     :     0.081</span><br><span class="line">Variance of bucket size :     0.078</span><br><span class="line">Std. dev. of bucket size:     0.280</span><br><span class="line">Maximum bucket size     :         3</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="5-4-4-StringTable性能调优"><a href="#5-4-4-StringTable性能调优" class="headerlink" title="5.4.4 StringTable性能调优"></a>5.4.4 StringTable性能调优</h4><p>StringTable的底层是一个hashtable它的性能和桶大小密切相关</p>
+<ul>
+<li>使用-XX:StringTableSize = 桶个数</li>
+<li>考虑字符串对象是否入池</li>
+</ul>
+<h2 id="6-直接内存"><a href="#6-直接内存" class="headerlink" title="6 直接内存"></a>6 直接内存</h2><h3 id="6-1定义"><a href="#6-1定义" class="headerlink" title="6.1定义"></a>6.1定义</h3><p>Direct Mermory</p>
+<ul>
+<li>常见于NIO操作，用于数据缓冲区</li>
+<li>分配回收成本较高，但读写性能高</li>
+<li>不受JVM垃圾回收影响</li>
+</ul>
+<p>堆内存读写性能不高的原因：</p>
+<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710230157994.png" alt="image-20210710230157994"></p>
+<p>​    java 本身并不具备 IO 读写能力，因此 read 方法调用后，要从 java 程序的<strong>用户态</strong>切换至<strong>内核态</strong>，去调用操作系统（Kernel）的读能力，将数据读入<strong>系统缓冲区</strong> 然后从<strong>内核态</strong>切换到<strong>用户态</strong>将系统缓存区的数据拷贝到java缓冲区。</p>
+<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710232133345.png" alt="image-20210710232133345"></p>
+<p>直接内存省略了一步数据拷贝</p>
+<h3 id="6-2-直接内存释放原理"><a href="#6-2-直接内存释放原理" class="headerlink" title="6.2 直接内存释放原理"></a>6.2 直接内存释放原理</h3><ul>
+<li>使用了 Unsafe 对象完成直接内存的分配回收，并且回收需要主动调用 freeMemory 方法</li>
+<li>ByteBuffer 的实现类内部，使用了 Cleaner （虚引用）来监测 ByteBuffer 对象，一旦ByteBuffer 对象被垃圾回收，那么就会由一个 叫ReferenceHandler的守护线程通过 Cleaner 的 clean 方法调用 freeMemory 来释放直接内存</li>
+</ul>
+<h3 id="6-3禁用显示垃圾回收对直接内存的影响"><a href="#6-3禁用显示垃圾回收对直接内存的影响" class="headerlink" title="6.3禁用显示垃圾回收对直接内存的影响"></a>6.3禁用显示垃圾回收对直接内存的影响</h3><p>当使用<code>-XX:+DisableExplicitGC</code>禁用显式GC(System.gc())后，必须等待ByteBuffer对象被垃圾回收掉之后直接内存才能被释放</p>
+<p>解决方案：当直接内存使用较多时，直接使用unsafe管理直接内存，使用unsafe.freeMemory释放掉内存 </p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/" rel="tag"># 内存结构</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/07/27/CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86/" rel="prev" title="CPU缓存与Volatile原理">
+      <i class="fa fa-chevron-left"></i> CPU缓存与Volatile原理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/07/28/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95RPC%E6%A1%86%E6%9E%B6/" rel="next" title="自己实现一个简单的RPC框架">
+      自己实现一个简单的RPC框架 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">内存结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="nav-number">1.1.</span> <span class="nav-text">1. 程序计数器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. 1定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88"><span class="nav-number">1.2.</span> <span class="nav-text">2. 虚拟机栈</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%E5%AE%9A%E4%B9%89"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E7%BA%BF%E7%A8%8B%E8%BF%90%E8%A1%8C%E8%AF%8A%E6%96%AD"><span class="nav-number">1.3.</span> <span class="nav-text">2.2 线程运行诊断</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%9C%AC%E5%9C%B0%E6%96%B9%E6%B3%95%E6%A0%88"><span class="nav-number">1.4.</span> <span class="nav-text">3. 本地方法栈</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%E5%AE%9A%E4%B9%89"><span class="nav-number">1.4.1.</span> <span class="nav-text">3.1定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%A0%86"><span class="nav-number">1.5.</span> <span class="nav-text">4. 堆</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%AE%9A%E4%B9%89"><span class="nav-number">1.5.1.</span> <span class="nav-text">4.1 定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%A0%86%E8%AF%8A%E6%96%AD"><span class="nav-number">1.5.2.</span> <span class="nav-text">4.2 堆诊断</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%96%B9%E6%B3%95%E5%8C%BA"><span class="nav-number">1.6.</span> <span class="nav-text">5. 方法区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="nav-number">1.6.1.</span> <span class="nav-text">5.3运行时常量池</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-1%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="nav-number">1.6.1.1.</span> <span class="nav-text">5.3.1常量池</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="nav-number">1.6.2.</span> <span class="nav-text">5.4字符串常量池</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-4-1-StringTable%E7%89%B9%E6%80%A7"><span class="nav-number">1.6.2.1.</span> <span class="nav-text">5.4.1 StringTable特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-4-2-StringTable%E4%BD%8D%E7%BD%AE"><span class="nav-number">1.6.2.2.</span> <span class="nav-text">5.4.2 StringTable位置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-4-3-StringTable%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6"><span class="nav-number">1.6.2.3.</span> <span class="nav-text">5.4.3 StringTable垃圾回收</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-4-4-StringTable%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98"><span class="nav-number">1.6.2.4.</span> <span class="nav-text">5.4.4 StringTable性能调优</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98"><span class="nav-number">1.7.</span> <span class="nav-text">6 直接内存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1%E5%AE%9A%E4%B9%89"><span class="nav-number">1.7.1.</span> <span class="nav-text">6.1定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98%E9%87%8A%E6%94%BE%E5%8E%9F%E7%90%86"><span class="nav-number">1.7.2.</span> <span class="nav-text">6.2 直接内存释放原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3%E7%A6%81%E7%94%A8%E6%98%BE%E7%A4%BA%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%AF%B9%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-number">1.7.3.</span> <span class="nav-text">6.3禁用显示垃圾回收对直接内存的影响</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swz</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swz</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://swz1216470093.github.io/blog/2021/07/28/%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/',]
+      });
+      });
+  </script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'cefa39253970229f8e5d',
+      clientSecret: '81e0d672d6a3abf97548e8614c36a567dc55237a',
+      repo        : 'blogComments',
+      owner       : 'swz1216470093',
+      admin       : ['swz1216470093'],
+      id          : 'ca099972f5494544189f5f6dcc93006d',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
