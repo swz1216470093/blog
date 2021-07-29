@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"swz1216470093.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="内存结构  1. 程序计数器1. 1定义​    作用：指向虚拟机下一条执行的指令的地址 ​    特点：  线程私有 唯一一个不会产生内存溢出的区域  2. 虚拟机栈2.1定义 线程运行时需要的内存空间，称为虚拟机栈  每个栈由栈帧组成，对应着每次方法调用时所占用的内存  每个线程只能有一个活动栈帧，对应着当前执行的方法 2.2 线程运行诊断top命令 查看哪个进程CPU占用过高 ps H -e">
+  <meta name="description" content="内存结构">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内存结构">
 <meta property="og:url" content="https://swz1216470093.github.io/blog/2021/07/28/%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
-<meta property="og:description" content="内存结构  1. 程序计数器1. 1定义​    作用：指向虚拟机下一条执行的指令的地址 ​    特点：  线程私有 唯一一个不会产生内存溢出的区域  2. 虚拟机栈2.1定义 线程运行时需要的内存空间，称为虚拟机栈  每个栈由栈帧组成，对应着每次方法调用时所占用的内存  每个线程只能有一个活动栈帧，对应着当前执行的方法 2.2 线程运行诊断top命令 查看哪个进程CPU占用过高 ps H -e">
+<meta property="og:description" content="内存结构">
 <meta property="og:locale">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210729001034.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710171045240.png">
@@ -33,7 +33,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710230157994.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210710232133345.png">
 <meta property="article:published_time" content="2021-07-28T05:29:32.000Z">
-<meta property="article:modified_time" content="2021-07-29T07:16:03.478Z">
+<meta property="article:modified_time" content="2021-07-29T07:19:45.556Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="内存结构">
 <meta name="twitter:card" content="summary">
@@ -194,7 +194,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-29 15:16:03" itemprop="dateModified" datetime="2021-07-29T15:16:03+08:00">2021-07-29</time>
+                <time title="Modified: 2021-07-29 15:19:45" itemprop="dateModified" datetime="2021-07-29T15:19:45+08:00">2021-07-29</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -217,7 +217,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="内存结构"><a href="#内存结构" class="headerlink" title="内存结构"></a>内存结构</h1><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210729001034.png" style="zoom:50%;" />
+        <h1 id="内存结构"><a href="#内存结构" class="headerlink" title="内存结构"></a>内存结构</h1><span id="more"></span>
+
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210729001034.png" style="zoom:50%;" />
 
 <h2 id="1-程序计数器"><a href="#1-程序计数器" class="headerlink" title="1. 程序计数器"></a>1. 程序计数器</h2><h3 id="1-1定义"><a href="#1-1定义" class="headerlink" title="1. 1定义"></a>1. 1定义</h3><p>​    作用：指向虚拟机下一条执行的指令的地址</p>
 <p>​    特点：</p>
@@ -291,6 +293,7 @@
 </ul>
 <h3 id="6-3禁用显示垃圾回收对直接内存的影响"><a href="#6-3禁用显示垃圾回收对直接内存的影响" class="headerlink" title="6.3禁用显示垃圾回收对直接内存的影响"></a>6.3禁用显示垃圾回收对直接内存的影响</h3><p>当使用<code>-XX:+DisableExplicitGC</code>禁用显式GC(System.gc())后，必须等待ByteBuffer对象被垃圾回收掉之后直接内存才能被释放</p>
 <p>解决方案：当直接内存使用较多时，直接使用unsafe管理直接内存，使用unsafe.freeMemory释放掉内存 </p>
+<p>参考：黑马视频《解密JVM》</p>
 
     </div>
 
