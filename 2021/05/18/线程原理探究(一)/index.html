@@ -27,15 +27,15 @@
 <meta property="og:site_name" content="swz&#39;blog">
 <meta property="og:description" content="线程原理探究(一)什么是线程线程是进程当中的一条执行流程。 同一个进程内多个线程之间可以共享代码段、数据段、打开的文件等资源，但每个线程都有独立一套的寄存器和栈，这样可以确保线程的控制流是相对独立的。">
 <meta property="og:locale">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS96rc8W3QAycjLBS5jYp2WmeiasicDSMaXjfwlau4Jb0zGiaEbalcGuiaHMg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS929V7rcLXiaaB16boR9VraolG9Fgc9NpnxOSlHx7No6t0zSPrscaeuaA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS9CInoGdDVyYvtTfju7gVeKLjDNOMmul4kPzicTbczNiaBSzGiaEzDXtYTA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/640">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210731211429.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210731211543649.png">
 <meta property="article:published_time" content="2021-05-18T09:13:04.000Z">
-<meta property="article:modified_time" content="2021-07-17T04:57:28.125Z">
+<meta property="article:modified_time" content="2021-07-31T13:24:16.257Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="线程">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS96rc8W3QAycjLBS5jYp2WmeiasicDSMaXjfwlau4Jb0zGiaEbalcGuiaHMg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/640">
 
 <link rel="canonical" href="https://swz1216470093.github.io/blog/2021/05/18/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/">
 
@@ -192,7 +192,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-07-17 12:57:28" itemprop="dateModified" datetime="2021-07-17T12:57:28+08:00">2021-07-17</time>
+                <time title="Modified: 2021-07-31 21:24:16" itemprop="dateModified" datetime="2021-07-31T21:24:16+08:00">2021-07-31</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -219,7 +219,7 @@
 <p>同一个进程内多个线程之间可以共享代码段、数据段、打开的文件等资源，但每个线程都有独立一套的寄存器和栈，这样可以确保线程的控制流是相对独立的。</p>
 <span id="more"></span>
 
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS96rc8W3QAycjLBS5jYp2WmeiasicDSMaXjfwlau4Jb0zGiaEbalcGuiaHMg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片">多线程</p>
+<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/640" alt="图片">多线程</p>
 <blockquote>
 <p>线程的优缺点？</p>
 </blockquote>
@@ -242,14 +242,15 @@
 <li>把解压缩后的视频数据播放出来；</li>
 </ul>
 <p>对于单进程的实现方式，我想大家都会是以下这个方式：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS929V7rcLXiaaB16boR9VraolG9Fgc9NpnxOSlHx7No6t0zSPrscaeuaA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片">单进程实现方式</p>
+<p>单进程实现方式</p>
+<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210731211429.png"></p>
 <p>对于单进程的这种方式，存在以下问题：</p>
 <ul>
 <li>播放出来的画面和声音会不连贯，因为当 CPU 能力不够强的时候，<code>Read</code> 的时候可能进程就等在这了，这样就会导致等半天才进行数据解压和播放；</li>
 <li>各个函数之间不是并发执行，影响资源的使用效率；</li>
 </ul>
 <p>那改进成多进程的方式：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZcvw4t9kicec370n3cvX2JS9CInoGdDVyYvtTfju7gVeKLjDNOMmul4kPzicTbczNiaBSzGiaEzDXtYTA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片">多进程实现方式</p>
+<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210731211543649.png">多进程实现方式</p>
 <p>对于多进程的这种方式，依然会存在问题：</p>
 <ul>
 <li>进程之间如何通信，共享数据？</li>
