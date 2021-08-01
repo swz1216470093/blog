@@ -32,9 +32,10 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727183508.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727200551.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727173709.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210731215519.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727184128.png">
 <meta property="article:published_time" content="2021-07-27T09:58:28.000Z">
-<meta property="article:modified_time" content="2021-07-27T12:18:38.519Z">
+<meta property="article:modified_time" content="2021-07-31T14:02:45.071Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="volatile">
 <meta property="article:tag" content="CPU缓存">
@@ -189,10 +190,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2021-07-27 17:58:28 / Modified: 20:18:38" itemprop="dateCreated datePublished" datetime="2021-07-27T17:58:28+08:00">2021-07-27</time>
+              <time title="Created: 2021-07-27 17:58:28" itemprop="dateCreated datePublished" datetime="2021-07-27T17:58:28+08:00">2021-07-27</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-07-31 22:02:45" itemprop="dateModified" datetime="2021-07-31T22:02:45+08:00">2021-07-31</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -345,24 +352,18 @@
 <td align="center">√</td>
 </tr>
 </tbody></table>
-<h2 id="MESI优化和他们引入的问题"><a href="#MESI优化和他们引入的问题" class="headerlink" title="MESI优化和他们引入的问题"></a>MESI优化和他们引入的问题</h2><p>缓存的一致性消息传递是要时间的，这就使其切换时会产生延迟。当一个缓存被切换状态时其他缓存收到消息完成各自的切换并且发出回应消息这么一长串的时间中CPU都会等待所有缓存响应完成。可能出现的阻塞都会导致各种各样的性能问题和稳定性问题。</p>
-<h3 id="CPU切换状态阻塞解决-Store-Bufferes"><a href="#CPU切换状态阻塞解决-Store-Bufferes" class="headerlink" title="CPU切换状态阻塞解决(Store Bufferes)"></a>CPU切换状态阻塞解决(Store Bufferes)</h3><p>比如你需要修改本地缓存中的一条信息，那么你必须将I（无效）状态通知到其他拥有该缓存数据的CPU缓存中，并且等待确认。等待确认的过程会阻塞处理器，这会降低处理器的性能。应为这个等待远远比一个指令的执行时间长的多。</p>
-<h4 id="Store-Bufferes"><a href="#Store-Bufferes" class="headerlink" title="Store Bufferes"></a>Store Bufferes</h4><p>为了避免这种CPU运算能力的浪费，Store Bufferes被引入使用。处理器把它想要写入到主存的值写到缓存，然后继续去处理其他事情。当所有失效确认（Invalidate Acknowledge）都接收到时，数据才会最终被提交。</p>
-<h4 id="Store-Bufferes的风险"><a href="#Store-Bufferes的风险" class="headerlink" title="Store Bufferes的风险"></a>Store Bufferes的风险</h4><p>这么做有两个风险</p>
-<p>第一、就是处理器会尝试从存储缓存（Store buffer）中读取值，但它还没有进行提交。这个的解决方案称为Store Forwarding，它使得加载的时候，如果存储缓存中存在，则进行返回。<br>第二、保存什么时候会完成，这个并没有任何保证。</p>
-<h4 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h4><p>执行Invalidate 也不是一个简单的操作，它需要处理器去处理。另外，存储缓存（Store Buffers）并不是无穷大的，所以处理器有时需要等待失效确认的返回。这两个操作都会使得性能大幅降低。为了应付这种情况，引入了失效队列。它们的约定如下：</p>
-<ul>
-<li>对于所有的收到的Invalidate请求，Invalidate Acknowlege消息必须立刻发送</li>
-<li>Invalidate并不真正执行，而是被放在一个特殊的队列(失效队列)中，在方便的时候才会去执行。</li>
-<li>处理器不会发送任何消息给所处理的缓存条目，直到它处理Invalidate。</li>
-</ul>
-<p>即便是这样处理器依然不知道什么时候优化是允许的，而什么时候并不允许。<br>干脆处理器将这个任务丢给了写代码的人。这就是内存屏障（Memory Barriers）。</p>
-<blockquote>
-<p><strong>写屏障 Store Memory Barrier是一条告诉处理器在执行这之后的指令之前，应用所有已经在存储缓存（store buffer）中的保存的指令。</strong></p>
-</blockquote>
-<blockquote>
-<p><strong>读屏障Load Memory Barrier  是一条告诉处理器在执行任何的加载前，先应用所有已经在失效队列中的失效操作的指令。</strong></p>
-</blockquote>
+<h4 id="Store-Buffer和Invalidate-Queue"><a href="#Store-Buffer和Invalidate-Queue" class="headerlink" title="Store Buffer和Invalidate Queue"></a>Store Buffer和Invalidate Queue</h4><p>MESI协议中有两个行为的执行成本比较大。一个是将某个Cache Line标记为Invalid状态，另一个是当某Cache Line当前状态为Invalid时写入新的数据。所以CPU通过Store Buffer和Invalidate Queue组件来降低这类操作的延时</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210731215519.png" style="zoom:67%;" />
+
+<p>当一个核心在Invalid状态进行写入时，首先会给其它CPU核发送Invalid消息，然后把当前写入的数据写入到Store Buffer中。然后异步在某个时刻真正的写入到Cache Line中。当前CPU核如果要读Cache Line中的数据，需要先扫描Store Buffer之后再读取Cache Line（Store-Buffer Forwarding）。但是此时其它CPU核是看不到当前核的Store Buffer中的数据的，要等到Store Buffer中的数据被刷到了Cache Line之后才会触发失效操作。而当一个CPU核收到Invalid消息时，会把消息写入自身的Invalidate Queue中，随后异步将其设为Invalid状态。和Store Buffer不同的是，当前CPU核心使用Cache时并不扫描Invalidate Queue部分，所以可能会有极短时间的脏读问题。</p>
+<h4 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h4><p><strong>内存屏障 (Memory Barrier)<strong>分为</strong>写屏障（Store Barrier）</strong>、<strong>读屏障（Load Barrier）和</strong> <strong>全屏障（Full Barrier）</strong></p>
+<p>其作用有两个：</p>
+<ol>
+<li>防止指令之间的重排序</li>
+<li>保证数据的可见性</li>
+</ol>
+<p>关于指令重排，这里不考虑架构的话，Load和Store两种操作会有Load-Store、Store-Load、Load-Load、Store-Store这四种可能的乱序结果。上文提到的三种屏障则是限制这些不同乱序的机制。</p>
+<p>写屏障会阻塞直到把Store Buffer中的数据刷到Cache中；读屏障会阻塞直到Invalid Queue中的消息执行完毕。以此来保证核间各级数据的一致性。</p>
 <h2 id="流水线技术和指令重排"><a href="#流水线技术和指令重排" class="headerlink" title="流水线技术和指令重排"></a>流水线技术和指令重排</h2><p>现代 CPU 支持多级指令流水线，例如支持同时执行 <code>取指令 </code>- <code>指令译码</code> - <code>执行指令</code> - <code>内存访问</code> - <code>数据写回</code> 的处理器，就可以称之为五级指令流水线。这时 CPU 可以在一个时钟周期内，同时运行五条指令的不同阶段（相当于一条执行时间最长的复杂指令），本质上，流水线技术并不能缩短单条指令的执行时间，但它变相地提高了指令地吞吐率。</p>
 <img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210727184128.png" style="zoom:50%;" />
 
@@ -400,6 +401,7 @@
 <p>参考：</p>
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yanlong300/p/8986041.html">并发研究之CPU缓存一致性协议(MESI)</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.cnkirito.moe/cache-line">JAVA 拾遗 — CPU Cache 与缓存行</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.huaweicloud.com/articles/0f109d8c8bfc384562d7c8498392de5d.html">原子变量、锁、内存屏障，写得非常好！</a></p>
 <p>黑马视频 《java并发编程》</p>
 
     </div>
@@ -487,7 +489,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">CPU缓存与Volatile原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98"><span class="nav-number">1.1.</span> <span class="nav-text">CPU高速缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E7%BC%93%E5%AD%98%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">CPU缓存结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E8%A1%8C"><span class="nav-number">1.3.</span> <span class="nav-text">缓存行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%AA%E5%85%B1%E4%BA%AB"><span class="nav-number">1.4.</span> <span class="nav-text">伪共享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AEMESI"><span class="nav-number">1.5.</span> <span class="nav-text">缓存一致性协议MESI</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MESI%E5%8D%8F%E8%AE%AE%E7%BC%93%E5%AD%98%E7%8A%B6%E6%80%81"><span class="nav-number">1.5.1.</span> <span class="nav-text">MESI协议缓存状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MESI%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.5.2.</span> <span class="nav-text">MESI状态转换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MESI%E4%BC%98%E5%8C%96%E5%92%8C%E4%BB%96%E4%BB%AC%E5%BC%95%E5%85%A5%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.6.</span> <span class="nav-text">MESI优化和他们引入的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU%E5%88%87%E6%8D%A2%E7%8A%B6%E6%80%81%E9%98%BB%E5%A1%9E%E8%A7%A3%E5%86%B3-Store-Bufferes"><span class="nav-number">1.6.1.</span> <span class="nav-text">CPU切换状态阻塞解决(Store Bufferes)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Store-Bufferes"><span class="nav-number">1.6.1.1.</span> <span class="nav-text">Store Bufferes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Store-Bufferes%E7%9A%84%E9%A3%8E%E9%99%A9"><span class="nav-number">1.6.1.2.</span> <span class="nav-text">Store Bufferes的风险</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C"><span class="nav-number">1.6.1.3.</span> <span class="nav-text">内存屏障</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E6%B0%B4%E7%BA%BF%E6%8A%80%E6%9C%AF%E5%92%8C%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92"><span class="nav-number">1.7.</span> <span class="nav-text">流水线技术和指令重排</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Volatile%E5%8E%9F%E7%90%86"><span class="nav-number">1.8.</span> <span class="nav-text">Volatile原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7"><span class="nav-number">1.8.1.</span> <span class="nav-text">如何保证可见性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%9C%89%E5%BA%8F%E6%80%A7"><span class="nav-number">1.8.2.</span> <span class="nav-text">如何保证有序性</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU%E7%BC%93%E5%AD%98%E4%B8%8EVolatile%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">CPU缓存与Volatile原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98"><span class="nav-number">1.1.</span> <span class="nav-text">CPU高速缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E7%BC%93%E5%AD%98%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">CPU缓存结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E8%A1%8C"><span class="nav-number">1.3.</span> <span class="nav-text">缓存行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%AA%E5%85%B1%E4%BA%AB"><span class="nav-number">1.4.</span> <span class="nav-text">伪共享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AEMESI"><span class="nav-number">1.5.</span> <span class="nav-text">缓存一致性协议MESI</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MESI%E5%8D%8F%E8%AE%AE%E7%BC%93%E5%AD%98%E7%8A%B6%E6%80%81"><span class="nav-number">1.5.1.</span> <span class="nav-text">MESI协议缓存状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MESI%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.5.2.</span> <span class="nav-text">MESI状态转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Store-Buffer%E5%92%8CInvalidate-Queue"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">Store Buffer和Invalidate Queue</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C"><span class="nav-number">1.5.2.2.</span> <span class="nav-text">内存屏障</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E6%B0%B4%E7%BA%BF%E6%8A%80%E6%9C%AF%E5%92%8C%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92"><span class="nav-number">1.6.</span> <span class="nav-text">流水线技术和指令重排</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Volatile%E5%8E%9F%E7%90%86"><span class="nav-number">1.7.</span> <span class="nav-text">Volatile原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7"><span class="nav-number">1.7.1.</span> <span class="nav-text">如何保证可见性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%9C%89%E5%BA%8F%E6%80%A7"><span class="nav-number">1.7.2.</span> <span class="nav-text">如何保证有序性</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -501,7 +503,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
