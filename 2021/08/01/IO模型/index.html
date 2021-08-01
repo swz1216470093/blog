@@ -22,8 +22,8 @@
 
   <meta name="description" content="IO模型同步与异步同步：线程自己去获取结果（一个线程） 异步：线程自己不去获取结果，而是由另一个线程把结果通知给当前线程（至少两个线程） 网络I&#x2F;O由于CPU某些指令比较危险，如果错用会导致系统崩溃，为了保护系统，操作系统将内存空间划分为了两部分:内核空间和用户空间 当进程运行在内核空间时，它就处于内核态；当进程运行在用户空间时，它就处于用户态。 当我们需要进行IO操作时，如读写硬盘文件、读写网卡">
 <meta property="og:type" content="article">
-<meta property="og:title" content="swz&#39;blog">
-<meta property="og:url" content="https://swz1216470093.github.io/blog/1970/01/01/IO%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:title" content="IO模型">
+<meta property="og:url" content="https://swz1216470093.github.io/blog/2021/08/01/IO%E6%A8%A1%E5%9E%8B/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
 <meta property="og:description" content="IO模型同步与异步同步：线程自己去获取结果（一个线程） 异步：线程自己不去获取结果，而是由另一个线程把结果通知给当前线程（至少两个线程） 网络I&#x2F;O由于CPU某些指令比较危险，如果错用会导致系统崩溃，为了保护系统，操作系统将内存空间划分为了两部分:内核空间和用户空间 当进程运行在内核空间时，它就处于内核态；当进程运行在用户空间时，它就处于用户态。 当我们需要进行IO操作时，如读写硬盘文件、读写网卡">
 <meta property="og:locale">
@@ -39,13 +39,14 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801164752.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801165029.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801170530.png">
-<meta property="article:published_time" content="1970-01-01T00:00:00.000Z">
-<meta property="article:modified_time" content="2021-08-01T09:08:52.000Z">
+<meta property="article:published_time" content="2021-08-01T06:47:21.000Z">
+<meta property="article:modified_time" content="2021-08-01T09:11:08.081Z">
 <meta property="article:author" content="swz">
+<meta property="article:tag" content="IO模型">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801142034.png">
 
-<link rel="canonical" href="https://swz1216470093.github.io/blog/1970/01/01/IO%E6%A8%A1%E5%9E%8B/">
+<link rel="canonical" href="https://swz1216470093.github.io/blog/2021/08/01/IO%E6%A8%A1%E5%9E%8B/">
 
 
 <script id="page-configurations">
@@ -58,7 +59,7 @@
   };
 </script>
 
-  <title> | swz'blog</title>
+  <title>IO模型 | swz'blog</title>
   
 
 
@@ -170,7 +171,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/1970/01/01/IO%E6%A8%A1%E5%9E%8B/">
+    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/08/01/IO%E6%A8%A1%E5%9E%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/blog/images/avatar.gif">
@@ -183,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
+          IO模型
         </h1>
 
         <div class="post-meta">
@@ -192,16 +193,19 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 1970-01-01 08:00:00" itemprop="dateCreated datePublished" datetime="1970-01-01T08:00:00+08:00">1970-01-01</time>
+              <time title="Created: 2021-08-01 14:47:21 / Modified: 17:11:08" itemprop="dateCreated datePublished" datetime="2021-08-01T14:47:21+08:00">2021-08-01</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-08-01 17:08:52" itemprop="dateModified" datetime="2021-08-01T17:08:52+08:00">2021-08-01</time>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
               </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+                </span>
+            </span>
 
           
 
@@ -382,17 +386,20 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/IO%E6%A8%A1%E5%9E%8B/" rel="tag"># IO模型</a>
+          </div>
 
         
 
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/blog/2021/05/18/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6(%E4%B8%80)/" rel="next" title="线程原理探究(一)">
-      线程原理探究(一) <i class="fa fa-chevron-right"></i>
+    <a href="/blog/2021/07/29/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%AD%97%E8%8A%82%E7%A0%81/" rel="prev" title="类加载与字节码">
+      <i class="fa fa-chevron-left"></i> 类加载与字节码
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -473,13 +480,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/blog/categories/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -588,7 +595,7 @@ if (document.querySelectorAll('pre.mermaid').length) {
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://swz1216470093.github.io/blog/1970/01/01/IO%E6%A8%A1%E5%9E%8B/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://swz1216470093.github.io/blog/2021/08/01/IO%E6%A8%A1%E5%9E%8B/',]
       });
       });
   </script>
@@ -604,7 +611,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blogComments',
       owner       : 'swz1216470093',
       admin       : ['swz1216470093'],
-      id          : 'ec24cdae34d2ea90ebfaf29dc3a7128d',
+      id          : 'b268bc6d5ac4ee2fe2ad835d9c3009bb',
         language: 'zh-CN',
       distractionFreeMode: true
     });

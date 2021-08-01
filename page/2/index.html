@@ -152,6 +152,91 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/11/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%BA%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="swz">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swz'blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2021/07/11/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%BA%8C/" class="post-title-link" itemprop="url">线程池探究(二)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-07-11 23:09:49" itemprop="dateCreated datePublished" datetime="2021-07-11T23:09:49+08:00">2021-07-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-07-13 20:50:50" itemprop="dateModified" datetime="2021-07-13T20:50:50+08:00">2021-07-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">java并发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="线程池探究（二）"><a href="#线程池探究（二）" class="headerlink" title="线程池探究（二）"></a>线程池探究（二）</h1><h2 id="线程池的状态和状态转换"><a href="#线程池的状态和状态转换" class="headerlink" title="线程池的状态和状态转换"></a>线程池的状态和状态转换</h2><h4 id="线程池状态"><a href="#线程池状态" class="headerlink" title="线程池状态"></a>线程池状态</h4><p>Running：接收新任务并处理阻塞队列中的任务</p>
+<p>Shutdown：拒绝新任务但可以处理阻塞队列中的任务</p>
+<p>Stop:拒绝新任务并抛弃阻塞队列中的任务，同时中断正在处理的任务</p>
+<p>Tidying:所有任务执行完成（包括阻塞队列中的任务）后，活动线程数为0，将要调用terminated方法</p>
+<p>Terminated：终止状态，调用完terminated方法后的状态</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2021/07/11/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%BA%8C/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/07/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%8E%A2%E7%A9%B6-%E4%B8%80/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -584,230 +669,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/1970/01/01/IO%E6%A8%A1%E5%9E%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/1970/01/01/IO%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">Untitled</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 1970-01-01 08:00:00" itemprop="dateCreated datePublished" datetime="1970-01-01T08:00:00+08:00">1970-01-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-08-01 17:08:52" itemprop="dateModified" datetime="2021-08-01T17:08:52+08:00">2021-08-01</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="IO模型"><a href="#IO模型" class="headerlink" title="IO模型"></a>IO模型</h1><h2 id="同步与异步"><a href="#同步与异步" class="headerlink" title="同步与异步"></a>同步与异步</h2><p>同步：线程自己去获取结果（一个线程）</p>
-<p>异步：线程自己不去获取结果，而是由另一个线程把结果通知给当前线程（至少两个线程）</p>
-<h2 id="网络I-O"><a href="#网络I-O" class="headerlink" title="网络I/O"></a>网络I/O</h2><p>由于CPU某些指令比较危险，如果错用会导致系统崩溃，为了保护系统，操作系统将内存空间划分为了两部分:<strong>内核空间</strong>和<strong>用户空间</strong></p>
-<p>当进程运行在内核空间时，它就处于<strong>内核态</strong>；当进程运行在用户空间时，它就处于<strong>用户态</strong>。</p>
-<p>当我们需要进行IO操作时，如读写硬盘文件、读写网卡数据等，进程需要切换到内核态，否则无法进行这样的操作，无论是从内核态切换到用户态，还是从用户态切换到内核态，都需要进行一次上下文的切换。一般情况下，应用不能直接操作内核空间的数据，需要把内核态的数据拷贝到用户空间才能操作。</p>
-<p>所以应用程序发起的一次IO操作实际包含两个阶段：</p>
-<ol>
-<li>IO调用阶段：应用程序进程向内核发起系统调用</li>
-<li>IO执行阶段：内核执行IO操作并返回<br>2.1. 准备数据阶段：内核等待I/O设备准备好数据<br>2.2. 拷贝数据阶段：将数据从内核缓冲区拷贝到用户空间缓冲区</li>
-</ol>
-<p>怎么理解准备数据阶段呢？<br>对于写请求：等待系统调用的完整请求数据，并写入内核缓冲区；<br>对于读请求：等待系统调用的完整请求数据；（若请求数据不存在于内核缓冲区）则将外围设备的数据读入到内核缓冲区。</p>
-<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801142034.png" alt="IO操作流程"></p>
-<h2 id="网络IO模型"><a href="#网络IO模型" class="headerlink" title="网络IO模型"></a>网络IO模型</h2><h3 id="同步阻塞IO-BIO"><a href="#同步阻塞IO-BIO" class="headerlink" title="同步阻塞IO(BIO)"></a>同步阻塞IO(BIO)</h3><p>如果发起系统调用的线程在IO的执行阶段即等待数据和复制数据阶段都是阻塞的，则称这种IO为阻塞IO（Blocking IO）。其流程图如下：</p>
-<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801142442.png"></p>
-<p>在一般使用阻塞 IO 时，都需要配置多线程来使用，最常见的模型是<strong>阻塞 IO+多线程</strong>，每个连接一个单独的线程进行处理。</p>
-<p><strong>我们知道，一般一个程序可以开辟的线程是有限的，而且开辟线程的开销也是比较大的。也正是这种方式，会导致一个应用程序可以处理的客户端请求受限。面对百万连接的情况，是无法处理的。</strong></p>
-<p>所以BIO的问题本质是由于其阻塞导致的，因此自然而然引出了下面即将介绍的主角：<strong>同步非阻塞 IO</strong></p>
-<h3 id="同步非阻塞IO-NIO"><a href="#同步非阻塞IO-NIO" class="headerlink" title="同步非阻塞IO(NIO)"></a>同步非阻塞IO(NIO)</h3><p>那解决方案自然也容易想到，将阻塞变为非阻塞，那就是用户进程在发起系统调用时指定为非阻塞，内核接收到请求后，就会立即返回，然后用户进程通过轮询的方式来拉取处理结果。也就是如下图所示：</p>
-<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801143700.png"></p>
-<p>这种方案虽然解决了阻塞的问题，却带了了新的问题，频繁的轮询导致频繁的系统调用，会消耗大量的CPU资源。比如当并发很高时，假设有1000个并发，那么单位时间循环内将会有1000次系统调用去轮询执行结果，而实际上可能只有2个请求结果执行完毕，这就会有998次无效的系统调用，造成严重的性能浪费。有问题就要解决，那<strong>NIO问题的本质就是频繁轮询导致的无效系统调用</strong>。</p>
-<h3 id="同步多路复用"><a href="#同步多路复用" class="headerlink" title="同步多路复用"></a>同步多路复用</h3><p>为了解决非阻塞IO存在的频繁的系统调用的问题，随着内核的发展，出现了IO多路复用模型。那么我们就需要搞懂几个问题：</p>
-<ol>
-<li>IO 多路复用到底复用什么？</li>
-<li>IO 多路复用如何复用？</li>
-</ol>
-<p><strong>IO 多路复用：</strong> 很多人都说，IO 多路复用是用一个线程来管理多个网络连接，但本人不太认可，因为在非阻塞 IO 时，就已经可以实现一个线程处理多个网络连接了，这个是由于其非阻塞而决定的。</p>
-<p><strong>在此处，个人观点，多路复用主要复用的是通过有限次的系统调用来实现管理多个网络连接。最简单来说，我目前有 10 个连接，我可以通过一次系统调用将这 10 个连接都丢给内核，让内核告诉我，哪些连接上面数据准备好了，然后我再去读取每个就绪的连接上的数据。因此，IO 多路复用，复用的是系统调用。通过有限次系统调用判断海量连接是否数据准备好了</strong></p>
-<h4 id="同步多路复用之Select-Poll"><a href="#同步多路复用之Select-Poll" class="headerlink" title="同步多路复用之Select/Poll"></a>同步多路复用之Select/Poll</h4><p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801151634.png" alt="IO多路复用"></p>
-<p>优点：</p>
-<p>IO 多路复用，主要在于复用，通过 select()或者 poll()将多个 socket fds 批量通过系统调用传递给内核，由内核进行循环遍历判断哪些 fd 上数据就绪了，然后将就绪的 readyfds 返回给用户。再由用户进行挨个遍历就绪好的 fd，读取或者写入数据。所以通过 IO 多路复用+非阻塞 IO，一方面降低了系统调用次数，另一方面可以用极少的线程来处理多个网络连接。</p>
-<p>缺点：select和poll虽然解决了频繁的系统调用问题，却又引入了新问题：</p>
-<ul>
-<li>用户需要每次将海量的 socket fds 集合从用户态传递到内核态，让内核态去检测哪些网络连接数据就绪了，但这个地方会出现频繁的将海量 fd 集合从用户态传递到内核态，再从内核态拷贝到用户态。这个开销是很大的。</li>
-<li>内核循环遍历socket fds 集合的IO状态，浪费CPU时间</li>
-</ul>
-<p>所以select/poll的问题本质是<strong>内核存在无效的循环遍历</strong></p>
-<h4 id="同步多路复用之Epoll"><a href="#同步多路复用之Epoll" class="headerlink" title="同步多路复用之Epoll"></a>同步多路复用之Epoll</h4><p>为了解决select和poll的问题，在linux2.6后内核引入了epoll</p>
-<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801154744.png"></p>
-<p>优点：</p>
-<p>一开始就在内核态分配了一段空间，来存放管理的 fd,所以在每次连接建立后，交给 epoll 管理时，需要将其添加到原先分配的空间中，后面再管理时就不需要频繁的从用户态拷贝管理的 fd 集合。通通过这种方式大大的提升了性能。</p>
-<p>所以现在的 IO 多路复用主要指 epoll</p>
-<p>epoll，已经大大优化了IO的执行效率，但在IO执行的第一阶段：数据准备阶段都还是被阻塞的。所以这是一个可以继续优化的点。</p>
-<h3 id="同步信号驱动IO-SIGIO"><a href="#同步信号驱动IO-SIGIO" class="headerlink" title="同步信号驱动IO(SIGIO)"></a>同步信号驱动IO(SIGIO)</h3><p>信号驱动IO与BIO和NIO最大的区别就在于，在IO执行的数据准备阶段，不会阻塞用户进程。<br>如下图所示：当用户进程需要等待数据的时候，会向内核发送一个信号，告诉内核我要什么数据，然后用户进程就继续做别的事情去了，而当内核中的数据准备好之后，内核立马发给用户进程一个信号，说”数据准备好了，快来查收“，用户进程收到信号之后，立马调用recvfrom，去查收数据。</p>
-<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801155430.png"></p>
-<p>乍一看，信号驱动式I/O模型有种异步操作的感觉，但是在IO执行的第二阶段，也就是将数据从内核空间复制到用户空间这个阶段，用户进程还是被阻塞的。</p>
-<p>综上，你会发现，不管是BIO还是NIO还是SIGIO，它们最终都会被阻塞在IO执行的第二阶段。<br>那如果能将IO执行的第二阶段变成非阻塞，那就完美了。</p>
-<h3 id="异步非阻塞IO-AIO"><a href="#异步非阻塞IO-AIO" class="headerlink" title="异步非阻塞IO(AIO)"></a>异步非阻塞IO(AIO)</h3><p>异步IO真正实现了IO全流程的非阻塞。用户进程发出系统调用后立即返回，内核等待数据准备完成，然后将数据拷贝到用户进程缓冲区，然后发送信号告诉用户进程<strong>IO操作执行完毕</strong>（与SIGIO相比，一个是发送信号告诉用户进程数据准备完毕，一个是IO执行完毕）。其流程如下：</p>
-<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801155506.png"></p>
-<p>所以，之所以称为异步IO，取决于IO执行的第二阶段是否阻塞。因此前面讲的BIO，NIO和SIGIO均为同步IO。目前只有 windows 系统的 IOCP 是属于异步 IO。</p>
-<h2 id="网络IO编程模型"><a href="#网络IO编程模型" class="headerlink" title="网络IO编程模型"></a>网络IO编程模型</h2><p>在高性能的I/O设计中，有两个著名的模型：Reactor模型和Proactor模型，其中Reactor模型用于同步I/O，而Proactor模型运用于异步I/O操作。</p>
-<p>无论是Reactor模型还是Proactor模型，对于支持多连接的服务器，一般可以总结为2种fd和3种事件，如下图：</p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801164035.png" style="zoom:50%;" />
-
-<p><strong>2种fd</strong></p>
-<ol>
-<li>listenfd：一般情况，只有一个。用来监听一个特定的端口(如80)。</li>
-<li>connfd：每个连接都有一个connfd。用来收发数据。</li>
-</ol>
-<p><strong>3种事件</strong></p>
-<ol>
-<li>listenfd进行accept阻塞监听，创建一个connfd</li>
-<li>用户态/内核态copy数据。每个connfd对应着2个应用缓冲区：readbuf和writebuf。</li>
-<li>处理connfd发来的数据。业务逻辑处理，准备response到writebuf。</li>
-</ol>
-<h3 id="Reactor模型"><a href="#Reactor模型" class="headerlink" title="Reactor模型"></a>Reactor模型</h3><p>Reactor模型中定义的三种角色：</p>
-<ul>
-<li>Reactor：负责监听和分配事件，将I/O事件分派给对应的Handler。新的事件包含连接建立就绪、读就绪、写就绪等。</li>
-<li>Acceptor：处理客户端新连接，并分派请求到处理器链中。</li>
-<li>Handler：将自身与事件绑定，执行非阻塞读/写任务，完成channel的读入，完成处理业务逻辑后，负责将结果写出channel。可用资源池来管理。</li>
-</ul>
-<h4 id="单Reactor-单线程模型"><a href="#单Reactor-单线程模型" class="headerlink" title="单Reactor 单线程模型"></a>单Reactor 单线程模型</h4><p>Reactor线程负责多路分离套接字，accept新连接，并分派请求到handler。Redis使用单Reactor单进程的模型。</p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801160206.png" style="zoom:50%;" />
-
-
-
-<p>消息处理流程：</p>
-<ol>
-<li>Reactor对象通过select监控连接事件，收到事件后通过dispatch进行转发。</li>
-<li>如果是连接建立的事件，则由acceptor接受连接，并创建handler处理后续事件。</li>
-<li>如果不是建立连接事件，则Reactor会分发调用Handler来响应。</li>
-<li>handler会完成read-&gt;业务处理-&gt;send的完整业务流程。</li>
-</ol>
-<p>单Reactor单线程模型只是在代码上进行了组件的区分，但是整体操作还是单线程，不能充分利用硬件资源。handler业务处理部分没有异步。对于一些小容量应用场景，可以使用单Reactor单线程模型。但是对于高负载、大并发的应用场景却不合适，主要原因如下：</p>
-<ol>
-<li>即便Reactor线程的CPU负荷达到100%，也无法满足海量消息的编码、解码、读取和发送。</li>
-<li>当Reactor线程负载过重之后，处理速度将变慢，这会导致大量客户端连接超时，超时之后往往会进行重发，这更加重Reactor线程的负载，最终会导致大量消息积压和处理超时，成为系统的性能瓶颈。</li>
-<li>一旦Reactor线程意外中断或者进入死循环，会导致整个系统通信模块不可用，不能接收和处理外部消息，造成节点故障。</li>
-</ol>
-<p>为了解决这些问题，演进出单Reactor多线程模型。</p>
-<h4 id="单Reactor多线程模型"><a href="#单Reactor多线程模型" class="headerlink" title="单Reactor多线程模型"></a>单Reactor多线程模型</h4><p>该模型在事件处理器（Handler）部分采用了多线程（线程池）。</p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801164752.png" style="zoom:50%;" />
-
-<p>消息处理流程：</p>
-<ol>
-<li>Reactor对象通过Select监控客户端请求事件，收到事件后通过dispatch进行分发。</li>
-<li>如果是建立连接请求事件，则由acceptor通过accept处理连接请求，然后创建一个Handler对象处理连接完成后续的各种事件。</li>
-<li>如果不是建立连接事件，则Reactor会分发调用连接对应的Handler来响应。</li>
-<li>Handler只负责响应事件，不做具体业务处理，通过Read读取数据后，会分发给后面的Worker线程池进行业务处理。</li>
-<li>Worker线程池会分配独立的线程完成真正的业务处理，如何将响应结果发给Handler进行处理。</li>
-<li>Handler收到响应结果后通过send将响应结果返回给Client。</li>
-</ol>
-<p>相对于第一种模型来说，在处理业务逻辑，也就是获取到IO的读写事件之后，交由线程池来处理，handler收到响应后通过send将响应结果返回给客户端。这样可以降低Reactor的性能开销，从而更专注的做事件分发工作了，提升整个应用的吞吐。</p>
-<p>但是这个模型存在的问题：</p>
-<ol>
-<li>多线程数据共享和访问比较复杂。如果子线程完成业务处理后，把结果传递给主线程Reactor进行发送，就会涉及共享数据的互斥和保护机制。</li>
-<li>Reactor承担所有事件的监听和响应，只在主线程中运行，可能会存在性能问题。例如并发百万客户端连接，或者服务端需要对客户端握手进行安全认证，但是认证本身非常损耗性能。</li>
-</ol>
-<p>为了解决性能问题，产生了第三种主从Reactor多线程模型。</p>
-<h4 id="主从Reactor多线程模型"><a href="#主从Reactor多线程模型" class="headerlink" title="主从Reactor多线程模型"></a>主从Reactor多线程模型</h4><p>比起第二种模型，它是将Reactor分成两部分：</p>
-<ol>
-<li>mainReactor负责监听server socket，用来处理网络IO连接建立操作，将建立的socketChannel指定注册给subReactor。</li>
-<li>subReactor主要做和建立起来的socket做数据交互和事件业务处理操作。通常，subReactor个数上可与CPU个数等同。</li>
-</ol>
-<p>Nginx、Swoole、Memcached和Netty都是采用这种实现。</p>
-<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801165029.png" style="zoom:50%;" />
-
-<p>消息处理流程：</p>
-<ol>
-<li>从主线程池中随机选择一个Reactor线程作为acceptor线程，用于绑定监听端口，接收客户端连接</li>
-<li>acceptor线程接收客户端连接请求之后创建新的SocketChannel，将其注册到主线程池的其它Reactor线程上，由其负责接入认证、IP黑白名单过滤、握手等操作</li>
-<li>步骤2完成之后，业务层的链路正式建立，将SocketChannel从主线程池的Reactor线程的多路复用器上摘除，重新注册到Sub线程池的线程上，并创建一个Handler用于处理各种连接事件</li>
-<li>当有新的事件发生时，SubReactor会调用连接对应的Handler进行响应</li>
-<li>Handler通过Read读取数据后，会分发给后面的Worker线程池进行业务处理</li>
-<li>Worker线程池会分配独立的线程完成真正的业务处理，如何将响应结果发给Handler进行处理</li>
-<li>Handler收到响应结果后通过Send将响应结果返回给Client</li>
-</ol>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>Reactor模型具有如下的优点：</p>
-<ol>
-<li>响应快，不必为单个同步时间所阻塞，虽然Reactor本身依然是同步的；</li>
-<li>编程相对简单，可以最大程度的避免复杂的多线程及同步问题，并且避免了多线程/进程的切换开销；</li>
-<li>可扩展性，可以方便地通过增加Reactor实例个数来充分利用CPU资源；</li>
-<li>可复用性，Reactor模型本身与具体事件处理逻辑无关，具有很高的复用性。</li>
-</ol>
-<h3 id="Proactor模型"><a href="#Proactor模型" class="headerlink" title="Proactor模型"></a>Proactor模型</h3><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/20210801170530.png" style="zoom:50%;" />
-
-<p>模块关系：</p>
-<ol>
-<li>Procator Initiator负责创建Procator和Handler，并将Procator和Handler都通过Asynchronous operation processor注册到内核。</li>
-<li>Asynchronous operation processor负责处理注册请求，并完成IO操作。完成IO操作后会通知procator。</li>
-<li>procator根据不同的事件类型回调不同的handler进行业务处理。handler完成业务处理，handler也可以注册新的handler到内核进程。</li>
-</ol>
-<p>消息处理流程：</p>
-<p>读取操作：</p>
-<ol>
-<li>应用程序初始化一个异步读取操作，然后注册相应的事件处理器，此时事件处理器不关注读取就绪事件，而是关注读取完成事件，这是区别于Reactor的关键。</li>
-<li>事件分离器等待读取操作完成事件</li>
-<li>在事件分离器等待读取操作完成的时候，操作系统调用内核线程完成读取操作，并将读取的内容放入用户传递过来的缓存区中。这也是区别于Reactor的一点，Proactor中，应用程序需要传递缓存区。</li>
-<li>事件分离器捕获到读取完成事件后，激活应用程序注册的事件处理器，事件处理器直接从缓存区读取数据，而不需要进行实际的读取操作。</li>
-</ol>
-<p>Proactor有如下缺点：</p>
-<ol>
-<li>编程复杂性，由于异步操作流程的事件的初始化和事件完成在时间和空间上都是相互分离的，因此开发异步应用程序更加复杂。应用程序还可能因为反向的流控而变得更加难以Debug；</li>
-<li>内存使用，缓冲区在读或写操作的时间段内必须保持住，可能造成持续的不确定性，并且每个并发操作都要求有独立的缓存，相比Reactor模型，在Socket已经准备好读或写前，是不要求开辟缓存的；</li>
-<li>操作系统支持，Windows下通过IOCP实现了真正的异步 I/O，而在Linux系统下，Linux2.6才引入，并且异步I/O使用epoll实现的，所以还不完善。</li>
-</ol>
-<p>因此在 Linux 下实现高并发网络编程都是以Reactor模型为主。</p>
-<p>参考：</p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sheng-jie/p/how-much-you-know-about-io-models.html">IO模型知多少</a></p>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/XQIuKle1cFnFCJpCx6uFSg">网络 IO 演变发展过程和模型介绍</a></p>
-<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1488120">彻底搞懂Reactor模型和Proactor模型</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -884,13 +745,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/blog/categories/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
