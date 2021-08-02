@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swz1216470093.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="多路复用器Select、Poll、EpollSelectselect函数接口">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多路复用器Select、Poll、Epoll">
+<meta property="og:url" content="https://swz1216470093.github.io/blog/2021/08/02/SelectPollEpoll/index.html">
+<meta property="og:site_name" content="swz&#39;blog">
+<meta property="og:description" content="多路复用器Select、Poll、EpollSelectselect函数接口">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/3138918-8227efd443a8d703.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/3138918-e4281f856016022a.png">
+<meta property="article:published_time" content="2021-08-02T06:47:21.000Z">
+<meta property="article:modified_time" content="2021-08-02T17:24:15.788Z">
+<meta property="article:author" content="swz">
+<meta property="article:tag" content="多路复用">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/3138918-8227efd443a8d703.jpg">
+
+<link rel="canonical" href="https://swz1216470093.github.io/blog/2021/08/02/SelectPollEpoll/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>多路复用器Select、Poll、Epoll | swz'blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swz'blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/08/02/SelectPollEpoll/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="swz">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swz'blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          多路复用器Select、Poll、Epoll
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-08-02 14:47:21" itemprop="dateCreated datePublished" datetime="2021-08-02T14:47:21+08:00">2021-08-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-08-03 01:24:15" itemprop="dateModified" datetime="2021-08-03T01:24:15+08:00">2021-08-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="多路复用器Select、Poll、Epoll"><a href="#多路复用器Select、Poll、Epoll" class="headerlink" title="多路复用器Select、Poll、Epoll"></a>多路复用器Select、Poll、Epoll</h1><h2 id="Select"><a href="#Select" class="headerlink" title="Select"></a>Select</h2><h3 id="select函数接口"><a href="#select函数接口" class="headerlink" title="select函数接口"></a>select函数接口</h3><span id="more"></span>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FD_SETSIZE 1024</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NFDBITS (8 * sizeof(unsigned long))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __FDSET_LONGS (FD_SETSIZE/NFDBITS)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 数据结构 (bitmap)</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> fds_bits[__FDSET_LONGS];</span><br><span class="line">&#125; fd_set;</span><br><span class="line"></span><br><span class="line"><span class="comment">// API</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">int</span> max_fd, </span></span></span><br><span class="line"><span class="function"><span class="params">    fd_set *readset, </span></span></span><br><span class="line"><span class="function"><span class="params">    fd_set *writeset, </span></span></span><br><span class="line"><span class="function"><span class="params">    fd_set *exceptset, </span></span></span><br><span class="line"><span class="function"><span class="params">    struct timeval *timeout</span></span></span><br><span class="line"><span class="function"><span class="params">)</span>                              <span class="comment">// 返回值就绪描述符的数目</span></span></span><br><span class="line"><span class="function"><span class="comment">//fd_set 是一个集合，里面存放的是文件描述符，上边三个参数分别表示让内核测试读、写和异常条件的文件描述符集合。若对某一条件不感兴趣，可以将其设置为空指针</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">FD_ZERO</span><span class="params">(<span class="keyword">int</span> fd, fd_set* fds)</span>   <span class="comment">// 清空集合</span></span></span><br><span class="line"><span class="function"><span class="title">FD_SET</span><span class="params">(<span class="keyword">int</span> fd, fd_set* fds)</span>    <span class="comment">// 将给定的描述符加入集合</span></span></span><br><span class="line"><span class="function"><span class="title">FD_ISSET</span><span class="params">(<span class="keyword">int</span> fd, fd_set* fds)</span>  <span class="comment">// 判断指定描述符是否在集合中 </span></span></span><br><span class="line"><span class="function"><span class="title">FD_CLR</span><span class="params">(<span class="keyword">int</span> fd, fd_set* fds)</span>    <span class="comment">// 将给定的描述符从文件中删除  </span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="select缺点"><a href="#select缺点" class="headerlink" title="select缺点"></a>select缺点</h3><ul>
+<li>单个进程所能打开的文件描述符的个数是有限制的，通过FD_SETSIZE设置，默认1024</li>
+<li>每次调用select，都需要把fd集合从用户态拷贝到内核态，这个开销在fd很多时会很大</li>
+<li>对socket扫描时是线性扫描，采用轮询的方法，效率较低（高并发时）</li>
+</ul>
+<h2 id="Poll"><a href="#Poll" class="headerlink" title="Poll"></a>Poll</h2><p>poll与select相比，只是没有fd的限制，其它基本一样</p>
+<h3 id="poll函数接口"><a href="#poll函数接口" class="headerlink" title="poll函数接口"></a>poll函数接口</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;poll.h&gt;</span></span></span><br><span class="line"><span class="comment">// 数据结构</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> fd;                         <span class="comment">// 需要监视的文件描述符</span></span><br><span class="line">    <span class="keyword">short</span> events;                   <span class="comment">// 需要内核监视的事件</span></span><br><span class="line">    <span class="keyword">short</span> revents;                  <span class="comment">// 实际发生的事件</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// API</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(struct pollfd fds[], <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="poll使用示例"><a href="#poll使用示例" class="headerlink" title="poll使用示例"></a>poll使用示例</h3><h3 id="poll缺点"><a href="#poll缺点" class="headerlink" title="poll缺点"></a>poll缺点</h3><ul>
+<li>每次调用poll，都需要把fd集合从用户态拷贝到内核态，这个开销在fd很多时会很大</li>
+<li>对socket扫描时是线性扫描，采用轮询的方法，效率较低（高并发时）</li>
+</ul>
+<h2 id="epoll"><a href="#epoll" class="headerlink" title="epoll"></a>epoll</h2><h3 id="epoll函数接口"><a href="#epoll函数接口" class="headerlink" title="epoll函数接口"></a>epoll函数接口</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/epoll.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 数据结构</span></span><br><span class="line"><span class="comment">// 每一个epoll对象都有一个独立的eventpoll结构体</span></span><br><span class="line"><span class="comment">// 用于存放通过epoll_ctl方法向epoll对象中添加进来的事件</span></span><br><span class="line"><span class="comment">// epoll_wait检查是否有事件发生时，只需要检查eventpoll对象中的rdlist双链表中是否有epitem元素即可</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span> &#123;</span></span><br><span class="line">    <span class="comment">/*红黑树的根节点，这颗树中存储着所有添加到epoll中的需要监控的事件*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rb_root</span>  <span class="title">rbr</span>;</span></span><br><span class="line">    <span class="comment">/*双链表中则存放着将要通过epoll_wait返回给用户的满足条件的事件*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">rdlist</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// API</span></span><br><span class="line"><span class="comment">// 内核中间创建一个 epoll 句柄，其中 size 表示内核要监听的描述符数量</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_create</span><span class="params">(<span class="keyword">int</span> size)</span></span>; </span><br><span class="line"><span class="comment">// 注册要监听的事件类型。在每次注册新的事件到 epoll 句柄中时，会把所有的描述符拷贝进内核，而不是在 epoll_wait 的时候重复拷贝。epoll 保证了每个描述符在整个过程中只会拷贝一次</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_ctl</span><span class="params">(<span class="keyword">int</span> epfd, <span class="keyword">int</span> op, <span class="keyword">int</span> fd, struct epoll_event *event)</span></span>; </span><br><span class="line"><span class="comment">// 等待事件的就绪，成功时返回就绪的事件数目</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_wait</span><span class="params">(<span class="keyword">int</span> epfd, struct epoll_event * events, <span class="keyword">int</span> maxevents, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="epoll原理"><a href="#epoll原理" class="headerlink" title="epoll原理"></a>epoll原理</h3><p>我们在调用epoll_create时，内核除了帮我们在在epoll文件系统中创建了一个file结点，在内核cache里建了个红黑树用于存储以后epoll_ctl传过来的socket外，还会建立一个rdlist双向链表，用于存储准备就绪的事件，当epoll_wait调用时，仅仅观察这个rdlist双向链表里有没有数据即可，有数据就返回，没有数据就sleep,等到timeout时间到后即使链表没有数据也返回。所以，epoll_wait非常高效</p>
+<p>每一个 epoll 对象都有一个独立的 eventpoll 结构体，用于存放通过 epoll_ctl 方法向 epoll 对象中添加进来的事件。这些事件都会挂载在红黑树中，如此，重复添加的事件就可以通过红黑树而高效的识别出来 (红黑树的插入时间效率是 lgn，其中 n 为树的高度)。</p>
+<p>而所有添加到 epoll 中的事件都会与设备 (网卡) 驱动程序建立回调关系，也就是说，当相应的事件发生时会调用这个回调方法。<strong>这个回调方法在内核中叫 ep_poll_callback, 它会将发生的事件添加到 rdlist 双链表中。</strong></p>
+<p>在 epoll 中，对于每一个事件，都会建立一个 epitem 结构体，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epitem</span></span></span><br><span class="line"><span class="class">&#123;</span>    </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span>  <span class="title">rbn</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">rdllink</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">epoll_filefd</span>  <span class="title">ffd</span>;</span>  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span> *<span class="title">ep</span>;</span>    </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">event</span>;</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当调用 epoll_wait 检查是否有事件发生时，只需要检查 eventpoll 对象中的 rdlist 双链表中是否有 epitem 元素即可。如果 rdlist 不为空，则把发生的事件复制到用户态，同时将事件数量返回给用户。</p>
+<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/3138918-8227efd443a8d703.jpg" alt="img"></p>
+<h3 id="epoll两种模式"><a href="#epoll两种模式" class="headerlink" title="epoll两种模式"></a>epoll两种模式</h3><p>epoll 提供了两种模式，一种是水平触发，一种是边缘触发。边缘触发与水平触发相比较，可以使用户空间程序可能缓存 IO 状态，并减少 epoll_wait 的调用，从而提高应用程序的效率。</p>
+<ol>
+<li>水平触发（LT）：默认工作模式，当 epoll_wait 检测到某描述符事件就绪并通知应用程序时，应用程序可以不立即处理该事件；等到下次调用 epoll_wait 时，会再次通知此事件</li>
+<li>边缘触发（ET）：当 epoll_wait 检测到某描述符事件就绪并通知应用程序时，应用程序必须立即处理该事件。如果不处理，下次调用 epoll_wait 时，不会再次通知此事件</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/3138918-e4281f856016022a.png" alt="img"></p>
+<p>ET 模式减少了 epoll 事件的触发次数，其效率比 LT 模式下高。为什么呢？</p>
+<p>如果我们使用 LT 模式的话，系统中一旦有大量不需要读写的就绪文件描述符，每次调用 epoll_wait 都会返回，大大降低处理程序检索自己关心的就绪文件描述符的效率。如果使用的是 ET 模式，当被监控的文件描述符上有可读写事件发生时，epoll_wait 会通知处理程序去读写，如果这次没有把数据全部读写完，下次调用 epoll_wait 不会通知你，即它只会通知你一次，直到该文件描述符上出现第二次可读写事件才会通知你。在这种模式下，系统不会充斥大量你不关心的就绪文件描述符，故其效率较高。</p>
+<h2 id="select-poll-epoll之间的区别"><a href="#select-poll-epoll之间的区别" class="headerlink" title="select/poll/epoll之间的区别"></a>select/poll/epoll之间的区别</h2><table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">select</th>
+<th align="left">poll</th>
+<th>epoll</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">数据结构</td>
+<td align="left">bitmap</td>
+<td align="left">数组</td>
+<td>红黑树</td>
+</tr>
+<tr>
+<td align="left">最大连接数</td>
+<td align="left">1024</td>
+<td align="left">无上限</td>
+<td>无上限</td>
+</tr>
+<tr>
+<td align="left">fd拷贝</td>
+<td align="left">每次调用select拷贝</td>
+<td align="left">每次调用poll拷贝</td>
+<td>fd首次调用epoll_ctl拷贝，每次调用epoll_wait不拷贝</td>
+</tr>
+<tr>
+<td align="left">工作效率</td>
+<td align="left">轮询：O(n)</td>
+<td align="left">轮询：O(n)</td>
+<td>回调：O(1)</td>
+</tr>
+</tbody></table>
+<h2 id="Epoll与Java-nio-的关系"><a href="#Epoll与Java-nio-的关系" class="headerlink" title="Epoll与Java nio 的关系"></a>Epoll与Java nio 的关系</h2><p>使用strace 追踪下边代码的系统调用</p>
+<p><code>strace -ff -o java MultiplexingSocket</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MultiplexingSocket</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> ByteBuffer buffer = ByteBuffer.allocateDirect(<span class="number">4096</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">        LinkedList&lt;SocketChannel&gt; clients = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//1.启动server</span></span><br><span class="line">        <span class="comment">//new socket,开启监听</span></span><br><span class="line">        ServerSocketChannel socketChannel = ServerSocketChannel.open();</span><br><span class="line">        socketChannel.bind(<span class="keyword">new</span> InetSocketAddress(<span class="number">9090</span>));</span><br><span class="line">        <span class="comment">//设置非阻塞，接受客户端</span></span><br><span class="line">        socketChannel.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//多路复用器（JDK包装的代理，select /poll/epoll/kqueue）</span></span><br><span class="line">        Selector selector = Selector.open(); <span class="comment">//java自动代理，默认为epoll</span></span><br><span class="line">        <span class="comment">//Selector selector = PollSelectorProvider.provider().openSelector();//指定为poll</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//将服务端socket 注册到 多路复用器</span></span><br><span class="line">        socketChannel.register(selector, SelectionKey.OP_ACCEPT);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//2. 轮训多路复用器</span></span><br><span class="line">        <span class="comment">// 先询问有没有连接,如果有则返回数量以及对应的对象(fd)</span></span><br><span class="line">        <span class="keyword">while</span> (selector.select() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            System.out.println();</span><br><span class="line">            Set&lt;SelectionKey&gt; selectionKeys = selector.selectedKeys();</span><br><span class="line">            Iterator&lt;SelectionKey&gt; iter = selectionKeys.iterator();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">while</span> (iter.hasNext()) &#123;</span><br><span class="line">                SelectionKey key = iter.next();</span><br><span class="line">                iter.remove();</span><br><span class="line"></span><br><span class="line">                <span class="comment">//2.1 处理新的连接</span></span><br><span class="line">                <span class="keyword">if</span> (key.isAcceptable()) &#123;</span><br><span class="line">                    <span class="comment">//接受客户端连接; 非阻塞，无客户端返回null(操作系统返回-1)</span></span><br><span class="line">                    SocketChannel client = socketChannel.accept();</span><br><span class="line">                    <span class="comment">//设置读非阻塞</span></span><br><span class="line">                    client.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line"></span><br><span class="line">                    <span class="comment">//同样，把client也注册到selector</span></span><br><span class="line">                    client.register(selector, SelectionKey.OP_READ);</span><br><span class="line">                    System.out.println(<span class="string">&quot;new client : &quot;</span> + client.getRemoteAddress());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//2.2 处理读取数据</span></span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (key.isReadable()) &#123;</span><br><span class="line">                    readDataFromSocket(key);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">readDataFromSocket</span><span class="params">(SelectionKey key)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        SocketChannel socketChannel = (SocketChannel) key.channel();</span><br><span class="line">        <span class="comment">// 非阻塞, &gt;0 表示读取到的字节数量, 0或-1表示未读取到或读取异常</span></span><br><span class="line">        <span class="comment">// 请注意：这个例子降低复杂度，不考虑报文大于buffer size的情况</span></span><br><span class="line">        <span class="keyword">int</span> num = socketChannel.read(buffer);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (num &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            buffer.flip();</span><br><span class="line">            <span class="keyword">byte</span>[] clientBytes = <span class="keyword">new</span> <span class="keyword">byte</span>[buffer.limit()];</span><br><span class="line">            <span class="comment">//从缓冲区 读取到内存中</span></span><br><span class="line">            buffer.get(clientBytes);</span><br><span class="line"></span><br><span class="line">            System.out.println(socketChannel.socket().getPort() + <span class="string">&quot;:&quot;</span> + <span class="keyword">new</span> String(clientBytes));</span><br><span class="line"></span><br><span class="line">            <span class="comment">//清空缓冲区</span></span><br><span class="line">            buffer.clear();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>启动时系统调用</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">socket(AF_INET6, SOCK_STREAM, IPPROTO_IP) = 5</span><br><span class="line"><span class="built_in">bind</span>(5, &#123;sa_family=AF_INET6, sin6_port=htons(9090), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, <span class="string">&quot;::&quot;</span>, &amp;sin6_addr), sin6_scope_id=0&#125;, 28) = 0</span><br><span class="line">listen(5, 50)                           = 0</span><br><span class="line">fcntl(5, F_SETFL, O_RDWR|O_NONBLOCK)    = 0</span><br><span class="line">epoll_create(256)                       = 7</span><br><span class="line">epoll_ctl(7, EPOLL_CTL_ADD, 8, &#123;EPOLLIN, &#123;u32=8, u64=139633681760264&#125;&#125;) = 0</span><br><span class="line">epoll_ctl(7, EPOLL_CTL_ADD, 5, &#123;EPOLLIN, &#123;u32=5, u64=139633681760261&#125;&#125;) = 0</span><br><span class="line">epoll_wait(7, </span><br></pre></td></tr></table></figure>
+
+<p>epoll_create（对应着Java的 Selector selector = Selector.open()）</p>
+<p><strong>有连接</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">epoll_wait(7, [&#123;EPOLLIN, &#123;u32=5, u64=139633681760261&#125;&#125;], 1024, -1) = 1</span><br><span class="line">ccept(5, &#123;sa_family=AF_INET6, sin6_port=htons(38094), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, <span class="string">&quot;::ffff:127.0.0.1&quot;</span>, &amp;sin6_addr), sin6_scope_id=0&#125;, [28]) = 10</span><br><span class="line">fcntl(10, F_SETFL, O_RDWR|O_NONBLOCK)   = 0</span><br><span class="line">epoll_ctl(7, EPOLL_CTL_ADD, 10, &#123;EPOLLIN, &#123;u32=10, u64=139633681760266&#125;&#125;) = 0</span><br></pre></td></tr></table></figure>
+
+<p>epoll_ctl （对应着Java的 client.register(selector, SelectionKey.OP_READ) ） 其中 EPOLLIN 恰好对应着Java的 SelectionKey.OP_READ 即监听数据到达读取事件。</p>
+<p><strong>客户端发送数据</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">epoll_wait(7, [&#123;EPOLLIN, &#123;u32=10, u64=139633681760266&#125;&#125;], 1024, -1) = 1</span><br><span class="line"><span class="built_in">read</span>(10, <span class="string">&quot;123456\n78910abcdefg33333\n&quot;</span>, 4096) = 25</span><br><span class="line">epoll_wait(7,</span><br></pre></td></tr></table></figure>
+
+<p>epoll_wait（对应这Java的selector.select()）</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/dfe788068eb5">epoll学习总结</a></p>
+<p><a target="_blank" rel="noopener" href="https://my.oschina.net/yinjihuan/blog/4390277">彻底理解 IO多路复用</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/KgJFyEmZApF7l5UUJeWf8Q">从操作系统层面分析Java IO演进之路</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/" rel="tag"># 多路复用</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/08/01/IO%E6%A8%A1%E5%9E%8B/" rel="prev" title="IO模型">
+      <i class="fa fa-chevron-left"></i> IO模型
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E5%99%A8Select%E3%80%81Poll%E3%80%81Epoll"><span class="nav-number">1.</span> <span class="nav-text">多路复用器Select、Poll、Epoll</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Select"><span class="nav-number">1.1.</span> <span class="nav-text">Select</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#select%E5%87%BD%E6%95%B0%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.1.1.</span> <span class="nav-text">select函数接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select%E7%BC%BA%E7%82%B9"><span class="nav-number">1.1.2.</span> <span class="nav-text">select缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Poll"><span class="nav-number">1.2.</span> <span class="nav-text">Poll</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#poll%E5%87%BD%E6%95%B0%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.2.1.</span> <span class="nav-text">poll函数接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#poll%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.2.2.</span> <span class="nav-text">poll使用示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#poll%E7%BC%BA%E7%82%B9"><span class="nav-number">1.2.3.</span> <span class="nav-text">poll缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#epoll"><span class="nav-number">1.3.</span> <span class="nav-text">epoll</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#epoll%E5%87%BD%E6%95%B0%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.3.1.</span> <span class="nav-text">epoll函数接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#epoll%E5%8E%9F%E7%90%86"><span class="nav-number">1.3.2.</span> <span class="nav-text">epoll原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#epoll%E4%B8%A4%E7%A7%8D%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.3.3.</span> <span class="nav-text">epoll两种模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#select-poll-epoll%E4%B9%8B%E9%97%B4%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.4.</span> <span class="nav-text">select&#x2F;poll&#x2F;epoll之间的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Epoll%E4%B8%8EJava-nio-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">1.5.</span> <span class="nav-text">Epoll与Java nio 的关系</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swz</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swz</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://swz1216470093.github.io/blog/2021/08/02/SelectPollEpoll/',]
+      });
+      });
+  </script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'cefa39253970229f8e5d',
+      clientSecret: '81e0d672d6a3abf97548e8614c36a567dc55237a',
+      repo        : 'blogComments',
+      owner       : 'swz1216470093',
+      admin       : ['swz1216470093'],
+      id          : '4af9d5a6a11fd34965dae7d9c4dffc74',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
