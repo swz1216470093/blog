@@ -22,7 +22,7 @@
 
   <meta name="description" content="零拷贝传统的 IO 将一个文件通过 socket 写出,代码如下 12345678File f &#x3D; new File(&quot;helloword&#x2F;data.txt&quot;);RandomAccessFile file &#x3D; new RandomAccessFile(file, &quot;r&quot;);byte[] buf &#x3D; new byte[(int)f.length()];file">
 <meta property="og:type" content="article">
-<meta property="og:title" content="IO模型">
+<meta property="og:title" content="零拷贝">
 <meta property="og:url" content="https://swz1216470093.github.io/blog/2021/08/04/%E9%9B%B6%E6%8B%B7%E8%B4%9D/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
 <meta property="og:description" content="零拷贝传统的 IO 将一个文件通过 socket 写出,代码如下 12345678File f &#x3D; new File(&quot;helloword&#x2F;data.txt&quot;);RandomAccessFile file &#x3D; new RandomAccessFile(file, &quot;r&quot;);byte[] buf &#x3D; new byte[(int)f.length()];file">
@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210804232148898.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210804232914202.png">
 <meta property="article:published_time" content="2021-08-04T15:50:21.000Z">
-<meta property="article:modified_time" content="2021-08-04T15:54:59.351Z">
+<meta property="article:modified_time" content="2021-08-04T15:55:37.642Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="零拷贝">
 <meta name="twitter:card" content="summary">
@@ -51,7 +51,7 @@
   };
 </script>
 
-  <title>IO模型 | swz'blog</title>
+  <title>零拷贝 | swz'blog</title>
   
 
 
@@ -176,7 +176,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          IO模型
+          零拷贝
         </h1>
 
         <div class="post-meta">
@@ -187,7 +187,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-08-04 23:50:21 / Modified: 23:54:59" itemprop="dateCreated datePublished" datetime="2021-08-04T23:50:21+08:00">2021-08-04</time>
+              <time title="Created: 2021-08-04 23:50:21 / Modified: 23:55:37" itemprop="dateCreated datePublished" datetime="2021-08-04T23:50:21+08:00">2021-08-04</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
