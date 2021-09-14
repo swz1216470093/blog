@@ -152,6 +152,88 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/09/10/MySql%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="swz">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swz'blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2021/09/10/MySql%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">MySql索引</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-09-10 13:18:59" itemprop="dateCreated datePublished" datetime="2021-09-10T13:18:59+08:00">2021-09-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-09-14 14:00:28" itemprop="dateModified" datetime="2021-09-14T14:00:28+08:00">2021-09-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MySql索引"><a href="#MySql索引" class="headerlink" title="MySql索引"></a>MySql索引</h1><h2 id="为什么需要索引"><a href="#为什么需要索引" class="headerlink" title="为什么需要索引"></a>为什么需要索引</h2><p>索引是为了加速查询而存在的，在回答为什么需要索引之前要先了解MySQL的数据是如何组织的。</p>
+<p>MySQL中存取数据的基本单位是<code>数据页</code>，<code>数据页</code>的大小为16k，各个数据页可以组成一个<code>双向链表</code>，而每个数据页中的记录会按照主键值从小到大的顺序组成一个<code>单向链表</code>，数据页会为存储在里边的记录生成一个<code>页目录</code>，通过主键查找某条记录的时候可以在页目录中使用二分法定位到对应的槽，然后遍历该槽对应的分组中的记录即可快速查找到指定的记录。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2021/09/10/MySql%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/09/08/netty%E6%96%AD%E7%BA%BF%E9%87%8D%E8%BF%9E/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -183,7 +265,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-09-09 00:09:12" itemprop="dateModified" datetime="2021-09-09T00:09:12+08:00">2021-09-09</time>
+                <time title="Modified: 2021-09-14 14:00:19" itemprop="dateModified" datetime="2021-09-14T14:00:19+08:00">2021-09-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -206,26 +288,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>在自己实现RPC项目中遇到了断线重连的需求，参考了<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1a28e48edd92">Netty实现心跳机制与断线重连</a>的实现。</p>
-<p>客户端在监测到与服务器端的连接断开后，或者一开始就无法连接的情况下，使用指定的重连策略进行重连操作，直到重新建立连接或重试次数耗尽。</p>
-<p>对于如何监测连接是否断开，则是通过重写<code>ChannelInboundHandler#channelInactive</code>来实现，但连接不可用，该方法会被触发，所以只需要在该方法做好重连工作即可。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ChannelHandler</span>.Sharable</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReconnectHandler</span> <span class="keyword">extends</span> <span class="title">ChannelInboundHandlerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> retries = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">private</span> RetryPolicy retryPolicy;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> TcpClient tcpClient;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ReconnectHandler</span><span class="params">(TcpClient tcpClient)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.tcpClient = tcpClient;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Successfully established a connection to the server.&quot;</span>);</span><br><span class="line">        retries = <span class="number">0</span>;</span><br><span class="line">        ctx.fireChannelActive();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelInactive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (retries == <span class="number">0</span>) &#123;</span><br><span class="line">            System.err.println(<span class="string">&quot;Lost the TCP connection with the server.&quot;</span>);</span><br><span class="line">            ctx.close();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">boolean</span> allowRetry = getRetryPolicy().allowRetry(retries);</span><br><span class="line">        <span class="keyword">if</span> (allowRetry) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">long</span> sleepTimeMs = getRetryPolicy().getSleepTimeMs(retries);</span><br><span class="line"></span><br><span class="line">            System.out.println(String.format(<span class="string">&quot;Try to reconnect to the server after %dms. Retry count: %d.&quot;</span>, sleepTimeMs, ++retries));</span><br><span class="line"></span><br><span class="line">            <span class="keyword">final</span> EventLoop eventLoop = ctx.channel().eventLoop();</span><br><span class="line">            eventLoop.schedule(() -&gt; &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;Reconnecting ...&quot;</span>);</span><br><span class="line">                tcpClient.connect();</span><br><span class="line">            &#125;, sleepTimeMs, TimeUnit.MILLISECONDS);</span><br><span class="line">        &#125;</span><br><span class="line">        ctx.fireChannelInactive();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> RetryPolicy <span class="title">getRetryPolicy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.retryPolicy == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">this</span>.retryPolicy = tcpClient.getRetryPolicy();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.retryPolicy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TcpClient</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String host;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> port;</span><br><span class="line">    <span class="keyword">private</span> Bootstrap bootstrap;</span><br><span class="line">    <span class="comment">/** 重连策略 */</span></span><br><span class="line">    <span class="keyword">private</span> RetryPolicy retryPolicy;</span><br><span class="line">    <span class="comment">/** 将&lt;code&gt;Channel&lt;/code&gt;保存起来, 可用于在其他非handler的地方发送数据 */</span></span><br><span class="line">    <span class="keyword">private</span> Channel channel;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TcpClient</span><span class="params">(String host, <span class="keyword">int</span> port)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>(host, port, <span class="keyword">new</span> ExponentialBackOffRetry(<span class="number">1000</span>, Integer.MAX_VALUE, <span class="number">60</span> * <span class="number">1000</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TcpClient</span><span class="params">(String host, <span class="keyword">int</span> port, RetryPolicy retryPolicy)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.host = host;</span><br><span class="line">        <span class="keyword">this</span>.port = port;</span><br><span class="line">        <span class="keyword">this</span>.retryPolicy = retryPolicy;</span><br><span class="line">        init();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 向远程TCP服务器请求连接</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">connect</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (bootstrap) &#123;</span><br><span class="line">            ChannelFuture future = bootstrap.connect(host, port);</span><br><span class="line">            future.addListener(getConnectionListener());</span><br><span class="line">            <span class="keyword">this</span>.channel = future.channel();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RetryPolicy <span class="title">getRetryPolicy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> retryPolicy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        EventLoopGroup group = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">        <span class="comment">// bootstrap 可重用, 只需在TcpClient实例化的时候初始化即可.</span></span><br><span class="line">        bootstrap = <span class="keyword">new</span> Bootstrap();</span><br><span class="line">        bootstrap.group(group)</span><br><span class="line">                .channel(NioSocketChannel.class)</span><br><span class="line">                .handler(<span class="keyword">new</span> ClientHandlersInitializer(TcpClient.<span class="keyword">this</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> ChannelFutureListener <span class="title">getConnectionListener</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ChannelFutureListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(ChannelFuture future)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (!future.isSuccess()) &#123;</span><br><span class="line">                    future.channel().pipeline().fireChannelInactive();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        TcpClient tcpClient = <span class="keyword">new</span> TcpClient(<span class="string">&quot;localhost&quot;</span>, <span class="number">2222</span>);</span><br><span class="line">        tcpClient.connect();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>但不同的是上边conntect()方法中服务端地址是TCPclient初始化是已经确定好的，而在我的项目中是未知的</p>
-<p>所以我尝试通过<code>ctx.channel().remoteAddress()</code>得到服务端地址</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelInactive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (retries == <span class="number">0</span>) &#123;</span><br><span class="line">            System.err.println(<span class="string">&quot;Lost the TCP connection with the server.&quot;</span>);</span><br><span class="line">            ctx.close();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">boolean</span> allowRetry = getRetryPolicy().allowRetry(retries);</span><br><span class="line">        <span class="keyword">if</span> (allowRetry) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">long</span> sleepTimeMs = getRetryPolicy().getSleepTimeMs(retries);</span><br><span class="line"></span><br><span class="line">            System.out.println(String.format(<span class="string">&quot;Try to reconnect to the server after %dms. Retry count: %d.&quot;</span>, sleepTimeMs, ++retries));</span><br><span class="line"></span><br><span class="line">            <span class="keyword">final</span> EventLoop eventLoop = ctx.channel().eventLoop();</span><br><span class="line">            eventLoop.schedule(() -&gt; &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;Reconnecting ...&quot;</span>);</span><br><span class="line">                InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();</span><br><span class="line">                nettyClient.doConnect(address);</span><br><span class="line">            &#125;, sleepTimeMs, TimeUnit.MILLISECONDS);</span><br><span class="line">        &#125;</span><br><span class="line">        ctx.fireChannelInactive();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>但重连后产生的Channel已经关闭，无法得到远程服务端地址，所以我使用了AttributeKey将地址绑定到Channel上</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">public</span> CompletableFuture&lt;Channel&gt; <span class="title">doConnect</span><span class="params">(InetSocketAddress inetSocketAddress)</span> <span class="keyword">throws</span> ExecutionException, InterruptedException </span>&#123;</span><br><span class="line">        CompletableFuture&lt;Channel&gt; completableFuture = <span class="keyword">new</span> CompletableFuture&lt;&gt;();</span><br><span class="line">        ChannelFuture channelFuture = bootstrap.connect(inetSocketAddress);</span><br><span class="line">        channelFuture.addListener((ChannelFutureListener) future -&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (future.isSuccess()) &#123;</span><br><span class="line">                log.debug(<span class="string">&quot;与服务端&#123;&#125;建立连接成功&quot;</span>, inetSocketAddress.toString());</span><br><span class="line">                completableFuture.complete(future.channel());</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="comment">//                失败 触发inactive再次重试</span></span><br><span class="line"><span class="comment">//                这里由于重试产生的新的Channel无法得到要连接的地址 所以使用AttributeKey将地址作为附件传递过去</span></span><br><span class="line">                <span class="keyword">if</span> (!future.channel().hasAttr(AttributeKey.valueOf(<span class="string">&quot;address&quot;</span>))) &#123;</span><br><span class="line">                    Attribute&lt;InetSocketAddress&gt; address = future.channel().attr(AttributeKey.valueOf(<span class="string">&quot;address&quot;</span>));</span><br><span class="line">                    address.set(inetSocketAddress);</span><br><span class="line">                &#125;</span><br><span class="line">                future.channel().pipeline().fireChannelInactive();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> completableFuture;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelInactive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (retries == <span class="number">0</span>) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;Lost the TCP connection with the server.&quot;</span>);</span><br><span class="line">        ctx.close();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> allowRetry = getRetryPolicy().allowRetry(retries);</span><br><span class="line">    <span class="keyword">if</span> (allowRetry) &#123;</span><br><span class="line">        <span class="keyword">long</span> sleepTimeMs = getRetryPolicy().getSleepTimeMs(retries);</span><br><span class="line">        ++retries;</span><br><span class="line">        log.debug(<span class="string">&quot;Try to reconnect to the server after &#123;&#125;ms. Retry count: &#123;&#125;.&quot;</span>, sleepTimeMs, retries);</span><br><span class="line">        timer.newTimeout((timeout) -&gt; &#123;</span><br><span class="line">            log.debug(<span class="string">&quot;Reconnecting ...&quot;</span>);</span><br><span class="line">            InetSocketAddress address;</span><br><span class="line">            <span class="keyword">if</span> (ctx.channel().remoteAddress() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                address = (InetSocketAddress) ctx.channel().remoteAddress();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                Attribute&lt;InetSocketAddress&gt; attr = ctx.channel().attr(AttributeKey.valueOf(<span class="string">&quot;address&quot;</span>));</span><br><span class="line">                address = attr.get();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                nettyClient.doConnect(address);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ExecutionException | InterruptedException e) &#123;</span><br><span class="line">                log.debug(<span class="string">&quot;建立连接时失败: &#123;&#125;&quot;</span>, e.getMessage());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, sleepTimeMs, TimeUnit.MILLISECONDS);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        nettyClient.close();</span><br><span class="line">        timer.stop();</span><br><span class="line">    &#125;</span><br><span class="line">    ctx.fireChannelInactive();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>实现结果：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">23</span>:<span class="number">45</span>:<span class="number">59.530</span> [nioEventLoopGroup-<span class="number">2</span>-<span class="number">1</span>] ERROR com.swz.rpc.transport.netty.handler.ReconnectHandler - Lost the TCP connection with the server.</span><br><span class="line"><span class="number">23</span>:<span class="number">45</span>:<span class="number">59.530</span> [nioEventLoopGroup-<span class="number">2</span>-<span class="number">1</span>] DEBUG com.swz.rpc.transport.netty.handler.ReconnectHandler - Try to reconnect to the server after 1000ms. Retry count: <span class="number">1.</span></span><br><span class="line"><span class="number">23</span>:<span class="number">46</span>:<span class="number">00.637</span> [pool-<span class="number">2</span>-thread-<span class="number">1</span>] DEBUG com.swz.rpc.transport.netty.handler.ReconnectHandler - Reconnecting ...</span><br><span class="line"><span class="number">23</span>:<span class="number">46</span>:<span class="number">02.679</span> [nioEventLoopGroup-<span class="number">2</span>-<span class="number">2</span>] DEBUG com.swz.rpc.transport.netty.handler.ReconnectHandler - Try to reconnect to the server after 1000ms. Retry count: <span class="number">2.</span></span><br><span class="line"><span class="number">23</span>:<span class="number">46</span>:<span class="number">03.733</span> [pool-<span class="number">2</span>-thread-<span class="number">1</span>] DEBUG com.swz.rpc.transport.netty.handler.ReconnectHandler - Reconnecting ...</span><br><span class="line"><span class="number">23</span>:<span class="number">46</span>:<span class="number">05.784</span> [nioEventLoopGroup-<span class="number">2</span>-<span class="number">3</span>] DEBUG com.swz.rpc.transport.netty.handler.ReconnectHandler - Try to reconnect to the server after 3000ms. Retry count: <span class="number">3.</span></span><br><span class="line"><span class="number">23</span>:<span class="number">46</span>:<span class="number">08.833</span> [pool-<span class="number">2</span>-thread-<span class="number">1</span>] DEBUG com.swz.rpc.transport.netty.handler.ReconnectHandler - Reconnecting ...</span><br><span class="line"><span class="number">23</span>:<span class="number">46</span>:<span class="number">10.889</span> [nioEventLoopGroup-<span class="number">2</span>-<span class="number">1</span>] DEBUG io.netty.buffer.PoolThreadCache - Freed <span class="number">4</span> thread-<span class="function">local <span class="title">buffer</span><span class="params">(s)</span> from thread: nioEventLoopGroup-2-1</span></span><br></pre></td></tr></table></figure>
-
-
+          <h1 id="Netty断线重连"><a href="#Netty断线重连" class="headerlink" title="Netty断线重连"></a>Netty断线重连</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2021/09/08/netty%E6%96%AD%E7%BA%BF%E9%87%8D%E8%BF%9E/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -901,93 +972,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/07/28/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95RPC%E6%A1%86%E6%9E%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-      <meta itemprop="name" content="swz">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="swz'blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2021/07/28/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95RPC%E6%A1%86%E6%9E%B6/" class="post-title-link" itemprop="url">自己实现一个简单的RPC框架</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-07-28 21:01:07" itemprop="dateCreated datePublished" datetime="2021-07-28T21:01:07+08:00">2021-07-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-09-08 22:35:23" itemprop="dateModified" datetime="2021-09-08T22:35:23+08:00">2021-09-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/%E9%A1%B9%E7%9B%AE/" itemprop="url" rel="index"><span itemprop="name">项目</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="自己实现一个简单的RPC框架"><a href="#自己实现一个简单的RPC框架" class="headerlink" title="自己实现一个简单的RPC框架"></a>自己实现一个简单的RPC框架</h1><h2 id="RPC简介"><a href="#RPC简介" class="headerlink" title="RPC简介"></a>RPC简介</h2><p>RPC（Remote Procedure Call）全称远程过程调用，简而言之就是像调用本地方法一样调用远程服务，整个过程用户是无感知的。</p>
-<p>一款分布式RPC框架离不开三个基本组件：</p>
-<ul>
-<li>服务提供方（Service Provider）</li>
-<li>服务消费方（Service Consumer）</li>
-<li>注册中心（Registery）</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2021/07/28/%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95RPC%E6%A1%86%E6%9E%B6/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1057,20 +1041,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/blog/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

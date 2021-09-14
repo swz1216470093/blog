@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"swz1216470093.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="在自己实现RPC项目中遇到了断线重连的需求，参考了Netty实现心跳机制与断线重连的实现。 客户端在监测到与服务器端的连接断开后，或者一开始就无法连接的情况下，使用指定的重连策略进行重连操作，直到重新建立连接或重试次数耗尽。 对于如何监测连接是否断开，则是通过重写ChannelInboundHandler#channelInactive来实现，但连接不可用，该方法会被触发，所以只需要在该方法做好重">
+  <meta name="description" content="Netty断线重连">
 <meta property="og:type" content="article">
 <meta property="og:title" content="netty断线重连">
 <meta property="og:url" content="https://swz1216470093.github.io/blog/2021/09/08/netty%E6%96%AD%E7%BA%BF%E9%87%8D%E8%BF%9E/index.html">
 <meta property="og:site_name" content="swz&#39;blog">
-<meta property="og:description" content="在自己实现RPC项目中遇到了断线重连的需求，参考了Netty实现心跳机制与断线重连的实现。 客户端在监测到与服务器端的连接断开后，或者一开始就无法连接的情况下，使用指定的重连策略进行重连操作，直到重新建立连接或重试次数耗尽。 对于如何监测连接是否断开，则是通过重写ChannelInboundHandler#channelInactive来实现，但连接不可用，该方法会被触发，所以只需要在该方法做好重">
+<meta property="og:description" content="Netty断线重连">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-09-08T14:38:40.000Z">
-<meta property="article:modified_time" content="2021-09-08T16:09:12.557Z">
+<meta property="article:modified_time" content="2021-09-14T06:00:19.034Z">
 <meta property="article:author" content="swz">
 <meta property="article:tag" content="netty">
 <meta property="article:tag" content="断线重连">
@@ -189,7 +189,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-09-09 00:09:12" itemprop="dateModified" datetime="2021-09-09T00:09:12+08:00">2021-09-09</time>
+                <time title="Modified: 2021-09-14 14:00:19" itemprop="dateModified" datetime="2021-09-14T14:00:19+08:00">2021-09-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -212,7 +212,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>在自己实现RPC项目中遇到了断线重连的需求，参考了<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1a28e48edd92">Netty实现心跳机制与断线重连</a>的实现。</p>
+        <h1 id="Netty断线重连"><a href="#Netty断线重连" class="headerlink" title="Netty断线重连"></a>Netty断线重连</h1><span id="more"></span>
+
+<p>在自己实现RPC项目中遇到了断线重连的需求，参考了<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1a28e48edd92">Netty实现心跳机制与断线重连</a>的实现。</p>
 <p>客户端在监测到与服务器端的连接断开后，或者一开始就无法连接的情况下，使用指定的重连策略进行重连操作，直到重新建立连接或重试次数耗尽。</p>
 <p>对于如何监测连接是否断开，则是通过重写<code>ChannelInboundHandler#channelInactive</code>来实现，但连接不可用，该方法会被触发，所以只需要在该方法做好重连工作即可。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ChannelHandler</span>.Sharable</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReconnectHandler</span> <span class="keyword">extends</span> <span class="title">ChannelInboundHandlerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> retries = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">private</span> RetryPolicy retryPolicy;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> TcpClient tcpClient;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ReconnectHandler</span><span class="params">(TcpClient tcpClient)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.tcpClient = tcpClient;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Successfully established a connection to the server.&quot;</span>);</span><br><span class="line">        retries = <span class="number">0</span>;</span><br><span class="line">        ctx.fireChannelActive();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelInactive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (retries == <span class="number">0</span>) &#123;</span><br><span class="line">            System.err.println(<span class="string">&quot;Lost the TCP connection with the server.&quot;</span>);</span><br><span class="line">            ctx.close();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">boolean</span> allowRetry = getRetryPolicy().allowRetry(retries);</span><br><span class="line">        <span class="keyword">if</span> (allowRetry) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">long</span> sleepTimeMs = getRetryPolicy().getSleepTimeMs(retries);</span><br><span class="line"></span><br><span class="line">            System.out.println(String.format(<span class="string">&quot;Try to reconnect to the server after %dms. Retry count: %d.&quot;</span>, sleepTimeMs, ++retries));</span><br><span class="line"></span><br><span class="line">            <span class="keyword">final</span> EventLoop eventLoop = ctx.channel().eventLoop();</span><br><span class="line">            eventLoop.schedule(() -&gt; &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;Reconnecting ...&quot;</span>);</span><br><span class="line">                tcpClient.connect();</span><br><span class="line">            &#125;, sleepTimeMs, TimeUnit.MILLISECONDS);</span><br><span class="line">        &#125;</span><br><span class="line">        ctx.fireChannelInactive();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> RetryPolicy <span class="title">getRetryPolicy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.retryPolicy == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">this</span>.retryPolicy = tcpClient.getRetryPolicy();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.retryPolicy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -253,7 +255,10 @@
     <a href="/blog/2021/08/15/AQS%E5%85%B1%E4%BA%AB%E9%94%81%E5%8E%9F%E7%90%86-Semphore/" rel="prev" title="AQS共享锁原理-Semphore">
       <i class="fa fa-chevron-left"></i> AQS共享锁原理-Semphore
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/09/10/MySql%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%80%EF%BC%89/" rel="next" title="MySql索引">
+      MySql索引 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -313,6 +318,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Netty%E6%96%AD%E7%BA%BF%E9%87%8D%E8%BF%9E"><span class="nav-number">1.</span> <span class="nav-text">Netty断线重连</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -326,20 +332,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/blog/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

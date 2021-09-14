@@ -152,6 +152,94 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="swz">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swz'blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E4%B8%89%EF%BC%89/" class="post-title-link" itemprop="url">线程探究(三)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-06-30 21:59:03" itemprop="dateCreated datePublished" datetime="2021-06-30T21:59:03+08:00">2021-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-07-06 23:08:21" itemprop="dateModified" datetime="2021-07-06T23:08:21+08:00">2021-07-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/java%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">java并发</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="线程探究-三"><a href="#线程探究-三" class="headerlink" title="线程探究(三)"></a>线程探究(三)</h1><h2 id="线程的状态与生命周期"><a href="#线程的状态与生命周期" class="headerlink" title="线程的状态与生命周期"></a>线程的状态与生命周期</h2><ul>
+<li>NEW：尚未调用start()方法</li>
+<li>Runable：调用start()方法后</li>
+<li>Blocked：进入synchronized保护的代码中但未拿到锁（进入Monitor锁的EntryList中）</li>
+<li>Waiting：调用LockSupport.park()或Object.notify()方法</li>
+<li>Timed_Waiting：调用Thread.sleep(time)或Object.notify(time)方法</li>
+<li>Terminated：执行完成</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2021/06/30/%E7%BA%BF%E7%A8%8B%E6%8E%A2%E7%A9%B6%EF%BC%88%E4%B8%89%EF%BC%89/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/06/29/%E7%BA%BF%E7%A8%8B%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6-%E4%BA%8C/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -382,20 +470,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/blog/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
