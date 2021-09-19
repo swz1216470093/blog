@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"swz1216470093.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="MySQL锁机制乐观锁乐观锁（Optimistic Lock），顾名思义，就是很乐观，每次去拿数据的时候都认为别人不会修改，所以不会上锁，但是在提交更新的时候会判断一下在此期间别人有没有去更新这个数据。乐观锁适用于读多写少的应用场景，这样可以提高吞吐量。 乐观锁：假设不会发生并发冲突，只在提交操作时检查是否违反数据完整性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL锁机制">
+<meta property="og:url" content="https://swz1216470093.github.io/blog/2021/09/19/MySQL%E9%94%81%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="swz&#39;blog">
+<meta property="og:description" content="MySQL锁机制乐观锁乐观锁（Optimistic Lock），顾名思义，就是很乐观，每次去拿数据的时候都认为别人不会修改，所以不会上锁，但是在提交更新的时候会判断一下在此期间别人有没有去更新这个数据。乐观锁适用于读多写少的应用场景，这样可以提高吞吐量。 乐观锁：假设不会发生并发冲突，只在提交操作时检查是否违反数据完整性。">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919181525594.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919181620654.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919181803622.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919181857567.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919184657116.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919233211960.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919231740828.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919225654435.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919230849562.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919233251281.png">
+<meta property="article:published_time" content="2021-09-19T14:38:40.000Z">
+<meta property="article:modified_time" content="2021-09-19T15:34:35.319Z">
+<meta property="article:author" content="swz">
+<meta property="article:tag" content="乐观锁">
+<meta property="article:tag" content="悲观锁">
+<meta property="article:tag" content="表锁">
+<meta property="article:tag" content="行锁">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919181525594.png">
+
+<link rel="canonical" href="https://swz1216470093.github.io/blog/2021/09/19/MySQL%E9%94%81%E6%9C%BA%E5%88%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>MySQL锁机制 | swz'blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">swz'blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://swz1216470093.github.io/blog/2021/09/19/MySQL%E9%94%81%E6%9C%BA%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="swz">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="swz'blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MySQL锁机制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-09-19 22:38:40 / Modified: 23:34:35" itemprop="dateCreated datePublished" datetime="2021-09-19T22:38:40+08:00">2021-09-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="MySQL锁机制"><a href="#MySQL锁机制" class="headerlink" title="MySQL锁机制"></a>MySQL锁机制</h1><h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><p>乐观锁（Optimistic Lock），顾名思义，就是很乐观，每次去拿数据的时候都认为别人不会修改，所以不会上锁，但是在提交更新的时候会判断一下在此期间别人有没有去更新这个数据。乐观锁适用于读多写少的应用场景，这样可以提高吞吐量。</p>
+<p>乐观锁：假设不会发生并发冲突，只在提交操作时检查是否违反数据完整性。</p>
+<span id="more"></span>
+
+<p>乐观锁一般有两种实现方式</p>
+<p>1.使用数据版本（Version）记录机制实现，这是乐观锁最常用的一种实现 方式。何谓数据版本？即为数据增加一个版本标识，一般是通过为数据库表增加一个数字类型的 “version” 字段来实现。当读取数据时，将version字段的值一同读出，数据每更新一次，对此version值加一。当我们提交更新的时候，判断数据库表对应记录 的当前版本信息与第一次取出来的version值进行比对，如果数据库表当前版本号与第一次取出来的version值相等，则予以更新，否则认为是过期数据</p>
+<p>例如：<code>update t_goods set status=2,version=version+1 where id=#&#123;id&#125; and version=#&#123;version&#125;;</code></p>
+<p>2.乐观锁定的第二种实现方式和第一种差不多，同样是在需要乐观锁控制的table中增加一个字段，名称无所谓，字段类型使用时间戳 （timestamp）, 和上面的version类似，也是在更新提交的时候检查当前数据库中数据的时间戳和自己更新前取到的时间戳进行对比，如果一致则OK，否则就是版本冲突。</p>
+<h2 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h2><p>悲观锁（Pessimistic Lock），顾名思义，就是很悲观，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会block直到它拿到锁。</p>
+<p>悲观锁：假定会发生并发冲突，屏蔽一切可能违反数据完整性的操作。</p>
+<p>Mysql中的悲观锁分为表级锁和行级锁</p>
+<h3 id="表级锁"><a href="#表级锁" class="headerlink" title="表级锁"></a>表级锁</h3><p>MySQL中表级锁有以下几种</p>
+<ul>
+<li>表锁</li>
+<li>元数据锁（MDL锁）</li>
+<li>意向锁</li>
+</ul>
+<h4 id="表锁"><a href="#表锁" class="headerlink" title="表锁"></a>表锁</h4><p>如果我们想给学生表加表锁，可以使用以下命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 表级别的共享锁，也就是读锁；</span><br><span class="line">lock table t_student read;</span><br><span class="line"># 表级别的独占锁，也就是写锁;</span><br><span class="line">lock table t_student write;</span><br></pre></td></tr></table></figure>
+
+<p>要释放表锁，可以使用下面这条命令，会释放当前会话的所有表锁：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unlock tables</span><br></pre></td></tr></table></figure>
+
+<p>另外，当会话退出后，也会释放所有表锁。</p>
+<p>不过尽量不要在innodb引擎中使用表锁，因为表锁粒度太大，会影响并发性能，推荐使用Innodb的行锁</p>
+<h4 id="元数据锁（MDL）"><a href="#元数据锁（MDL）" class="headerlink" title="元数据锁（MDL）"></a>元数据锁（MDL）</h4><p>MDL锁是隐式的锁，当我们对数据库表进行操作时，会自动给表加上MDL:</p>
+<ul>
+<li>当对表进行结构变更操作时，加的是MDL写锁</li>
+<li>当对表进行CRUD操作时，加的是MDL读锁</li>
+</ul>
+<p>MDL主要是为了防止当前线程进行CRUD操作时，其他用户对表结构进行结构变更。</p>
+<p>当有线程在执行 select 语句（ 加 MDL 读锁）的期间，如果有其他线程要更改该表的结构（ 申请 MDL 写锁），那么将会被阻塞，直到执行完 select 语句（ 释放 MDL 读锁）。</p>
+<p>反之，当有线程对表结构进行变更（ 加 MDL 写锁）的期间，如果有其他线程执行了 CRUD 操作（ 申请 MDL 读锁），那么就会被阻塞，直到表结构变更完成（ 释放 MDL 写锁）。</p>
+<p>需要注意的一点是，MDL 是在事务提交后才会释放，这意味着<strong>事务执行期间，MDL 是一直持有的</strong>。</p>
+<p>那如果数据库有一个长事务（所谓的长事务，就是开启了事务，但是一直还没提交），那在对表结构做变更操作的时候，可能会发生意想不到的事情，比如下面这个顺序的场景：</p>
+<ol>
+<li>首先，线程 A 先启用了事务（但是一直不提交），然后执行一条 select 语句，此时就先对该表加上 MDL 读锁；</li>
+<li>然后，线程 B 也执行了同样的 select 语句，此时并不会阻塞，因为「读读」并不冲突；</li>
+<li>接着，线程 C 修改了表字段，此时由于线程 A 的事务并没有提交，也就是 MDL 读锁还在占用着，这时线程 C 就无法申请到 MDL 写锁，就会被阻塞，</li>
+</ol>
+<p>那么在线程 C 阻塞后，后续有对该表的 select 语句，就都会被阻塞，如果此时有大量该表的 select 语句的请求到来，就会有大量的线程被阻塞住，这时数据库的线程很快就会爆满了。这是因为申请 MDL 锁的操作会形成一个队列，队列中<strong>写锁获取优先级高于读锁</strong>，一旦出现 MDL 写锁等待，会阻塞后续该表的所有 CRUD 操作。</p>
+<p>所以为了能安全的对表结构进行变更，在对表结构变更前，先要看看数据库中的长事务，是否有事务已经对表加上了 MDL 读锁，如果可以考虑 kill 掉这个长事务，然后再做表结构的变更。</p>
+<h5 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h5><p>线程A:</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919181525594.png" alt="image-20210919181525594" style="zoom:50%;" />
+
+<p>线程C: 被阻塞</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919181620654.png" alt="image-20210919181620654" style="zoom:50%;" />
+
+<p>对表的查询也被阻塞</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919181803622.png" alt="image-20210919181803622" style="zoom:50%;" /> 
+
+<p>commit后阻塞结束</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919181857567.png" alt="image-20210919181857567" style="zoom:50%;" />
+
+<h4 id="意向锁"><a href="#意向锁" class="headerlink" title="意向锁"></a>意向锁</h4><ul>
+<li>在使用 InnoDB 引擎的表里对某些记录加上「共享锁」之前，需要先在表级别加上一个「意向共享锁」；</li>
+<li>在使用 InnoDB 引擎的表里对某些纪录加上「独占锁」之前，需要先在表级别加上一个「意向独占锁」；</li>
+</ul>
+<p><strong>意向共享锁和意向独占锁是表级锁，不会和行级的共享锁和独占锁发生冲突，而且意向锁之间也不会发生冲突，只会和共享表锁（lock tables … read）和独占表锁（lock tables … write）发生冲突。</strong></p>
+<p>表锁和行锁是满足读读共享、读写互斥、写写互斥的。</p>
+<p>如果没有「意向锁」，那么加「独占表锁」时，就需要遍历表里所有记录，查看是否有记录存在独占锁，这样效率会很慢。</p>
+<p>那么有了「意向锁」，由于在对记录加独占锁前，先会加上表级别的意向独占锁，那么在加「独占表锁」时，直接查该表是否有意向独占锁，如果有就意味着表里已经有记录被加了独占锁，这样就不用去遍历表里的记录。</p>
+<p>所以，<strong>意向锁的目的是为了快速判断表里是否有记录被加锁</strong></p>
+<h3 id="行级别锁"><a href="#行级别锁" class="headerlink" title="行级别锁"></a>行级别锁</h3><p>MySQL中InnoDB 引擎是支持行级锁的，而 MyISAM 引擎并不支持行级锁。</p>
+<p>行级锁的类型主要有三类：</p>
+<ul>
+<li>Record Lock，记录锁，也就是仅仅把一条记录锁上；</li>
+<li>Gap Lock，间隙锁，锁定一个范围，但是不包含记录本身；</li>
+<li>Next-Key Lock：Record Lock + Gap Lock 的组合，锁定一个范围，并且锁定记录本身。</li>
+</ul>
+<p>普通的 select 是不会加行级锁的，普通的 select 语句是利用 MVCC 实现一致性读，是无锁的，如果要在查询时对记录加行锁，可以使用下面这两个方式：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">/</span><span class="operator">/</span>对读取的记录加共享锁</span><br><span class="line"><span class="keyword">select</span> ... lock <span class="keyword">in</span> share mode;</span><br><span class="line"></span><br><span class="line"><span class="operator">/</span><span class="operator">/</span>对读取的记录加独占锁</span><br><span class="line"><span class="keyword">select</span> ... <span class="keyword">for</span> update;</span><br></pre></td></tr></table></figure>
+
+<h4 id="行锁加锁规则"><a href="#行锁加锁规则" class="headerlink" title="行锁加锁规则"></a>行锁加锁规则</h4><ol>
+<li><p>对记录加锁时，<strong>加锁的基本单位是 next-key lock</strong>，它是由记录锁和间隙锁组合而成的，<strong>next-key lock 是前开后闭区间，而间隙锁是前开后开区间</strong>。</p>
+</li>
+<li><p>查找过程中访问到的对象才会加锁。</p>
+</li>
+<li><p>索引上的等值查询，给唯一索引加锁的时候，next-key lock退化为记录锁。</p>
+</li>
+<li><p>索引上的等值查询，向右遍历时且最后一个值不满足等值条件的时候，next-key lock退化为间隙锁。</p>
+</li>
+<li><p>唯一索引上的范围查询会访问到不满足条件的第一个值为止。</p>
+</li>
+</ol>
+<p>我们通过实验来说明这些原则</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919184657116.png" alt="image-20210919184657116" style="zoom:50%;" />
+
+<p>其中，id 是主键索引（唯一索引），b 是普通索引（非唯一索引），a 是普通的列。（注：我的MySQL版本是5.7.34）</p>
+<p>在上面的数据表我们可以得到5个next-key lock 区间：<br>唯一索引(id)：(-∞,0]，(0,4]，(4,8]，(8,16] ,（16,32],（32,+supremum]<br>非唯一索引(b)：(-∞,0]，(0,4]，(4,8]，(8,16] ,（16,32],（32,+supremum]</p>
+<h5 id="唯一索引等值查询"><a href="#唯一索引等值查询" class="headerlink" title="唯一索引等值查询"></a>唯一索引等值查询</h5><p>当我们用唯一索引进行等值查询的时候，查询的记录存不存在，加锁的规则也会不同：</p>
+<ul>
+<li><strong>当查询的记录是存在的，在用「唯一索引进行等值查询」时，next-key lock 会退化成「记录锁」</strong>。</li>
+<li><strong>当查询的记录是不存在的，在用「唯一索引进行等值查询」时，next-key lock 会退化成「间隙锁」</strong>。</li>
+</ul>
+<p>接下里用两个案例来说明。</p>
+<p>先看看记录是存在的。</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919233211960.png" alt="image-20210919233211960" style="zoom:33%;" />
+
+<p>会话1加锁变化过程如下：</p>
+<ol>
+<li>加锁的基本单位是 next-key lock，因此会话1的加锁范围是(8, 16];</li>
+<li>但是由于是用唯一索引进行等值查询，且查询的记录存在，所以 <strong>next-key lock 退化成记录锁，因此最终加锁的范围是 id = 16 这一行</strong>。</li>
+</ol>
+<p>所以，会话 2 在修改 id=16 的记录时会被锁住，而会话 3 插入 id=9 的记录可以被正常执行。</p>
+<p>接下来，看看记录不存在的情况</p>
+<p>会话1加锁变化过程如下：</p>
+<ol>
+<li>加锁的基本单位是 next-key lock，因此主键索引 id 的加锁范围是(8, 16];</li>
+<li>但是由于查询记录不存在，next-key lock 退化成间隙锁，因此最终加锁的范围是 (8,16)。</li>
+</ol>
+<p>所以，会话 2 要往这个间隙里面插入 id=9 的记录会被锁住，但是会话 3 修改 id =16 是可以正常执行的，因为 id = 16 这条记录并没有加锁。</p>
+<h5 id="唯一索引范围查询"><a href="#唯一索引范围查询" class="headerlink" title="唯一索引范围查询"></a>唯一索引范围查询</h5><p>范围查询和等值查询的加锁规则是不同的。</p>
+<p>举个例子，下面这两条查询语句，查询的结果虽然是一样的，但是加锁的范围是不一样的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">select * from t_test where id&#x3D;8 for update;</span><br><span class="line">select * from t_test where id&gt;&#x3D;8 and id&lt;9 for update;</span><br></pre></td></tr></table></figure>
+
+<p>做个实验就知道了。</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919231740828.png" alt="image-20210919231740828" style="zoom:50%;" />
+
+<p>会话 1 加锁变化过程如下：</p>
+<ol>
+<li>最开始要找的第一行是 id = 8，因此 next-key lock(4,8]，但是由于 id 是唯一索引，且该记录是存在的，因此会退化成记录锁，也就是只会对 id = 8 这一行加锁；</li>
+<li>由于是范围查找，就会继续往后找存在的记录，也就是会找到 id = 16 这一行停下来，然后加 next-key lock (8, 16]</li>
+</ol>
+<p>所以，会话 1 这时候主键索引的锁是记录锁 id=8 和间隙锁(8, 16]。</p>
+<p>会话 2 由于往间隙锁里插入了 id = 9 的记录，所以会被锁住了，而 id = 8 是被加锁的，因此会话 3 的语句也会被阻塞。 </p>
+<p>(注意： ’&lt;=’ 范围查询直到访问不满足条件的第一个值为止)</p>
+<h5 id="非唯一索引等值查询"><a href="#非唯一索引等值查询" class="headerlink" title="非唯一索引等值查询"></a>非唯一索引等值查询</h5><p>​    当我们用非唯一索引进行等值查询的时候，查询的记录存不存在，加锁的规则也会不同：</p>
+<ul>
+<li><strong>当查询的记录存在时，除了会加 next-key lock 外，还额外加间隙锁，也就是会加两把锁</strong>。</li>
+<li><strong>当查询的记录不存在时，只会加 next-key lock，然后会退化为间隙锁，也就是只会加一把锁。</strong></li>
+</ul>
+<p>接下里用两个案例来说明。</p>
+<p>我们先来看看查询的值存在的情况。</p>
+<p>比如下面这个例子：</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919225654435.png" alt="image-20210919225654435" style="zoom:50%;" />
+
+<p>会话 1 加锁变化过程如下：</p>
+<ol>
+<li>先会对普通索引 b 加上 next-key lock，范围是(4,8];</li>
+<li>然后因为是非唯一索引，且查询的记录是存在的，所以还会加上间隙锁，规则是向下遍历到第一个不符合条件的值才能停止，因此间隙锁的范围是(8,16)。</li>
+</ol>
+<p>所以，会话1的普通索引 b 上共有两个锁，分别是 next-key lock (4,8] 和间隙锁 (8,16) 。</p>
+<p>那么，当会话 2 往间隙锁里插入 id = 9 的记录就会被锁住，而会话 3 和会话 4 是因为更改了 next-key lock 范围里的记录而被锁住的。</p>
+<p>然后因为 b = 16 这条记录没有加锁，所以会话 5 是可以正常执行的。</p>
+<p>会话6中因为<strong>只有访问到的对象才会加锁</strong>，这个查询使用覆盖索引，并不需要访问主键索引，所以主键索引上没有加任何锁，这就是为什么session B的update语句可以执行完成。</p>
+<p>需要注意，在这个例子中，lock in share mode只锁覆盖索引，但是如果是for update就不一样了。 执行 for update时，系统会认为你接下来要更新数据，因此会顺便给主键索引上满足条件的行加上行锁。这个例子说明，锁是加在索引上的；同时，它给我们的指导是，如果你要用lock in share mode来给行加读锁避免数据被更新的话，就必须得绕过覆盖索引的优化，在查询字段中加入索引中不存在的字段。比如，将session A的查询语句改成select a from test where b=8 lock in share mode。</p>
+<p>接下来，我们看看查询的值不存在的情况</p>
+<p>直接看案例：</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919230849562.png" alt="image-20210919230849562" style="zoom:50%;" />
+
+<p>会话 1 加锁变化过程如下：</p>
+<ol>
+<li>先会对普通索引 b 加上 next-key lock，范围是(8,16];</li>
+<li>但是由于查询的记录是不存在的，所以不会再额外加个间隙锁，但是 next-key lock 会退化为间隙锁，最终加锁范围是 (8,16)。</li>
+</ol>
+<p>会话 2 因为往间隙锁里插入了 b = 9 的记录，所以会被锁住，而 b = 16 是没有被加锁的，因此会话 3 的语句可以正常执行。</p>
+<h5 id="非唯一索引范围查询"><a href="#非唯一索引范围查询" class="headerlink" title="非唯一索引范围查询"></a>非唯一索引范围查询</h5><p>非唯一索引和主键索引的范围查询的加锁也有所不同，不同之处在于<strong>普通索引范围查询，next-key lock 不会退化为间隙锁和记录锁</strong>。</p>
+<p>来看下面这个案例：</p>
+<img src="https://raw.githubusercontent.com/swz1216470093/blogComments/master/img/image-20210919233251281.png" alt="image-20210919233251281" style="zoom: 33%;" />
+
+<p>会话 1 加锁变化过程如下：</p>
+<ol>
+<li>最开始要找的第一行是 b = 8，因此 next-key lock(4,8]，但是由于 b 不是唯一索引，并不会退化成记录锁。</li>
+<li>但是由于是范围查找，就会继续往后找存在的记录，也就是会找到 b = 16 这一行停下来，然后加 next-key lock (8, 16]，因为是普通索引查询，所以并不会退化成间隙锁。</li>
+</ol>
+<p>所以，会话 1 的普通索引 b 有两个 next-key lock，分别是 (4,8] 和(8, 16]。这样，你就明白为什么会话 2 、会话 3 、会话 4 的语句都会被锁住了。</p>
+<h4 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h4><p>MySQL  InnoDB默认Row-Level Lock，而行锁是基于索引实现的，当只有「明确」地指定主键或索引，MySQL 才会执行Row lock (只锁住被选取的数据)  ，否则MySQL 将会执行Table Lock (将整个数据表单给锁住)。</p>
+<p>参考:</p>
+<p>《MySQL实战45讲》</p>
+<p>《MySQL是怎样运行的：从根上理解MySQL》</p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f5ff017db62a">MySQL 乐观锁与悲观锁</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xiaolincoding/p/15146872.html">MySQL 有哪些锁？？</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/8G-4V9-CC_lUblpvbo5Lkw">MySQL是怎么加行锁的</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/%E4%B9%90%E8%A7%82%E9%94%81/" rel="tag"># 乐观锁</a>
+              <a href="/blog/tags/%E6%82%B2%E8%A7%82%E9%94%81/" rel="tag"># 悲观锁</a>
+              <a href="/blog/tags/%E8%A1%A8%E9%94%81/" rel="tag"># 表锁</a>
+              <a href="/blog/tags/%E8%A1%8C%E9%94%81/" rel="tag"># 行锁</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/09/19/Linux%20%E7%BB%9F%E8%AE%A1%E6%97%A5%E5%BF%97%E4%B8%AD%E5%87%BA%E7%8E%B0%E8%BF%87%E7%9A%84IP/" rel="prev" title="Linux 统计日志中出现过的IP">
+      <i class="fa fa-chevron-left"></i> Linux 统计日志中出现过的IP
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MySQL%E9%94%81%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">MySQL锁机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%90%E8%A7%82%E9%94%81"><span class="nav-number">1.1.</span> <span class="nav-text">乐观锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%82%B2%E8%A7%82%E9%94%81"><span class="nav-number">1.2.</span> <span class="nav-text">悲观锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E7%BA%A7%E9%94%81"><span class="nav-number">1.2.1.</span> <span class="nav-text">表级锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A1%A8%E9%94%81"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">表锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E9%94%81%EF%BC%88MDL%EF%BC%89"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">元数据锁（MDL）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.2.1.2.1.</span> <span class="nav-text">实验</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%84%8F%E5%90%91%E9%94%81"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">意向锁</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%8C%E7%BA%A7%E5%88%AB%E9%94%81"><span class="nav-number">1.2.2.</span> <span class="nav-text">行级别锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A1%8C%E9%94%81%E5%8A%A0%E9%94%81%E8%A7%84%E5%88%99"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">行锁加锁规则</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E7%AD%89%E5%80%BC%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.2.2.1.1.</span> <span class="nav-text">唯一索引等值查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E8%8C%83%E5%9B%B4%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.2.2.1.2.</span> <span class="nav-text">唯一索引范围查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9D%9E%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E7%AD%89%E5%80%BC%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.2.2.1.3.</span> <span class="nav-text">非唯一索引等值查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9D%9E%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E8%8C%83%E5%9B%B4%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.2.2.1.4.</span> <span class="nav-text">非唯一索引范围查询</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">注意</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">swz</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">swz</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://swz1216470093.github.io/blog/2021/09/19/MySQL%E9%94%81%E6%9C%BA%E5%88%B6/',]
+      });
+      });
+  </script>
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'cefa39253970229f8e5d',
+      clientSecret: '81e0d672d6a3abf97548e8614c36a567dc55237a',
+      repo        : 'blogComments',
+      owner       : 'swz1216470093',
+      admin       : ['swz1216470093'],
+      id          : 'eb89fc4205ad3cd7788784f80f8099e3',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
